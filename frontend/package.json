@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@moefe/vue-aplayer": "^2.0.0-beta.5",
     "element-plus": "^2.7.6",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
