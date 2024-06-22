@@ -13,7 +13,9 @@
     "axios": "^1.7.2",
     "element-plus": "^2.7.6",
     "popmotion": "^11.0.5",
+    "typed.js": "^2.1.0",
     "vue": "^3.4.29",
+    "vue-kinesis": "^2.0.5",
     "vue-rough-notation": "^1.0.4",
     "vue-router": "^4.3.3"
   },
