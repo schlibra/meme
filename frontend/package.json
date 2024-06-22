@@ -13,6 +13,7 @@
     "axios": "^1.7.2",
     "element-plus": "^2.7.6",
     "vue": "^3.4.29",
+    "vue-rough-notation": "^1.0.4",
     "vue-router": "^4.3.3"
   },
   "devDependencies": {
