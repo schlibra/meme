@@ -49,4 +49,4 @@
 **[modcrafts/a60-shop](https://github.com/modcrafts/a60-shop)** 本仓库几乎所有东西都借用于此 ~~，而且A60酱太可爱啦！！！~~ 
 
 **[picocss/pico](https://github.com/picocss/pico/tree/f9e97c0bf430df8fa3f730eb6a6e84f63d4a9b0c)** 了解到了一个非常好用的CSS框架！
-我们同样感谢所有参与本次重制版制作的所有成员
+** 我们同样感谢所有参与本次重制版制作的所有成员
