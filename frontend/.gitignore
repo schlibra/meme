@@ -32,3 +32,4 @@ coverage
 public/
 .vscode/
 yarn.lock
+package-lock.json
