@@ -2,7 +2,7 @@
     <img width="255" height="255" src="#"/>
 </div>
 
-<center><h1> IURT 梗图收集  <b>2.o！ </b></h1></center>
+# IURT 梗图收集   **_2.o！_**  
 
 * * *
 
