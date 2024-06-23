@@ -4,7 +4,8 @@ import {ref} from "vue";
 const strings = ref(["IURT meme 2.0"])
 const currentPage = ref(1)
 const pageSize = ref(20)
-
+const value = ref(5.0)
+const IsShow = ref(false)
 function sizeChange() {
 
 }
@@ -38,6 +39,27 @@ function pageChange() {
             <el-text :type="'primary'">梗图描述</el-text>
             <br />
             <el-link>查看详情</el-link>
+            <br />
+            <el-rate
+              v-model="value"
+              disabled
+              show-score
+              text-color="#ff9900"
+              score-template="{value} points"
+            />
+            <br />
+            <button @click="IsShow = !IsShow">点我评分</button>
+            <br />
+            <el-rate
+              v-if="IsShow"
+              v-model="value" 
+              size="large" 
+              allow-half 
+              :texts="['使', '就这', '假搜搜', '哟西', '像啊很像啊（赞赏']" 
+              show-text 
+              clearable
+            />
+            <p v-else></p>
           </template>
         </el-card>
       </el-col>
@@ -62,9 +84,10 @@ main {
   font-size: 40px;
   height: 64px;
 }
-.typed {
-  //width: 100vw;
-}
+
+//.typed {
+//  width: 100vw;
+//}
 .buttons {
   text-align: center;
 }
