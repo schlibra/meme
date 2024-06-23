@@ -35,5 +35,20 @@
 
 | 字段名 | 类型 | 必填 | 描述 | 示例 | 备注 |
 | --- | --- | --- | --- | --- | --- |
-| id | int | 是 | 用户id | 1 | |
+| id | int | 是 | 用户id | 1 | 自动生成 |
 | username | varchar(50) | 是 | 用户名 | user | |
+| password | longtext | 是 | 密码 | | BC加密后的内容 |
+| nickname | varchar(50) | 否 | 昵称 | 用户 | |
+| email | varchar(50) | 是 | 邮箱 | user@example.com | |
+| verified | varchar(1) | 是 | 邮箱是否认证 | Y | 已认证为Y，未认证为N |
+| create | datetime | 是 | 创建时间 | NOW() |  |
+| group | int | 是 | 用户组 | 1 | 关联表group |
+| ban | varchar(1) | 是 | 用户封禁 | Y | 封禁为Y，正常为N |
+| reason | varchar(100) | 否 | 封禁原因 | 违规封禁 | ban为Y时需要设置改数据 |
+
+- 用户组表
+
+| 字段名 | 类型 | 必填 | 描述 | 示例 | 备注 |
+| --- | --- | --- | --- | --- | --- |
+| id | int | 是 | 用户组id | 1 | 自动生成 |
+| name | varchar(30) | 是 | 用户组名称 | 管理员组 | |
