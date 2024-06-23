@@ -5,7 +5,7 @@ const strings = ref(["IURT meme 2.0"])
 const currentPage = ref(1)
 const pageSize = ref(20)
 const value = ref(5.0)
-const IsShow = ref(false)
+const isShow = ref(false)
 function sizeChange() {
 
 }
@@ -48,18 +48,22 @@ function pageChange() {
               score-template="{value} points"
             />
             <br />
-            <button @click="IsShow = !IsShow">点我评分</button>
+            <el-button type="primary" style="margin-left: 3px" @click="isShow = true">
+              点我评分
+            </el-button>
+            
             <br />
-            <el-rate
-              v-if="IsShow"
+            <el-drawer v-model="isShow" title="请在这里评分" >
+              <el-rate
               v-model="value" 
               size="large" 
               allow-half 
               :texts="['使', '就这', '假搜搜', '哟西', '像啊很像啊（赞赏']" 
               show-text 
               clearable
-            />
-            <p v-else></p>
+              />
+            </el-drawer>
+            
           </template>
         </el-card>
       </el-col>
