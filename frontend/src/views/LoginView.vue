@@ -16,7 +16,7 @@ function loginHandler() {
       if (res.data.code===200) {
         ElMessageBox.alert("登录成功", "登录成功")
       } else {
-        ElMessageBox.alert(res.data.msg, "登录失败")
+        ElMessageBox.alert(res.data["msg"], "登录失败")
       }
     }).catch(err=>{
       console.log(err)
