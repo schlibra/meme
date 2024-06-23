@@ -45,7 +45,9 @@
 ### 感谢
 
 我们感谢所有参与本次重制版制作的所有成员，同时本仓库借用了很多代码和灵感 ~~，甚至连Readme都有借用~~ ，感谢
-
+<a href="https://github.com/eryajf/learn-github/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=eryajf/learn-github" />
+</a>
 
 
 
