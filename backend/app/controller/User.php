@@ -110,8 +110,68 @@ class User
         }
     }
 
+    function forget(Request$request) {
+        $token = $request->header("Authorization", "");
+        $email = $request->post("email");
+        $code = $request->post("code");
+        $password = $request->post("password");
+        $password = password_hash($password, PASSWORD_BCRYPT);
+        $username = $request->post("username");
+        if (str_starts_with($token, "Bearer ")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_email_token_key", "HS256"));
+                $_email = $data["email"];
+                $_code = $data["code"];
+                if ($email === $_email) {
+                    if ($code == $_code) {
+                        $result = Db::connect("mysql")
+                            ->table("user")
+                            ->where("email", $email)
+                            ->find();
+                        if ($result) {
+                            if ($result["username"] === $username) {
+                                Db::connect("mysql")
+                                    ->table("user")
+                                    ->update([
+                                        "id" => $result["id"],
+                                        "password" => $password
+                                    ]);
+                                return json(["code" => 200, "msg" => "密码更新成功"]);
+                            } else {
+                                return json(["code" => 401, "msg" => "用户名不匹配"]);
+                            }
+                        } else {
+                            return json(["code" => 401, "msg" => "邮箱不存在"]);
+                        }
+                    } else {
+                        return json(["code" => 401, "msg" => "验证码不正确"]);
+                    }
+                } else {
+                    return json(["code" => 401, "msg" => "邮箱不正确"]);
+                }
+
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息解码失败：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "请发送验证码"]);
+        }
+    }
+
     function sendCode(Request$request)
     {
+        $action = $request->post("action");
+        $actionText = match ($action) {
+            "register" => "注册IURT meme 2.0账号",
+            "forget" => "重置IURT meme 2.0密码",
+            default => ""
+        };
+        $actionShort = match ($action) {
+            "register" => "注册",
+            "forget" => "重置密码",
+            default => ""
+        };
         $email = $request->post("email");
         if (empty($email)) {
             return json(["code"=>400, "msg"=>"邮箱地址为空"]);
@@ -129,10 +189,10 @@ class User
                 $mail->setFrom(env("SMTP_USERNAME"), "IURT meme");
                 $mail->addAddress($email);
                 $mail->isHTML(true);
-                $mail->Subject = "IURT meme 账号注册验证码";
+                $mail->Subject = "{$actionText}验证码";
                 $code = rand(111111, 999999);
-                $mail->Body = "您正在注册IURT meme账号，这是你的验证码：<mark>{$code}</mark>，验证码在10分钟内有效，请不要将验证码泄露给他人。";
-                $mail->AltBody = "注册验证码";
+                $mail->Body = "您正在{$actionText}，这是你的验证码：<mark>{$code}</mark>，验证码在10分钟内有效，请不要将验证码泄露给他人。";
+                $mail->AltBody = $actionShort;
                 $mail->CharSet = "UTF-8";
                 $mail->send();
                 $url = $request->domain();
