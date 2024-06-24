@@ -40,8 +40,8 @@ function sendCodeHandler() {
 
 function registerHandler() {
   if (username.value.length && nickname.value.length &&
-      password.value.length && confirm.value.length  &&
-      email.value.length    && code.value.length) {
+      password.value.length && confirm.value.length &&
+      email.value.length && code.value.length) {
     if (password.value === confirm.value) {
       formLoading.value = true
       axios.post(UserUrl.registerUrl, {
