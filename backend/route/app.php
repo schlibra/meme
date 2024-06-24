@@ -10,4 +10,10 @@
 // +----------------------------------------------------------------------
 use think\facade\Route;
 
-Route::rule("user/", "User");
+Route::rule("user/", "User", "POST");
+
+Route::rule("/", "Index", "GET");
+Route::rule("login", "Index", "GET");
+Route::rule("register", "Index", "GET");
+
+Route::rule("assets/:file", "Assets/index", "GET");
