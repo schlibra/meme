@@ -241,4 +241,41 @@ class User
             return json(["code"=>401, "msg"=>"Token数据错误"]);
         }
     }
+
+    function update(Request $request) {
+        $token = $request->header("Authorization", "");
+        $nickname = $request->post("nickname", null);
+        $birth = $request->post("birth", null);
+        $sex = $request->post("sex", null);
+        $description = $request->post("description", null);
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                $email = $data["email"];
+                $result = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $username)
+                    ->where("email", $email)
+                    ->find();
+                if ($result) {
+                    if ($nickname) $result["nickname"] = $nickname;
+                    if ($birth) $result["birth"] = $birth;
+                    if ($sex) $result["sex"] = $sex;
+                    if ($description) $result["description"] = $description;
+                    Db::connect("mysql")
+                        ->table("user")
+                        ->save($result);
+                    return json(["code" => 200, "msg" => "用户信息更新成功"]);
+                } else {
+                    return json(["code" => 401, "msg" => "用户不存在"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code"=>401, "msg"=>"Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
 }
