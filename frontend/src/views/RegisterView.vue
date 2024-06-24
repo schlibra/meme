@@ -55,14 +55,17 @@ function registerHandler() {
         headers: {
           Authorization: `Bearer ${emailToken}`
         }
-      }).then(async res => {
+      }).then(res => {
         if (res.data.code === 200) {
-          await ElMessageBox.alert("注册成功", "注册成功")
-          await router.push({
-            path: "/login"
+          ElMessageBox.alert("注册成功", "注册成功", {
+            callback() {
+              router.push({
+                path: "/login"
+              })
+            }
           })
         } else {
-          await ElMessageBox.alert(res.data["msg"], "注册失败")
+          ElMessageBox.alert(res.data["msg"], "注册失败")
         }
       }).catch(err => {
         console.log(err)
@@ -81,7 +84,6 @@ function registerHandler() {
 
 <template>
   <main >
-  
     <el-row justify="center" align="middle" class="row">
       <el-col :span="12">
         <el-scrollbar height="100vh">
