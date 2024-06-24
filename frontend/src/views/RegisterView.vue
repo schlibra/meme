@@ -19,7 +19,8 @@ function sendCodeHandler() {
   if (email.value.length) {
     formLoading.value = true
     axios.post(UserUrl.sendCodeUrl, {
-      email: email.value
+      email: email.value,
+      action: "register"
     }).then(res=>{
       if (res.data.code === 200) {
         emailToken = res.data.token
@@ -39,9 +40,9 @@ function sendCodeHandler() {
 }
 
 function registerHandler() {
-  if (username.value.length && nickname.value.length &&
-      password.value.length && confirm.value.length &&
-      email.value.length && code.value.length) {
+  if (username.value.length && confirm.value.length &&
+      password.value.length && email.value.length &&
+      nickname.value.length && code.value.length) {
     if (password.value === confirm.value) {
       formLoading.value = true
       axios.post(UserUrl.registerUrl, {
