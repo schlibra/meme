@@ -13,11 +13,14 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 const value = ref(5.0)
 const isShow = ref(false)
+const url ='https://tse1-mm.cn.bing.net/th/id/OIP-C.mu-ECsXxHgl049if-NFUogAAAA?rs=1&pid=ImgDetMain'
+const srcList = new Array(40).fill("");
 
 onMounted(()=>{
   if (token) {
     axios.post(UserUrl.getInfoUrl, {}, {
       headers: {
+
         Authorization: `Bearer ${token.value}`
       }
     }).then(res=>{
@@ -99,7 +102,17 @@ function logout() {
       <el-col :span="6" v-for="i in 20">
         <el-card class="img-card">
           <template #default>
-            <el-image src="https://liukaili.netlify.app/favicon1.ico"></el-image>
+            <el-image
+              style="width: 100px; height: 100px"
+              :src="url"
+              :zoom-rate="1.2"
+              :max-scale="7"
+              :min-scale="0.2"
+              :preview-src-list="srcList"
+              :initial-index="4"
+              fit="cover"
+            />
+              
           </template>
           <template #footer>
             <el-text :type="'primary'">梗图描述</el-text>
@@ -158,5 +171,15 @@ function logout() {
 }
 .img-card {
   margin-bottom: 8px;
+}
+.demo-image__error .image-slot {
+  font-size: 30px;
+}
+.demo-image__error .image-slot .el-icon {
+  font-size: 30px;
+}
+.demo-image__error .el-image {
+  width: 100%;
+  height: 200px;
 }
 </style>
