@@ -18,7 +18,7 @@
   - [x] 登录表单：账号密码输入框，账号输入框支持用户名/邮箱
   - [x] 表单下方双链接：忘记密码，注册账号
   - [x] 提交按钮：登录
-- [ ] 注册页面 ( /register )
+- [x] 注册页面 ( /register )
 - [ ] 忘记密码页面 ( /forget )
 - [ ] 用户中心页面 ( /user )
 - [ ] 系统设置页面 ( /admin )
@@ -31,7 +31,7 @@
 ### 后端规划
 - [ ] 用户部分
   - [x] 登录
-  - [ ] 注册
+  - [x] 注册
   - [x] 获取用户信息
   - [ ] 忘记密码
   - [ ] 更新用户信息
@@ -59,7 +59,6 @@
 | password | longtext | 是 | 密码 | | BC加密后的内容 |
 | nickname | varchar(50) | 否 | 昵称 | 用户 | |
 | email | varchar(50) | 是 | 邮箱 | user@example.com | |
-| verified | varchar(1) | 是 | 邮箱是否认证 | Y | 已认证为Y，未认证为N |
 | create | datetime | 是 | 创建时间 | NOW() |  |
 | group | int | 是 | 用户组 | 1 | 关联表group |
 | ban | varchar(1) | 是 | 用户封禁 | Y | 封禁为Y，正常为N |
