@@ -14,7 +14,7 @@ const pageSize = ref(20)
 const value = ref(5.0)
 const isShow = ref(false)
 const url ='https://tse1-mm.cn.bing.net/th/id/OIP-C.mu-ECsXxHgl049if-NFUogAAAA?rs=1&pid=ImgDetMain'
-const srcList = new Array(40).fill("");
+const srcList = new Array(40).fill("https://tse1-mm.cn.bing.net/th/id/OIP-C.mu-ECsXxHgl049if-NFUogAAAA?rs=1&pid=ImgDetMain");
 
 onMounted(()=>{
   if (token) {
