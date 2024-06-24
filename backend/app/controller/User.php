@@ -88,7 +88,6 @@ class User
                                     "nickname" => $nickname,
                                     "password" => $password,
                                     "email" => $email,
-                                    "verified" => "Y",
                                     "create" => date("Y-m-d H:i:s"),
                                     "group" => 1,
                                     "ban" => "N",
@@ -169,7 +168,6 @@ class User
                     ->find();
                 if ($row) {
                     unset($row["password"]);
-                    unset($row["verified"]);
                     unset($row["ban"]);
                     unset($row["reason"]);
                     return json(["code"=>200, "msg"=>"用户信息获取成功", "data"=>$row]);
