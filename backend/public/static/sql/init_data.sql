@@ -6,7 +6,6 @@ CREATE TABLE IF NOT EXISTS `user` (
     `password` longtext NOT NULL COMMENT '密码',
     `nickname` varchar(50) NULL COMMENT '昵称',
     `email` varchar(50) NOT NULL COMMENT '邮箱',
-    `verified` varchar(1) NOT NULL COMMENT '邮箱是否验证',
     `create` datetime NOT NULL COMMENT '创建时间',
     `group` int NOT NULL COMMENT '用户组',
     `ban` varchar(1) NOT NULL COMMENT '用户是否封禁',
@@ -15,6 +14,6 @@ CREATE TABLE IF NOT EXISTS `user` (
 ) ENGINE = InnoDB CHARACTER SET = utf8;
 -- 用户表数据
 INSERT INTO `user`
-(`username`, `password`, `nickname`, `email`, `verified`, `create`, `group`, `ban`)
+(`username`, `password`, `nickname`, `email`, `create`, `group`, `ban`)
 VALUES
-('user', '$2y$10$tycuij9Esug9UsdWcC48RuKXLXD3kHjNQjA/0aCb6h9qNaU3f3mOu', '用户1', 'user@example.com', 'Y', NOW(), 1, 'N');
+('user', '$2y$10$tycuij9Esug9UsdWcC48RuKXLXD3kHjNQjA/0aCb6h9qNaU3f3mOu', '用户1', 'user@example.com', NOW(), 1, 'N');
