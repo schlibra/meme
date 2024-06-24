@@ -3,6 +3,7 @@ import {UserUrl} from "@/api/url.js";
 import {ref} from "vue";
 import {ElMessageBox} from "element-plus";
 import axios from "axios";
+import router from "@/router/index.js";
 
 const username = ref("");
 const password = ref("");
@@ -14,11 +15,15 @@ function loginHandler() {
     axios.post(UserUrl.loginUrl, {
       username: username.value,
       password: password.value
-    }).then(res=>{
+    }).then(async res=>{
       if (res.data.code===200) {
-        ElMessageBox.alert("登录成功", "登录成功")
+        localStorage.setItem("token", res.data.token)
+        await ElMessageBox.alert("登录成功", "登录成功")
+        await router.push({
+          path: "/"
+        })
       } else {
-        ElMessageBox.alert(res.data["msg"], "登录失败")
+        await ElMessageBox.alert(res.data["msg"], "登录失败")
       }
     }).catch(err=>{
       console.log(err)
