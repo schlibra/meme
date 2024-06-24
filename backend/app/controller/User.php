@@ -7,6 +7,8 @@ use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\Key;
 use Firebase\JWT\SignatureInvalidException;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
 use think\db\exception\ModelNotFoundException;
@@ -39,12 +41,13 @@ class User
                     $payload = [
                         "iss" => $url,
                         "aud" => $url,
+                        "kid" => $url,
                         "iat" => time(),
                         "exp" => time() + 36000,
                         "username" => $data["username"],
                         "email" => $data["email"]
                     ];
-                    $token = JWT::encode($payload, "meme", "HS256");
+                    $token = JWT::encode($payload, "meme_login_token_key", "HS256");
                     return json(["code"=>200, "msg"=>"登录成功", "token"=>$token]);
                 }
             } else {
@@ -55,8 +58,100 @@ class User
         }
     }
 
-    function register() {
-        return "Register";
+    function register(Request$request) {
+        $token = $request->header("Authorization", "");
+        $username = $request->post("username", "");
+        $nickname = $request->post("nickname", "");
+        $email = $request->post("email", "");
+        $code = $request->post("code", "");
+        $password = $request->post("password", "");
+        $password = password_hash($password, PASSWORD_BCRYPT);
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_email_token_key", "HS256"));
+                $_email = $data["email"];
+                $_code = $data["code"];
+                if ($email === $_email) {
+                    if ($code == $_code) {
+                        if (Db::connect("mysql")
+                            ->table("user")
+                            ->where("username", $username)
+                            ->whereOr("email", $email)
+                            ->find()){
+                            return json(["code" => 401, "msg" => "用户名或邮箱已存在"]);
+                        } else {
+                            Db::connect("mysql")
+                                ->table("user")
+                                ->insert([
+                                    "username" => $username,
+                                    "nickname" => $nickname,
+                                    "password" => $password,
+                                    "email" => $email,
+                                    "verified" => "Y",
+                                    "create" => date("Y-m-d H:i:s"),
+                                    "group" => 1,
+                                    "ban" => "N",
+                                    "reason" => ""
+                                ]);
+                            return json(["code" => 200, "msg" => "注册成功"]);
+                        }
+
+                    } else {
+                        return json(["code" => 401, "msg" => "邮箱验证码不正确"]);
+                    }
+                } else {
+                    return json(["code" => 401, "msg" => "邮箱地址被修改"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息解码失败：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "请发送验证码"]);
+        }
+    }
+
+    function sendCode(Request$request)
+    {
+        $email = $request->post("email");
+        if (empty($email)) {
+            return json(["code"=>400, "msg"=>"邮箱地址为空"]);
+        } else {
+            try {
+                $mail = new PHPMailer(true);
+                $mail->SMTPDebug = SMTP::DEBUG_OFF;
+                $mail->isSMTP();
+                $mail->Host = env("SMTP_HOST", "");
+                $mail->SMTPAuth = true;
+                $mail->Username = env("SMTP_USERNAME", "");
+                $mail->Password = env("SMTP_PASSWORD", "");
+                $mail->SMTPSecure = env("SMTP_SECURE", "ssl");
+                $mail->Port = env("SMTP_PORT", 25);
+                $mail->setFrom(env("SMTP_USERNAME"), "IURT meme");
+                $mail->addAddress($email);
+                $mail->isHTML(true);
+                $mail->Subject = "IURT meme 账号注册验证码";
+                $code = rand(111111, 999999);
+                $mail->Body = "您正在注册IURT meme账号，这是你的验证码：<mark>{$code}</mark>，验证码在10分钟内有效，请不要将验证码泄露给他人。";
+                $mail->AltBody = "注册验证码";
+                $mail->CharSet = "UTF-8";
+                $mail->send();
+                $url = $request->domain();
+                $payload = [
+                    "iss" => $url,
+                    "aud" => $url,
+                    "kid" => $url,
+                    "iat" => time(),
+                    "exp" => time() + 600,
+                    "code" => $code,
+                    "email" => $email
+                ];
+                $token = JWT::encode($payload, "meme_email_token_key", "HS256");
+                return json(["code" => 200, "msg" => "发送成功", "token" => $token]);
+            } catch (\PHPMailer\PHPMailer\Exception$e) {
+                return json(["code" => 500, "msg" => "发送失败：".$e->getMessage()]);
+            }
+        }
     }
 
     function getInfo(Request $request) {
@@ -64,7 +159,7 @@ class User
         if (str_starts_with($token, "Bearer")) {
             $token = str_replace("Bearer ", "", $token);
             try {
-                $data = (array) JWT::decode($token, new Key("meme", "HS256"));
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $username = $data["username"];
                 $email = $data["email"];
                 $row = Db::connect("mysql")
