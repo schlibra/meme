@@ -30,37 +30,47 @@ function loginHandler() {
 
 <template>
   <main>
-    <h1>用户登录</h1>
-    <el-form label-width="auto">
-      <el-form-item label="用户名">
-        <el-input v-model="username" placeholder="输入账号或邮箱" />
-      </el-form-item>
-      <el-form-item label="密码">
-        <el-input type="password" v-model="password" placeholder="输入密码" />
-      </el-form-item>
-      <el-row class="down-row">
-        <el-col :span="12">
-          <el-link>忘记密码</el-link>
-        </el-col>
-        <el-col :span="12" class="right">
-          <el-link>注册账号</el-link>
-        </el-col>
-      </el-row>
-      <el-button class="login" type="primary" @click="loginHandler" size="large">登录</el-button>
-    </el-form>
+    <el-row justify="center" align="middle" class="row">
+      <el-col :span="12">
+        <el-card>
+          <template #header>
+            <h1>登录</h1>
+          </template>
+          <template #default>
+            <el-form label-width="auto">
+              <el-form-item label="用户名">
+                <el-input v-model="username" placeholder="输入账号或邮箱" />
+              </el-form-item>
+              <el-form-item label="密码">
+                <el-input type="password" v-model="password" placeholder="输入密码" />
+              </el-form-item>
+              <el-row class="down-row">
+                <el-col :span="12">
+                  <el-link>忘记密码</el-link>
+                </el-col>
+                <el-col :span="12" class="right">
+                  <el-link>注册账号</el-link>
+                </el-col>
+              </el-row>
+            </el-form>
+          </template>
+          <template #footer>
+            <el-button class="login" type="primary" @click="loginHandler" size="large">登录</el-button>
+          </template>
+        </el-card>
+      </el-col>
+    </el-row>
   </main>
 </template>
 
 <style scoped lang="scss">
 main {
-  padding: 32px;
-  h1 {
-    text-align: center;
+  height: 100vh;
+  .row {
+    height: 100vh;
   }
   .login {
     margin-top: 16px;
-    width: 90vw;
-    margin-left: 1vw;
   }
   .down-row {
     margin: 0 16px;
