@@ -4,9 +4,9 @@ import {ref} from "vue";
 import { ElMessageBox } from "element-plus";
 import axios from "axios";
 import router from "@/router/index.js";
+import { Back } from "@element-plus/icons-vue";
 
 const username = ref("");
-const nickname = ref("");
 const password = ref("");
 const confirm = ref("");
 const email = ref("");
@@ -19,7 +19,8 @@ function sendCodeHandler() {
   if (email.value.length) {
     formLoading.value = true
     axios.post(UserUrl.sendCodeUrl, {
-      email: email.value
+      email: email.value,
+      action: "forget"
     }).then(res=>{
       if (res.data.code === 200) {
         emailToken = res.data.token
@@ -38,13 +39,13 @@ function sendCodeHandler() {
   }
 }
 
-function registerHandler() {
-  if (username.value.length && password.value.length && 
-      confirm.value.length  && email.value.length    && 
+function forgetHandler() {
+  if (username.value.length && confirm.value.length &&
+      password.value.length && email.value.length &&
       code.value.length) {
     if (password.value === confirm.value) {
       formLoading.value = true
-      axios.post(UserUrl.registerUrl, {
+      axios.post(UserUrl.forgetUrl, {
         username: username.value,
         password: password.value,
         email: email.value,
@@ -53,27 +54,33 @@ function registerHandler() {
         headers: {
           Authorization: `Bearer ${emailToken}`
         }
-      }).then(async res => {
+      }).then(res => {
         if (res.data.code === 200) {
-          await ElMessageBox.alert("改密成功", "改密成功")
-          await router.push({
-            path: "/login"
+          ElMessageBox.alert("密码重置成功", "密码重置成功", {
+            callback() {
+              router.push({
+                path: "/login"
+              })
+            }
           })
         } else {
-          await ElMessageBox.alert(res.data["msg"], "找回失败")
+          ElMessageBox.alert(res.data["msg"], "密码重置失败")
         }
       }).catch(err => {
         console.log(err)
-        ElMessageBox.alert("接口响应异常", "找回失败");
+        ElMessageBox.alert("接口响应异常", "密码重置失败");
       }).finally(() => {
         formLoading.value = false
       })
     } else {
-      ElMessageBox.alert("两次密码不一致", "找回失败")
+      ElMessageBox.alert("两次密码不一致", "密码重置失败")
     }
   } else {
-    ElMessageBox.alert("字段不能为空", "找回失败")
+    ElMessageBox.alert("字段不能为空", "密码重置失败")
   }
+}
+function gotoLogin() {
+  router.push("/login")
 }
 </script>
 
@@ -84,18 +91,15 @@ function registerHandler() {
       <el-col :span="12">
         <el-card v-loading="formLoading">
           <template #header>
-            <h1>注册</h1>
+            <h1><el-icon class="back" @click="gotoLogin"><Back /></el-icon> 重置密码</h1>
           </template>
           <template #default>
             <el-form label-width="auto" label-position="top">
               <el-form-item label="用户名">
                 <el-input v-model="username" placeholder="输入用户名" />
               </el-form-item>
-              <el-form-item label="昵称">
-                <el-input v-model="nickname" placeholder="输入昵称" />
-              </el-form-item>
-              <el-form-item label="密码">
-                <el-input type="password" v-model="password" placeholder="输入密码" />
+              <el-form-item label="新密码">
+                <el-input type="password" v-model="password" placeholder="输入新密码" />
               </el-form-item>
               <el-form-item label="确认密码">
                 <el-input type="password" v-model="confirm" placeholder="再次输入密码" />
@@ -113,13 +117,10 @@ function registerHandler() {
               <el-form-item label="邮箱验证码">
                 <el-input type="text" v-model="code" placeholder="输入邮箱验证码" />
               </el-form-item>
-              <div class="right">
-                <el-link href="/login">已有账号，立刻登录</el-link>
-              </div>
             </el-form>
           </template>
           <template #footer>
-            <el-button class="register" type="primary" @click="registerHandler" size="large">注册</el-button>
+            <el-button class="register" type="primary" @click="forgetHandler" size="large">重置密码</el-button>
           </template>
         </el-card>
       </el-col>
@@ -139,6 +140,9 @@ main {
   }
   .right{
     text-align: right;
+  }
+  .back {
+    cursor: pointer;
   }
 }
 </style>
