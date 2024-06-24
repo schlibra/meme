@@ -55,7 +55,7 @@ function loginHandler() {
               </el-form-item>
               <el-row class="down-row">
                 <el-col :span="12">
-                  <el-link>忘记密码</el-link>
+                  <el-link href="/forget">忘记密码</el-link>
                 </el-col>
                 <el-col :span="12" class="right">
                   <el-link href="/register">注册账号</el-link>

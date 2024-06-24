@@ -84,6 +84,7 @@ function registerHandler() {
   
     <el-row justify="center" align="middle" class="row">
       <el-col :span="12">
+        <el-scrollbar height="100vh">
         <el-card v-loading="formLoading">
           <template #header>
             <h1>注册</h1>
@@ -124,6 +125,7 @@ function registerHandler() {
             <el-button class="register" type="primary" @click="registerHandler" size="large">注册</el-button>
           </template>
         </el-card>
+        </el-scrollbar>
       </el-col>
     </el-row>
   </main>
