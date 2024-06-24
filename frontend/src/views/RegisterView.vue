@@ -6,7 +6,11 @@ import axios from "axios";
 
 const username = ref("");
 const password = ref("");
-const loginLoading = ref(false)
+const confirm = ref("");
+const loginLoading = ref(false);
+const email = ref("");
+const dickname = ref("");
+const emailCheck = ref("");
 
 function loginHandler() {
   if (username.value.length && password.value.length) {
@@ -16,18 +20,18 @@ function loginHandler() {
       password: password.value
     }).then(res=>{
       if (res.data.code===200) {
-        ElMessageBox.alert("登录成功", "登录成功")
+        ElMessageBox.alert("注册成功", "注册成功")
       } else {
-        ElMessageBox.alert(res.data["msg"], "登录失败")
+        ElMessageBox.alert(res.data["msg"], "注册失败")
       }
     }).catch(err=>{
       console.log(err)
-      ElMessageBox.alert("接口响应异常", "登录失败");
+      ElMessageBox.alert("接口响应异常", "注册失败");
     }).finally(() => {
       loginLoading.value = false
     })
   } else {
-    ElMessageBox.alert("账号密码不能为空", "登录失败")
+    ElMessageBox.alert("账号密码不能为空", "注册失败")
   }
 }
 </script>
@@ -44,10 +48,22 @@ function loginHandler() {
           <template #default>
             <el-form label-width="auto">
               <el-form-item label="用户名">
-                <el-input v-model="username" placeholder="输入账号或邮箱" />
+                <el-input v-model="username" placeholder="输入用户名" />
+              </el-form-item>
+              <el-form-item label="昵称">
+                <el-input v-model="dickname" placeholder="输入昵称" />
               </el-form-item>
               <el-form-item label="密码">
                 <el-input type="password" v-model="password" placeholder="输入密码" />
+              </el-form-item>
+              <el-form-item label="确认密码">
+                <el-input type="password" v-model="confirm" placeholder="再次输入密码" />
+              </el-form-item>
+              <el-form-item label="邮箱">
+                <el-input type="text" v-model="email" placeholder="输入邮箱" />
+              </el-form-item>
+              <el-form-item label="邮箱验证码">
+                <el-input type="text" v-model="emailCheck" placeholder="输入邮箱验证码" />
               </el-form-item>
               <el-row class="down-row">
                 <el-col :span="12">
@@ -60,7 +76,7 @@ function loginHandler() {
             </el-form>
           </template>
           <template #footer>
-            <el-button class="login" type="primary" @click="loginHandler" size="large">登录</el-button>
+            <el-button class="register" type="primary" @click="loginHandler" size="large">注册</el-button>
           </template>
         </el-card>
       </el-col>
@@ -71,10 +87,11 @@ function loginHandler() {
 <style scoped lang="scss">
 main {
   height: 100vh;
+  background: url("@/assets/bg.jpg") round;
   .row {
     height: 100vh;
   }
-  .login {
+  .register {
     margin-top: 16px;
   }
   .down-row {
