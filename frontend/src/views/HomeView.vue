@@ -3,6 +3,7 @@ import {onMounted, ref} from "vue";
 import router from "@/router/index.js";
 import axios from "axios";
 import {UserUrl} from "@/api/url.js";
+import {ElMessageBox} from "element-plus";
 
 const token = ref(localStorage.getItem("token"))
 const userInfo = ref({})
@@ -57,6 +58,24 @@ function uploadImg() {
 function gotoAdmin() {
 
 }
+function logout() {
+  ElMessageBox.confirm("是否退出当前账号登录", "退出账号", {
+    callback(action1) {
+      if (action1 === "confirm") {
+        localStorage.removeItem("token")
+        token.value = ""
+        userInfo.value = {}
+        ElMessageBox.confirm("已退出登录，是否前往登录页面", "前往登录", {
+          callback(action2) {
+            if (action2 === "confirm") {
+              gotoLogin()
+            }
+          }
+        })
+      }
+    }
+  })
+}
 </script>
 
 <template>
@@ -72,6 +91,7 @@ function gotoAdmin() {
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
     <el-button type="primary" v-if="token" @click="uploadImg">上传图片</el-button>
     <el-button type="warning" v-if="admin" @click="gotoAdmin">系统设置</el-button>
+    <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-divider />
   <el-scrollbar height="60vh">
