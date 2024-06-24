@@ -8,7 +8,8 @@ const userUrl = baseUrl + "/user"
 const UserUrl = {
     loginUrl: userUrl + "/login",
     registerUrl: userUrl + "/register",
-    sendCodeUrl: userUrl + "/sendCode"
+    sendCodeUrl: userUrl + "/sendCode",
+    getInfoUrl: userUrl + "/getInfo"
 }
 
 export { UserUrl }
