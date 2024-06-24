@@ -16,6 +16,12 @@ const router = createRouter({
       name: "login",
       component: LoginView,
       meta: { title: "登录账号" }
+    },
+    {
+      path: "/register",
+      name: "register",
+      component:RegisterView,
+      meta: { title: "注册账号" }
     }
   ]
 })
