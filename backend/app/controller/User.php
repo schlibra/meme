@@ -25,7 +25,6 @@ class User
     function login(Request $request) {
         $username = $request->post("username", "");
         $password = $request->post("password", "");
-        echo env("DB_USER");
         $data = Db::connect("mysql")
             ->table("user")
             ->where("username", $username)
