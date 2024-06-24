@@ -39,7 +39,7 @@ function loginHandler() {
       <el-col :span="12">
         <el-card v-loading="loginLoading">
           <template #header>
-            <h1>登录</h1>
+            <h1>注册</h1>
           </template>
           <template #default>
             <el-form label-width="auto">
@@ -51,10 +51,10 @@ function loginHandler() {
               </el-form-item>
               <el-row class="down-row">
                 <el-col :span="12">
-                  <el-link>忘记密码</el-link>
+                  <el-link>不知道干什么用的</el-link>
                 </el-col>
                 <el-col :span="12" class="right">
-                  <el-link>注册账号</el-link>
+                  <el-link>已有账号，立刻登录</el-link>
                 </el-col>
               </el-row>
             </el-form>
