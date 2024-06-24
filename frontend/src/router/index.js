@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from '@/views/RegisterView.vue';
+import ForgetView from '@/views/ForgetView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -23,6 +24,12 @@ const router = createRouter({
       name: "register",
       component:RegisterView,
       meta: { title: "注册账号" }
+    },
+    {
+      path: "/forget",
+      name: "forget",
+      component:ForgetView,
+      meta: { title: "忘记密码" }
     }
   ]
 })

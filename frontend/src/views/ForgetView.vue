@@ -39,14 +39,13 @@ function sendCodeHandler() {
 }
 
 function registerHandler() {
-  if (username.value.length && nickname.value.length &&
-      password.value.length && confirm.value.length  &&
-      email.value.length    && code.value.length) {
+  if (username.value.length && password.value.length && 
+      confirm.value.length  && email.value.length    && 
+      code.value.length) {
     if (password.value === confirm.value) {
       formLoading.value = true
       axios.post(UserUrl.registerUrl, {
         username: username.value,
-        nickname: nickname.value,
         password: password.value,
         email: email.value,
         code: code.value
@@ -56,24 +55,24 @@ function registerHandler() {
         }
       }).then(async res => {
         if (res.data.code === 200) {
-          await ElMessageBox.alert("注册成功", "注册成功")
+          await ElMessageBox.alert("改密成功", "改密成功")
           await router.push({
             path: "/login"
           })
         } else {
-          await ElMessageBox.alert(res.data["msg"], "注册失败")
+          await ElMessageBox.alert(res.data["msg"], "找回失败")
         }
       }).catch(err => {
         console.log(err)
-        ElMessageBox.alert("接口响应异常", "注册失败");
+        ElMessageBox.alert("接口响应异常", "找回失败");
       }).finally(() => {
         formLoading.value = false
       })
     } else {
-      ElMessageBox.alert("两次密码不一致", "注册失败")
+      ElMessageBox.alert("两次密码不一致", "找回失败")
     }
   } else {
-    ElMessageBox.alert("字段不能为空", "注册失败")
+    ElMessageBox.alert("字段不能为空", "找回失败")
   }
 }
 </script>
