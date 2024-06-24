@@ -19,7 +19,7 @@
   - [x] 表单下方双链接：忘记密码，注册账号
   - [x] 提交按钮：登录
 - [x] 注册页面 ( /register )
-- [ ] 忘记密码页面 ( /forget )
+- [x] 忘记密码页面 ( /forget )
 - [ ] 用户中心页面 ( /user )
 - [ ] 系统设置页面 ( /admin )
   - [ ] 系统设置基本信息 ( /admin/basic )
@@ -33,7 +33,7 @@
   - [x] 登录
   - [x] 注册
   - [x] 获取用户信息
-  - [ ] 忘记密码
+  - [x] 忘记密码
   - [ ] 更新用户信息
 - [ ] 图片部分
   - [ ] 图片列表，分页
@@ -63,6 +63,9 @@
 | group | int | 是 | 用户组 | 1 | 关联表group |
 | ban | varchar(1) | 是 | 用户封禁 | Y | 封禁为Y，正常为N |
 | reason | varchar(100) | 否 | 封禁原因 | 违规封禁 | ban为Y时需要设置改数据 |
+| birth | int | 否 | 出生年份 | 2004 |  |
+| sex | varchar(10) | 否 | 性别 | 男 |  |
+| description | varchar(500) | 否 | 个人介绍 |  |  |
 
 - 用户组表 (group)
 
@@ -72,7 +75,8 @@
 | name | varchar(30) | 是 | 用户组名称 | 管理员组 | |
 | admin | varchar(1) | 是 | 是否管理员 | Y | |
 | upload | varchar(1) | 是 | 允许上传图片 | Y | |
-| delete | varchar(1) | 是 | 允许删除图片 | Y | 只能删除自己上传的图片 |
+| deletePic | varchar(1) | 是 | 允许删除图片 | Y | 只能删除自己上传的图片 |
+| deleteComment | varchar(1) | 是 | 允许删除评论 | Y | 只能删除自己发布的评论 |
 | comment | varchar(1) | 是 | 允许评论 | Y | |
 | create | datetime | 是 | 创建时间 | | |
 | update | datetime | 是 | 修改时间 | | |
@@ -85,8 +89,11 @@
 | name | varchar(50) | 是 | 图片名称 | 图片名称 | |
 | description | varchar(100) | 是 | 图片描述 | 图片描述 | |
 | user | int | 是 | 上传者id | 1 | 关联表user |
+| hash | varchar(50) | 是 | 图片hash值 |  |  |
 | create | datetime | 是 | 上传时间 | | |
 | verified | varchar(1) | 是 | 图片审核通过 | Y | |
+| update | datetime | 是 | 修改时间 |  | |
+| delete | datetime | 否 | 删除时间 |  | |
 
 - 评分列表 (score)
 
@@ -95,7 +102,9 @@
 | id | int | 是 | 数据id | 1 | 自动生成 |
 | pic | int | 是 | 图片id | 1 | 关联表pics |
 | user | int | 是 | 用户id | 1 | 关联表user |
-| score | float | 是 | 评分 | 5 | | |
+| score | float | 是 | 评分 | 5 | |
+| create | datetime | 是 | 创建时间 |  | |
+| update | datetime | 是 | 修改时间 |  | |
 
 - 评论列表 (comment)
 
@@ -109,3 +118,4 @@
 | comment | varchar(500) | 是 | 评论内容 | 评论内容 | |
 | create | datetime | 是 | 发布时间 | | |
 | verified | varchar(1) | 是 | 评论通过审核 | Y | |
+| delete | datetime | 否 | 删除时间 |  | |
