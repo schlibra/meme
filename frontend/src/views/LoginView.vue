@@ -6,11 +6,11 @@ import axios from "axios";
 
 const username = ref("");
 const password = ref("");
-const loginLoading = ref(false)
+const formLoading = ref(false)
 
 function loginHandler() {
   if (username.value.length && password.value.length) {
-    loginLoading.value = true
+    formLoading.value = true
     axios.post(UserUrl.loginUrl, {
       username: username.value,
       password: password.value
@@ -24,7 +24,7 @@ function loginHandler() {
       console.log(err)
       ElMessageBox.alert("接口响应异常", "登录失败");
     }).finally(() => {
-      loginLoading.value = false
+      formLoading.value = false
     })
   } else {
     ElMessageBox.alert("账号密码不能为空", "登录失败")
@@ -36,12 +36,12 @@ function loginHandler() {
   <main>
     <el-row justify="center" align="middle" class="row">
       <el-col :span="12">
-        <el-card v-loading="loginLoading">
+        <el-card v-loading="formLoading">
           <template #header>
             <h1>登录</h1>
           </template>
           <template #default>
-            <el-form label-width="auto">
+            <el-form label-width="auto" label-position="top">
               <el-form-item label="用户名">
                 <el-input v-model="username" placeholder="输入账号或邮箱" />
               </el-form-item>

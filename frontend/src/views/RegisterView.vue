@@ -5,19 +5,21 @@ import {ElMessageBox} from "element-plus";
 import axios from "axios";
 
 const username = ref("");
+const nickname = ref("");
 const password = ref("");
 const confirm = ref("");
-const loginLoading = ref(false);
 const email = ref("");
-const dickname = ref("");
 const emailCheck = ref("");
+const formLoading = ref(false);
 
-function loginHandler() {
-  if (username.value.length && password.value.length) {
-    loginLoading.value = true
+function registerHandler() {
+  if (username.value.length && nickname.value.length &&
+      password.value.length && confirm.value.length &&
+      email.value.length && emailCheck.value.length) {
+    // formLoading.value = true
+    return;
     axios.post(UserUrl.loginUrl, {
-      username: username.value,
-      password: password.value
+
     }).then(res=>{
       if (res.data.code===200) {
         ElMessageBox.alert("注册成功", "注册成功")
@@ -28,10 +30,10 @@ function loginHandler() {
       console.log(err)
       ElMessageBox.alert("接口响应异常", "注册失败");
     }).finally(() => {
-      loginLoading.value = false
+      formLoading.value = false
     })
   } else {
-    ElMessageBox.alert("账号密码不能为空", "注册失败")
+    ElMessageBox.alert("字段不能为空", "注册失败")
   }
 }
 </script>
@@ -41,17 +43,17 @@ function loginHandler() {
   
     <el-row justify="center" align="middle" class="row">
       <el-col :span="12">
-        <el-card v-loading="loginLoading">
+        <el-card v-loading="formLoading">
           <template #header>
             <h1>注册</h1>
           </template>
           <template #default>
-            <el-form label-width="auto">
+            <el-form label-width="auto" label-position="top">
               <el-form-item label="用户名">
                 <el-input v-model="username" placeholder="输入用户名" />
               </el-form-item>
               <el-form-item label="昵称">
-                <el-input v-model="dickname" placeholder="输入昵称" />
+                <el-input v-model="nickname" placeholder="输入昵称" />
               </el-form-item>
               <el-form-item label="密码">
                 <el-input type="password" v-model="password" placeholder="输入密码" />
@@ -60,23 +62,25 @@ function loginHandler() {
                 <el-input type="password" v-model="confirm" placeholder="再次输入密码" />
               </el-form-item>
               <el-form-item label="邮箱">
-                <el-input type="text" v-model="email" placeholder="输入邮箱" />
+                <el-row style="width: 100%;" :gutter="8">
+                  <el-col :span="20">
+                    <el-input type="text" v-model="email" placeholder="输入邮箱" />
+                  </el-col>
+                  <el-col :span="4">
+                    <el-button>发送验证码</el-button>
+                  </el-col>
+                </el-row>
               </el-form-item>
               <el-form-item label="邮箱验证码">
                 <el-input type="text" v-model="emailCheck" placeholder="输入邮箱验证码" />
               </el-form-item>
-              <el-row class="down-row">
-                <el-col :span="12">
-                  <el-link>不知道干什么用的</el-link>
-                </el-col>
-                <el-col :span="12" class="right">
-                  <el-link>已有账号，立刻登录</el-link>
-                </el-col>
-              </el-row>
+              <div class="right">
+                <el-link href="/login">已有账号，立刻登录</el-link>
+              </div>
             </el-form>
           </template>
           <template #footer>
-            <el-button class="register" type="primary" @click="loginHandler" size="large">注册</el-button>
+            <el-button class="register" type="primary" @click="registerHandler" size="large">注册</el-button>
           </template>
         </el-card>
       </el-col>
@@ -94,11 +98,8 @@ main {
   .register {
     margin-top: 16px;
   }
-  .down-row {
-    margin: 0 16px;
-    .right{
-      text-align: right;
-    }
+  .right{
+    text-align: right;
   }
 }
 </style>
