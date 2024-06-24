@@ -70,6 +70,7 @@ function loginHandler() {
 <style scoped lang="scss">
 main {
   height: 100vh;
+  background: url("@/assets/bg.jpg") round;
   .row {
     height: 100vh;
   }
