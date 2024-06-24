@@ -15,15 +15,18 @@ function loginHandler() {
     axios.post(UserUrl.loginUrl, {
       username: username.value,
       password: password.value
-    }).then(async res=>{
+    }).then(res=>{
       if (res.data.code===200) {
         localStorage.setItem("token", res.data.token)
-        await ElMessageBox.alert("登录成功", "登录成功")
-        await router.push({
-          path: "/"
+        ElMessageBox.alert("登录成功", "登录成功", {
+          callback() {
+            router.push({
+              path: "/"
+            })
+          }
         })
       } else {
-        await ElMessageBox.alert(res.data["msg"], "登录失败")
+        ElMessageBox.alert(res.data["msg"], "登录失败")
       }
     }).catch(err=>{
       console.log(err)
