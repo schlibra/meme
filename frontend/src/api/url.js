@@ -6,7 +6,8 @@ const userUrl = baseUrl + "/user"
 
 
 const UserUrl = {
-    loginUrl: userUrl + "/login"
+    loginUrl: userUrl + "/login",
+    registerUrl: userUrl + "/register"
 }
 
 export { UserUrl }
