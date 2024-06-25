@@ -242,28 +242,33 @@ class User
         }
     }
 
-    function update(Request $request) {
+    function updateInfo(Request $request) {
         $token = $request->header("Authorization", "");
-        $nickname = $request->post("nickname", null);
-        $birth = $request->post("birth", null);
-        $sex = $request->post("sex", null);
-        $description = $request->post("description", null);
+        $nickname = $request->post("nickname");
+        $birth = $request->post("birth");
+        $sex = $request->post("sex");
+        $description = $request->post("description");
+        $email = $request->post("email");
         if (str_starts_with($token, "Bearer")) {
             $token = str_replace("Bearer ", "", $token);
             try {
                 $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $username = $data["username"];
-                $email = $data["email"];
+                $_email = $data["email"];
                 $result = Db::connect("mysql")
                     ->table("user")
                     ->where("username", $username)
-                    ->where("email", $email)
+                    ->where("email", $_email)
                     ->find();
                 if ($result) {
                     if ($nickname) $result["nickname"] = $nickname;
                     if ($birth) $result["birth"] = $birth;
                     if ($sex) $result["sex"] = $sex;
                     if ($description) $result["description"] = $description;
+                    if ($email) {
+                        $result["email"] = $email;
+                        $result["verified"] = "N";
+                    }
                     Db::connect("mysql")
                         ->table("user")
                         ->save($result);
