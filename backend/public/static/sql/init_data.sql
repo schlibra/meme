@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS `group`  (
     `name` varchar(30) NOT NULL COMMENT '用户组名称',
     `admin` varchar(1) NOT NULL COMMENT '是否管理员',
     `upload` varchar(1) NOT NULL COMMENT '允许上传图片',
+    `updatePic` varchar(1) NOT NULL COMMENT '允许更新图片',
     `deletePic` varchar(1) NOT NULL COMMENT '允许删除图片',
     `deleteComment` varchar(1) NOT NULL COMMENT '允许删除评论',
     `comment` varchar(1) NOT NULL COMMENT '允许评论',
@@ -41,7 +42,22 @@ CREATE TABLE IF NOT EXISTS `group`  (
 );
 -- 用户组数据
 INSERT INTO `group`
-(name, admin, upload, deletePic, deleteComment, comment, `create`, `update`)
+(name, admin, upload, updatePic, deletePic, deleteComment, comment, `create`, `update`)
 VALUES
-('普通用户', 'N', 'N', 'N', 'Y', 'Y', NOW(), NOW()),
-('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
+('普通用户', 'N', 'N', 'N', 'N', 'Y', 'Y', NOW(), NOW()),
+('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
+
+-- 图片表
+DROP TABLE IF EXISTS `pics`;
+CREATE TABLE IF NOT EXISTS `pics`  (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '数据id',
+    `name` varchar(50) NOT NULL COMMENT '图片名称',
+    `description` varchar(200) NOT NULL COMMENT '图片描述',
+    `user` int NOT NULL COMMENT '上传者id',
+    `data` longtext NOT NULL COMMENT '图片数据(base64)',
+    `type` varchar(50) NOT NULL COMMENT '文件类型',
+    `create` datetime NOT NULL COMMENT '创建时间',
+    `update` datetime NOT NULL COMMENT '更新时间',
+    `delete` datetime NULL COMMENT '删除时间',
+    PRIMARY KEY (`id`)
+);
