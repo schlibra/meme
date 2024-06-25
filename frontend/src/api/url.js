@@ -3,6 +3,7 @@ const baseUrl = isDev ? "http://127.0.0.1:8000" : location.origin
 
 
 const userUrl = baseUrl + "/user"
+const picsUrl = baseUrl + "/pics"
 
 
 const UserUrl = {
@@ -13,4 +14,8 @@ const UserUrl = {
     infoUrl: userUrl + "/info"
 }
 
-export { UserUrl }
+const PicsUrl = {
+    picsUrl: picsUrl
+}
+
+export { UserUrl, PicsUrl }
