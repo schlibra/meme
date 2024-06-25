@@ -230,6 +230,16 @@ class User
                     unset($row["password"]);
                     unset($row["ban"]);
                     unset($row["reason"]);
+                    $permission = Db::connect("mysql")
+                        ->table("group")
+                        ->where("id", $row["group"])
+                        ->find();
+                    if ($permission) {
+                        unset($permission["id"]);
+                        $row = array_merge($row, $permission);
+                        $row["groupName"] = $row["name"];
+                        unset($row["name"]);
+                    }
                     return json(["code"=>200, "msg"=>"用户信息获取成功", "data"=>$row]);
                 } else {
                     return json(["code"=>401, "msg"=>"用户不存在"]);
