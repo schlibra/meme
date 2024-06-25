@@ -22,7 +22,7 @@ const uploadFile = ref(null);
 const uploadLoading = ref(false)
 
 onMounted(()=>{
-  if (token) {
+  if (token.value) {
     axios.get(UserUrl.infoUrl, {
       headers: {
         Authorization: `Bearer ${token.value}`
@@ -41,9 +41,9 @@ onMounted(()=>{
     })
   }
   axios.get(PicsUrl.picsUrl, {
-    headers: {
+    headers: token.value ? {
       Authorization: `Bearer ${token.value}`
-    }
+    } : {}
   }).then(res => {
     console.log(res)
     if (res.data.code === 200) {
@@ -72,9 +72,9 @@ onMounted(()=>{
 function sizeChange() {
   mainLoading.value = true
   axios.get(PicsUrl.picsUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
-    headers: {
+    headers: token.value ? {
       Authorization: `Bearer ${token.value}`
-    }
+    } : {}
   }).then(res=>{
     if (res.data.code === 200) {
       imgList.value = [];
@@ -101,9 +101,9 @@ function sizeChange() {
 function pageChange() {
   mainLoading.value = true
   axios.get(PicsUrl.picsUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
-    headers: {
+    headers: token.value ? {
       Authorization: `Bearer ${token.value}`
-    }
+    } : {}
   }).then(res=>{
     if (res.data.code === 200) {
       imgList.value = [];
