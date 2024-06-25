@@ -2,7 +2,7 @@
 import {onMounted, ref} from "vue";
 import router from "@/router/index.js";
 import axios from "axios";
-import {UserUrl} from "@/api/url.js";
+import {PicsUrl, UserUrl} from "@/api/url.js";
 import {ElMessageBox} from "element-plus";
 
 const token = ref(localStorage.getItem("token"))
@@ -10,10 +10,14 @@ const userInfo = ref({})
 const strings = ref(["IURT meme 2.0"])
 const currentPage = ref(1)
 const pageSize = ref(20)
-const value = ref(5.0)
-const isShow = ref(false)
-const url ='https://tse1-mm.cn.bing.net/th/id/OIP-C.mu-ECsXxHgl049if-NFUogAAAA?rs=1&pid=ImgDetMain'
-const srcList = new Array(40).fill("https://tse1-mm.cn.bing.net/th/id/OIP-C.mu-ECsXxHgl049if-NFUogAAAA?rs=1&pid=ImgDetMain");
+const picList = ref([])
+const imgList = ref([]);
+
+const uploadDialog = ref(false);
+const uploadName = ref("");
+const uploadDescription = ref("");
+const uploadFile = ref(null);
+const uploadLoading = ref(false)
 
 onMounted(()=>{
   if (token) {
@@ -34,6 +38,30 @@ onMounted(()=>{
       localStorage.removeItem("token")
     })
   }
+  axios.get(PicsUrl.picsUrl, {
+    headers: {
+      Authorization: `Bearer ${token.value}`
+    }
+  }).then(res => {
+    console.log(res)
+    if (res.data.code === 200) {
+      imgList.value = [];
+      picList.value = res.data.data
+      for (const index in res.data.data) {
+        const item = res.data.data[index]
+        imgList.value.push(item.url)
+      }
+    } else {
+      ElMessageBox.alert(res.data["msg"], "数据获取失败")
+    }
+  }).catch(err=>{
+    console.log(err)
+    ElMessageBox.alert("后端请求异常", "数据获取失败", {
+      callback() {
+        location.reload()
+      }
+    })
+  })
 })
 
 function sizeChange() {
@@ -53,11 +81,42 @@ function gotoLogin() {
 function gotoUser() {
 
 }
-function uploadImg() {
-
-}
 function gotoAdmin() {
 
+}
+function openDetail(index) {
+
+}
+function uploadSubmit() {
+  let image = uploadFile.value["files"][0];
+  let name = uploadName.value
+  let description = uploadDescription.value
+  uploadLoading.value = true
+  axios.post(PicsUrl.picsUrl, {
+    image,
+    name,
+    description
+  }, {
+    headers: {
+      Authorization: `Bearer ${token.value}`,
+      "Content-Type": "multipart/form-data"
+    }
+  }).then(res=>{
+    if (res.data.code === 200) {
+      ElMessageBox.alert("上传成功", "上传成功", {
+        callback() {
+          location.reload()
+        }
+      })
+    } else {
+      ElMessageBox.alert(res.data["msg"], "上传失败")
+    }
+  }).catch(err=>{
+    console.log(err)
+    ElMessageBox.alert("接口请求异常", "上传失败")
+  }).finally(()=>{
+    uploadLoading.value = false
+  })
 }
 function logout() {
   ElMessageBox.confirm("是否退出当前账号登录", "退出账号", {
@@ -90,57 +149,41 @@ function logout() {
     <el-button type="primary" @click="randomImg">随机梗图</el-button>
     <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadImg">上传图片</el-button>
+    <el-button type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
     <el-button type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
     <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-divider />
   <el-scrollbar height="60vh">
-    <el-row :gutter="8">
-      <el-col :span="6" v-for="i in 20">
+    <el-row :gutter="8" class="main">
+      <el-col :span="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
+          <template #header>
+            <span>{{ img.name }}</span>
+          </template>
           <template #default>
             <el-image
-              style="width: 100px; height: 100px"
-              :src="url"
+              class="item-img"
+              :src="img.url"
               :zoom-rate="1.2"
               :max-scale="7"
               :min-scale="0.2"
-              :preview-src-list="srcList"
-              :initial-index="4"
-              fit="cover"
-            />
-              
+              :preview-src-list="imgList"
+              :initial-index="index"
+              fit="contain" />
           </template>
           <template #footer>
-            <el-text :type="'primary'">梗图描述</el-text>
-            <br />
-            <el-link>查看详情</el-link>
-            <br />
             <el-rate
-              v-model="value"
+              v-model="img.score"
               disabled
               show-score
               text-color="#ff9900"
-              score-template="{value} points"
-            />
+              score-template="{value} 分" />
             <br />
-            <el-button type="primary" style="margin-left: 3px" @click="isShow = true">
-              点我评分
-            </el-button>
-            
-            <br />
-            <el-drawer v-model="isShow" title="请在这里评分" >
-              <el-rate
-              v-model="value" 
-              size="large" 
-              allow-half 
-              :texts="['使', '就这', '假搜搜', '哟西', '像啊很像啊（赞赏']" 
-              show-text 
-              clearable
-              />
-            </el-drawer>
-            
+            <el-button
+                type="primary"
+                style="margin-left: 3px"
+                @click="openDetail(index)">查看详情</el-button>
           </template>
         </el-card>
       </el-col>
@@ -148,14 +191,41 @@ function logout() {
   </el-scrollbar>
   <div class="center">
     <el-pagination
-        :total="200" :page-size="20" :page-sizes="[20, 40, 80, 100]"
+        :total="imgList.length" :page-size="20" :page-sizes="[20, 40, 80, 100]"
         layout="sizes, prev, pager, next, total, jumper" size="large"
         @size-change="sizeChange" @current-change="pageChange"
         v-model:current-page="currentPage" v-model:page-size="pageSize"/>
   </div>
+
+  <el-dialog v-model="uploadDialog" v-loading="uploadLoading">
+    <template #header>
+      <span>上传图片</span>
+    </template>
+    <template #default>
+      <el-form label-position="top">
+        <el-form-item label="图片名称">
+          <el-input v-model="uploadName" />
+        </el-form-item>
+        <el-form-item label="图片描述">
+          <el-input type="textarea" v-model="uploadDescription" />
+        </el-form-item>
+        <el-form-item label="上传图片">
+          <input type="file" ref="uploadFile" />
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <el-button @click="uploadDialog = false">取消</el-button>
+      <el-button @click="uploadSubmit" type="primary">提交</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">
+.main {
+  padding-left: 16px;
+  padding-right: 16px;
+}
 .center {
   text-align: center;
 }
@@ -170,14 +240,8 @@ function logout() {
 .img-card {
   margin-bottom: 8px;
 }
-.demo-image__error .image-slot {
-  font-size: 30px;
-}
-.demo-image__error .image-slot .el-icon {
-  font-size: 30px;
-}
-.demo-image__error .el-image {
-  width: 100%;
-  height: 200px;
+.item-img {
+  width: 20vw;
+  height: 20vw;
 }
 </style>
