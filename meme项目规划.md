@@ -89,7 +89,7 @@
 | name | varchar(50) | 是 | 图片名称 | 图片名称 | |
 | description | varchar(100) | 是 | 图片描述 | 图片描述 | |
 | user | int | 是 | 上传者id | 1 | 关联表user |
-| hash | varchar(50) | 是 | 图片hash值 |  |  |
+| data | longtext | 是 | 图片hash值 |  |  |
 | create | datetime | 是 | 上传时间 | | |
 | verified | varchar(1) | 是 | 图片审核通过 | Y | |
 | update | datetime | 是 | 修改时间 |  | |
