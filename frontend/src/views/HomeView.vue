@@ -7,7 +7,6 @@ import {ElMessageBox} from "element-plus";
 
 const token = ref(localStorage.getItem("token"))
 const userInfo = ref({})
-const admin = ref(false)
 const strings = ref(["IURT meme 2.0"])
 const currentPage = ref(1)
 const pageSize = ref(20)
@@ -85,14 +84,14 @@ function logout() {
     <vuetyped :strings="strings" :fade-out="true" :loop="true" cursor-char="_">
       <h1 class="typing"></h1>
     </vuetyped>
-    <h3 class="center" v-if="token">欢迎用户：{{ userInfo["nickname"] }}</h3>
+    <h3 class="center" v-if="token">欢迎用户：{{ userInfo["nickname"] }}（{{ userInfo["username"] }} - {{ userInfo["groupName"] }}）</h3>
   </div>
   <div class="buttons">
     <el-button type="primary" @click="randomImg">随机梗图</el-button>
     <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button type="primary" v-if="token" @click="uploadImg">上传图片</el-button>
-    <el-button type="warning" v-if="admin" @click="gotoAdmin">系统设置</el-button>
+    <el-button type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadImg">上传图片</el-button>
+    <el-button type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
     <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-divider />
