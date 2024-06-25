@@ -12,6 +12,8 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 const picList = ref([])
 const imgList = ref([]);
+const totalCount = ref(0);
+const mainLoading = ref(true)
 
 const uploadDialog = ref(false);
 const uploadName = ref("");
@@ -47,6 +49,7 @@ onMounted(()=>{
     if (res.data.code === 200) {
       imgList.value = [];
       picList.value = res.data.data
+      totalCount.value = res.data.total
       for (const index in res.data.data) {
         const item = res.data.data[index]
         imgList.value.push(item.url)
@@ -61,14 +64,68 @@ onMounted(()=>{
         location.reload()
       }
     })
+  }).finally(()=>{
+    mainLoading.value = false
   })
 })
 
 function sizeChange() {
-
+  mainLoading.value = true
+  axios.get(PicsUrl.picsUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
+    headers: {
+      Authorization: `Bearer ${token.value}`
+    }
+  }).then(res=>{
+    if (res.data.code === 200) {
+      imgList.value = [];
+      picList.value = res.data.data
+      totalCount.value = res.data.total
+      for (const index in res.data.data) {
+        const item = res.data.data[index]
+        imgList.value.push(item.url)
+      }
+    } else {
+      ElMessageBox.alert(res.data["msg"], "数据获取失败")
+    }
+  }).catch(err=>{
+    console.log(err)
+    ElMessageBox.alert("后端请求异常", "数据获取失败", {
+      callback() {
+        location.reload()
+      }
+    })
+  }).finally(()=>{
+    mainLoading.value = false
+  })
 }
 function pageChange() {
-
+  mainLoading.value = true
+  axios.get(PicsUrl.picsUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
+    headers: {
+      Authorization: `Bearer ${token.value}`
+    }
+  }).then(res=>{
+    if (res.data.code === 200) {
+      imgList.value = [];
+      picList.value = res.data.data
+      totalCount.value = res.data.total
+      for (const index in res.data.data) {
+        const item = res.data.data[index]
+        imgList.value.push(item.url)
+      }
+    } else {
+      ElMessageBox.alert(res.data["msg"], "数据获取失败")
+    }
+  }).catch(err=>{
+    console.log(err)
+    ElMessageBox.alert("后端请求异常", "数据获取失败", {
+      callback() {
+        location.reload()
+      }
+    })
+  }).finally(()=>{
+    mainLoading.value = false
+  })
 }
 function randomImg() {
 
@@ -155,7 +212,7 @@ function logout() {
   </div>
   <el-divider />
   <el-scrollbar height="60vh">
-    <el-row :gutter="8" class="main">
+    <el-row :gutter="8" class="main" v-loading="mainLoading">
       <el-col :span="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
           <template #header>
@@ -191,7 +248,7 @@ function logout() {
   </el-scrollbar>
   <div class="center">
     <el-pagination
-        :total="imgList.length" :page-size="20" :page-sizes="[20, 40, 80, 100]"
+        :total="totalCount" :page-size="20" :page-sizes="[20, 40, 80, 100]"
         layout="sizes, prev, pager, next, total, jumper" size="large"
         @size-change="sizeChange" @current-change="pageChange"
         v-model:current-page="currentPage" v-model:page-size="pageSize"/>

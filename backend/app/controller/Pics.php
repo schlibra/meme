@@ -18,6 +18,8 @@ class Pics
     {
         $token = $request->header("Authorization", "");
         $showDelete = $request->get("showDelete", "");
+        $pageSize = (int)$request->get("pageSize", 20);
+        $pageNum = (int)$request->get("pageNum", 1);
         $userId = null;
         if (str_starts_with($token, "Bearer")) {
             $token = str_replace("Bearer ", "", $token);
@@ -45,12 +47,21 @@ class Pics
         if ($showDelete === "Y") {
             $pics = Db::connect("mysql")
                 ->table("pics")
+                ->limit(($pageNum-1)*$pageSize, $pageSize)
                 ->select();
+            $count = Db::connect("mysql")
+                ->table("pics")
+                ->count();
         } else {
             $pics = Db::connect("mysql")
                 ->table("pics")
                 ->where("delete", "=", null)
+                ->limit(($pageNum-1)*$pageSize, $pageSize)
                 ->select();
+            $count = Db::connect("mysql")
+                ->table("pics")
+                ->where("delete", "=", null)
+                ->count();
         }
         for ($i = 0; $i < count($pics); ++$i) {
             $pic = $pics[$i];
@@ -66,7 +77,7 @@ class Pics
             $pic["score"] = rand(4, 5);
             $pics[$i] = $pic;
         }
-        return json(["code" => 200, "msg" => "数据获取成功", "data" => $pics]);
+        return json(["code" => 200, "msg" => "数据获取成功", "data" => $pics, "total" => $count]);
     }
 
     public function create(Request$request)
