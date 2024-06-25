@@ -63,6 +63,7 @@ class Pics
             unset($pic["data"]);
             unset($pic["type"]);
             $pic["url"] = $request->domain() . "/pics/" . $pic["id"];
+            $pic["score"] = rand(4, 5);
             $pics[$i] = $pic;
         }
         return json(["code" => 200, "msg" => "数据获取成功", "data" => $pics]);
