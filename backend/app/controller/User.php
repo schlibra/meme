@@ -271,6 +271,12 @@ class User
                     ->where("email", $_email)
                     ->find();
                 if ($result) {
+                    if ($email && Db::connect("mysql")
+                        ->table("user")
+                        ->where("email", $email)
+                        ->find()){
+                        return json(["code" => 401, "msg" => "邮箱已存在"]);
+                    }
                     if ($nickname) $result["nickname"] = $nickname;
                     if ($birth) $result["birth"] = $birth;
                     if ($sex) $result["sex"] = $sex;
