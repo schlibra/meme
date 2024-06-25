@@ -149,9 +149,56 @@ class Pics
     {
         //
     }
-    public function delete($id)
+    public function delete(Request$request,$id)
     {
-        //
-        return "delete";
+        $token = $request->header("Authorization", "");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $_username = $data["username"];
+                $_email = $data["email"];
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $_username)
+                    ->where("email", $_email)
+                    ->find();
+                if ($user) {
+                    $group = Db::connect("mysql")
+                        ->table("group")
+                        ->where("id", $user["group"])
+                        ->find();
+                    if ($group) {
+                        $pic = Db::connect("mysql")
+                            ->table("pics")
+                            ->where("id", $id)
+                            ->find();
+                        if ($pic) {
+                            if ($group["admin"] === "Y" || ($group["deleteComment"] === "Y" && $pic["user"] === $user["id"])) {
+                                Db::connect("mysql")
+                                    ->table("pics")
+                                    ->where("id", $id)
+                                    ->update([
+                                        "delete" => date("Y-m-d H:i:s")
+                                    ]);
+                                return json(["code" => 200, "msg" => "图片删除成功"]);
+                            } else {
+                                return json(["code" => 403, "msg" => "没有删除权限"]);
+                            }
+                        } else {
+                            return json(["code" => 404, "msg" => "图片不存在"]);
+                        }
+                    } else {
+                        return json(["code" => 401, "msg" => "没有权限"]);
+                    }
+                } else {
+                    return json(["code" => 401, "msg", "用户不存在"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 403, "msg" => "未登录账号"]);
+        }
     }
 }
