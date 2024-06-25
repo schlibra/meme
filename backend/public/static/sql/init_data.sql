@@ -24,3 +24,24 @@ INSERT INTO `user`
 (`username`, `password`, `nickname`, `email`, `create`, `group`, `ban`)
 VALUES
 ('user', '$2y$10$tycuij9Esug9UsdWcC48RuKXLXD3kHjNQjA/0aCb6h9qNaU3f3mOu', '用户1', 'user@example.com', NOW(), 1, 'N');
+
+-- 用户组表
+DROP TABLE IF EXISTS `group`;
+CREATE TABLE IF NOT EXISTS `group`  (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '用户组id',
+    `name` varchar(30) NOT NULL COMMENT '用户组名称',
+    `admin` varchar(1) NOT NULL COMMENT '是否管理员',
+    `upload` varchar(1) NOT NULL COMMENT '允许上传图片',
+    `deletePic` varchar(1) NOT NULL COMMENT '允许删除图片',
+    `deleteComment` varchar(1) NOT NULL COMMENT '允许删除评论',
+    `comment` varchar(1) NOT NULL COMMENT '允许评论',
+    `create` datetime NOT NULL COMMENT '创建时间',
+    `update` datetime NOT NULL COMMENT '修改时间',
+    PRIMARY KEY (`id`)
+);
+-- 用户组数据
+INSERT INTO `group`
+(name, admin, upload, deletePic, deleteComment, comment, `create`, `update`)
+VALUES
+('普通用户', 'N', 'N', 'N', 'Y', 'Y', NOW(), NOW()),
+('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
