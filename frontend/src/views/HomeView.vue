@@ -18,9 +18,8 @@ const srcList = new Array(40).fill("https://tse1-mm.cn.bing.net/th/id/OIP-C.mu-E
 
 onMounted(()=>{
   if (token) {
-    axios.post(UserUrl.getInfoUrl, {}, {
+    axios.get(UserUrl.infoUrl, {
       headers: {
-
         Authorization: `Bearer ${token.value}`
       }
     }).then(res=>{
