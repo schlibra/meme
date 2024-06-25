@@ -15,7 +15,7 @@ Route::rule("user/", "User", "POST");
 Route::rule("user/info", "User/getInfo", "GET");
 Route::rule("user/info", "User/updateInfo", "PUT");
 // 图片
-Route::rule("pics", "Pics");
+Route::rule("pics/", "Pics");
 Route::rule("pics", "Pics/create", "POST");
 Route::rule("pics/:id", "Pics/read");
 
