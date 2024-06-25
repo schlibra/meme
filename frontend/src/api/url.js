@@ -9,8 +9,8 @@ const UserUrl = {
     loginUrl: userUrl + "/login",
     registerUrl: userUrl + "/register",
     sendCodeUrl: userUrl + "/sendCode",
-    getInfoUrl: userUrl + "/getInfo",
-    forgetUrl: userUrl + "/forget"
+    forgetUrl: userUrl + "/forget",
+    infoUrl: userUrl + "/info"
 }
 
 export { UserUrl }
