@@ -1,3 +1,4 @@
 .DS_Store
 backend/view/dist
 frontend/.vite
+frontend/dist.zip
