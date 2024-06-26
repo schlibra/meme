@@ -25,5 +25,6 @@ Route::rule("/", "Index", "GET");
 Route::rule("login", "Index", "GET");
 Route::rule("register", "Index", "GET");
 Route::rule("user/basic", "Index", "GET");
+Route::rule("user/permission", "Index", "GET");
 // assets资源加载
 Route::rule("assets/:file", "Assets/index", "GET");
