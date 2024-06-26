@@ -110,7 +110,7 @@ function gotoLogin() {
   router.push("/login")
 }
 function gotoUser() {
-
+  router.push("/user/basic")
 }
 function gotoAdmin() {
 
