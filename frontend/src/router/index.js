@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from '@/views/RegisterView.vue';
 import ForgetView from '@/views/ForgetView.vue';
+import UserBasic from "@/views/UserBasic.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,14 +23,20 @@ const router = createRouter({
     {
       path: "/register",
       name: "register",
-      component:RegisterView,
+      component: RegisterView,
       meta: { title: "注册账号" }
     },
     {
       path: "/forget",
       name: "forget",
-      component:ForgetView,
+      component: ForgetView,
       meta: { title: "忘记密码" }
+    },
+    {
+      path: "/user/basic",
+      name: "userBasic",
+      component: UserBasic,
+      meta: { title: "用户中心 - 基本设置" }
     }
   ]
 })
