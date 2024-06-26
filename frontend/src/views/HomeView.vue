@@ -165,13 +165,21 @@ function logout() {
     </vuetyped>
     <h3 class="center" v-if="token">欢迎用户：{{ userInfo["nickname"] }}（{{ userInfo["username"] }} - {{ userInfo["groupName"] }}）</h3>
   </div>
-  <div class="buttons">
+  <div class="buttons hidden-xs-only">
     <el-button type="primary" @click="randomImg">随机梗图</el-button>
     <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
     <el-button type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
     <el-button type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
     <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
+  </div>
+  <div class="buttons hidden-sm-and-up">
+    <el-button size="small" type="primary" @click="randomImg">随机梗图</el-button>
+    <el-button size="small" type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
+    <el-button size="small" type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
+    <el-button size="small" type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
+    <el-button size="small" type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
+    <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-divider />
   <el-scrollbar height="60vh">
