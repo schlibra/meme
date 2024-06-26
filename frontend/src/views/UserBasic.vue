@@ -9,7 +9,7 @@ import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken} from "@/lib/tokenLib.js";
 
 const token = getToken()
-const edit = ref(true)
+const edit = ref(false)
 const user = ref({sex: "", birth: 0})
 const nowYear = new Date().getFullYear()
 const loading = ref(true)
