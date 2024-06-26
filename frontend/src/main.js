@@ -7,11 +7,15 @@ import zhCn from "element-plus/es/locale/lang/zh-cn"
 import App from './App.vue'
 import router from './router'
 import { useDark } from "@vueuse/core"
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 const app = createApp(App)
 const isDark = useDark()
 if (isDark.value) {
     document.body.classList.add("dark")
+}
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component)
 }
 
 app.use(router)
