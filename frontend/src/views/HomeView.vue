@@ -5,7 +5,7 @@ import axios from "axios";
 import {PicsUrl, UserUrl} from "@/api/url.js";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken, removeToken} from "@/lib/tokenLib.js";
-import {confirm} from "@/lib/confirmLib.js";
+import confirm from "@/lib/confirmLib.js";
 
 const token = ref(getToken())
 const userInfo = ref({})

@@ -14,4 +14,4 @@ function confirm(message, title, action={confirm: _=>_, cancel: _=>_, close: _=>
     })
 }
 
-export { confirm }
+export default confirm
