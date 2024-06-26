@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `user` (
     `ban` varchar(1) NOT NULL COMMENT '用户是否封禁',
     `reason` varchar(100) NULL COMMENT '用户封禁原因',
     `birth` int NOT NULL DEFAULT 2004 COMMENT '出生年份',
-    `sex` int NULL COMMENT '性别',
+    `sex` varchar(10) NULL COMMENT '性别',
     `description` varchar(500) NULL COMMENT '个人介绍',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8;
