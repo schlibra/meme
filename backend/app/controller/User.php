@@ -206,7 +206,7 @@ class User
                     "email" => $email
                 ];
                 $token = JWT::encode($payload, "meme_email_token_key", "HS256");
-                return json(["code" => 200, "msg" => "发送成功", "token" => $token]);
+                return json(["code" => 200, "msg" => "发送成功，请及时查收", "token" => $token]);
             } catch (\PHPMailer\PHPMailer\Exception$e) {
                 return json(["code" => 500, "msg" => "发送失败：".$e->getMessage()]);
             }
@@ -271,6 +271,7 @@ class User
                     ->where("email", $_email)
                     ->find();
                 if ($result) {
+                    if ($email === $_email) $email = null;
                     if ($email && Db::connect("mysql")
                         ->table("user")
                         ->where("email", $email)
