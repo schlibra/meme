@@ -6,6 +6,7 @@ import {PicsUrl, UserUrl} from "@/api/url.js";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken, removeToken} from "@/lib/tokenLib.js";
 import confirm from "@/lib/confirmLib.js";
+import displayUtil from "@/lib/displayUtil.js";
 
 const token = ref(getToken())
 const userInfo = ref({})
@@ -220,7 +221,7 @@ function logout() {
   <div class="center">
     <el-pagination
         :total="totalCount" :page-size="20" :page-sizes="[20, 40, 80, 100]"
-        layout="sizes, prev, pager, next, total, jumper" size="large"
+        :layout="displayUtil.isXs ? 'sizes, prev, pager, next, total' : 'sizes, prev, pager, next, total, jumper'" :size="displayUtil.isXs ? 'small' : 'default'"
         @size-change="sizeChange" @current-change="pageChange"
         v-model:current-page="currentPage" v-model:page-size="pageSize"/>
   </div>

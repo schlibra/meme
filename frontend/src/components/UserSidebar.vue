@@ -7,7 +7,7 @@ const prop = defineProps(["defaultActive"])
 const defaultActive = prop.defaultActive
 const expand = ref(false)
 
-onMounted(()=> expand.value = displayUtil.value.isXs)
+onMounted(()=> expand.value = displayUtil.isXs)
 </script>
 
 <template>
