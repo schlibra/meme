@@ -3,9 +3,11 @@ import {onMounted, ref} from "vue";
 import router from "@/router/index.js";
 import axios from "axios";
 import {PicsUrl, UserUrl} from "@/api/url.js";
-import {ElMessageBox} from "element-plus";
+import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
+import {getToken, removeToken} from "@/lib/tokenLib.js";
+import {confirm} from "@/lib/confirmLib.js";
 
-const token = ref(localStorage.getItem("token"))
+const token = ref(getToken())
 const userInfo = ref({})
 const strings = ref(["IURT meme 2.0"])
 const currentPage = ref(1)
@@ -32,20 +34,15 @@ onMounted(()=>{
         userInfo.value = res.data.data
       } else {
         token.value = "";
-        localStorage.removeItem("token")
+        removeToken()
       }
-    }).catch(err=>{
-      console.log(err)
-      token.value = ""
-      localStorage.removeItem("token")
-    })
+    }).catch(() => removeToken())
   }
   axios.get(PicsUrl.picsUrl, {
     headers: token.value ? {
       Authorization: `Bearer ${token.value}`
     } : {}
   }).then(res => {
-    console.log(res)
     if (res.data.code === 200) {
       imgList.value = [];
       picList.value = res.data.data
@@ -55,18 +52,11 @@ onMounted(()=>{
         imgList.value.push(item.url)
       }
     } else {
-      ElMessageBox.alert(res.data["msg"], "数据获取失败")
+      alertError(res, "数据获取失败")
     }
   }).catch(err=>{
-    console.log(err)
-    ElMessageBox.alert("后端请求异常", "数据获取失败", {
-      callback() {
-        location.reload()
-      }
-    })
-  }).finally(()=>{
-    mainLoading.value = false
-  })
+    axiosError(err, "数据获取失败", location.reload)
+  }).finally(() => mainLoading.value = false)
 })
 
 function sizeChange() {
@@ -85,18 +75,11 @@ function sizeChange() {
         imgList.value.push(item.url)
       }
     } else {
-      ElMessageBox.alert(res.data["msg"], "数据获取失败")
+      alertError(res, "数据获取失败")
     }
   }).catch(err=>{
-    console.log(err)
-    ElMessageBox.alert("后端请求异常", "数据获取失败", {
-      callback() {
-        location.reload()
-      }
-    })
-  }).finally(()=>{
-    mainLoading.value = false
-  })
+    axiosError(err, "数据获取失败", location.reload)
+  }).finally(() => mainLoading.value = false)
 }
 function pageChange() {
   mainLoading.value = true
@@ -114,26 +97,17 @@ function pageChange() {
         imgList.value.push(item.url)
       }
     } else {
-      ElMessageBox.alert(res.data["msg"], "数据获取失败")
+      alertError(res, "数据获取失败")
     }
   }).catch(err=>{
-    console.log(err)
-    ElMessageBox.alert("后端请求异常", "数据获取失败", {
-      callback() {
-        location.reload()
-      }
-    })
-  }).finally(()=>{
-    mainLoading.value = false
-  })
+    axiosError(err, "数据获取失败", location.reload)
+  }).finally(()=> mainLoading.value = false)
 }
 function randomImg() {
 
 }
 function gotoLogin() {
-  router.push({
-    path: "/login"
-  })
+  router.push("/login")
 }
 function gotoUser() {
 
@@ -160,36 +134,25 @@ function uploadSubmit() {
     }
   }).then(res=>{
     if (res.data.code === 200) {
-      ElMessageBox.alert("上传成功", "上传成功", {
-        callback() {
-          location.reload()
-        }
-      })
+      alertSuccess(res, "上传成功", location.reload)
     } else {
-      ElMessageBox.alert(res.data["msg"], "上传失败")
+      alertError(res, "上传失败")
     }
   }).catch(err=>{
-    console.log(err)
-    ElMessageBox.alert("接口请求异常", "上传失败")
-  }).finally(()=>{
-    uploadLoading.value = false
-  })
+    axiosError(err, "上传失败")
+  }).finally(()=> uploadLoading.value = false)
 }
 function logout() {
-  ElMessageBox.confirm("是否退出当前账号登录", "退出账号", {
-    callback(action1) {
-      if (action1 === "confirm") {
-        localStorage.removeItem("token")
-        token.value = ""
-        userInfo.value = {}
-        ElMessageBox.confirm("已退出登录，是否前往登录页面", "前往登录", {
-          callback(action2) {
-            if (action2 === "confirm") {
-              gotoLogin()
-            }
-          }
-        })
-      }
+  confirm("是否退出当前账号", "退出账号", {
+    confirm() {
+      removeToken()
+      token.value = ""
+      userInfo.value = {}
+      confirm("已退出登录，是否前往登录页面", "前往登录", {
+        confirm() {
+          gotoLogin()
+        }
+      })
     }
   })
 }
