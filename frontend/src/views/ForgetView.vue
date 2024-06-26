@@ -1,10 +1,10 @@
 <script setup>
 import {UserUrl} from "@/api/url.js";
 import {ref} from "vue";
-import { ElMessageBox } from "element-plus";
 import axios from "axios";
 import router from "@/router/index.js";
 import { Back } from "@element-plus/icons-vue";
+import {alertSuccess, alertError, axiosError} from "@/lib/requestAlert.js";
 
 const username = ref("");
 const password = ref("");
@@ -24,18 +24,15 @@ function sendCodeHandler() {
     }).then(res=>{
       if (res.data.code === 200) {
         emailToken = res.data.token
-        ElMessageBox.alert("发送成功，请及时查收", "发送成功")
+        alertSuccess(res, "发送成功")
       } else {
-        ElMessageBox.alert(res.data["msg"], "发送失败")
+        alertError(res, "发送失败")
       }
     }).catch(err=>{
-      console.log(err)
-      ElMessageBox.alert("接口请求异常", "发送失败")
-    }).finally(()=>{
-      formLoading.value = false
-    })
+      axiosError(err, "发送失败")
+    }).finally(()=> formLoading.value = false)
   } else {
-    ElMessageBox.alert("邮箱地址不能为空", "发送失败")
+    alertError("邮箱地址不能为空", "发送失败")
   }
 }
 
@@ -56,27 +53,18 @@ function forgetHandler() {
         }
       }).then(res => {
         if (res.data.code === 200) {
-          ElMessageBox.alert("密码重置成功", "密码重置成功", {
-            callback() {
-              router.push({
-                path: "/login"
-              })
-            }
-          })
+          alertSuccess(res, "密码重置成功", ()=> router.push("/login"))
         } else {
-          ElMessageBox.alert(res.data["msg"], "密码重置失败")
+          alertError(res, "密码重置失败")
         }
       }).catch(err => {
-        console.log(err)
-        ElMessageBox.alert("接口响应异常", "密码重置失败");
-      }).finally(() => {
-        formLoading.value = false
-      })
+        axiosError(err, "密码重置失败");
+      }).finally(() => formLoading.value = false)
     } else {
-      ElMessageBox.alert("两次密码不一致", "密码重置失败")
+      alertError("两次密码不一致", "密码重置失败")
     }
   } else {
-    ElMessageBox.alert("字段不能为空", "密码重置失败")
+    alertError("字段不能为空", "密码重置失败")
   }
 }
 function gotoLogin() {
@@ -86,7 +74,6 @@ function gotoLogin() {
 
 <template>
   <main >
-  
     <el-row justify="center" align="middle" class="row">
       <el-col :span="12">
         <el-card v-loading="formLoading">
