@@ -66,7 +66,7 @@ function update() {
 
 <template>
   <el-container>
-    <el-aside width="200px">
+    <el-aside style="width: unset;">
       <UserSidebar default-active="1" />
     </el-aside>
     <el-container>
