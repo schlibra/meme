@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `pics`  (
     `data` longtext NOT NULL COMMENT '图片数据(base64)',
     `type` varchar(50) NOT NULL COMMENT '文件类型',
     `create` datetime NOT NULL COMMENT '创建时间',
+    `verified` varchar(1) NOT NULL COMMENT '图片是否审核',
     `update` datetime NOT NULL COMMENT '更新时间',
     `delete` datetime NULL COMMENT '删除时间',
     PRIMARY KEY (`id`)
