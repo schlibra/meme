@@ -24,5 +24,6 @@ Route::rule("pics/:id", "Pics/delete", "DELETE");
 Route::rule("/", "Index", "GET");
 Route::rule("login", "Index", "GET");
 Route::rule("register", "Index", "GET");
+Route::rule("user/basic", "Index", "GET");
 // assets资源加载
 Route::rule("assets/:file", "Assets/index", "GET");
