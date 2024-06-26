@@ -1,9 +1,10 @@
 <script setup>
 import {UserUrl} from "@/api/url.js";
 import {ref} from "vue";
-import {ElMessageBox} from "element-plus";
 import axios from "axios";
 import router from "@/router/index.js";
+import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
+import {setToken} from "@/lib/tokenLib.js";
 
 const username = ref("");
 const password = ref("");
@@ -17,25 +18,16 @@ function loginHandler() {
       password: password.value
     }).then(res=>{
       if (res.data.code===200) {
-        localStorage.setItem("token", res.data.token)
-        ElMessageBox.alert("登录成功", "登录成功", {
-          callback() {
-            router.push({
-              path: "/"
-            })
-          }
-        })
+        setToken(res)
+        alertSuccess(res, "登录成功", () => router.push("/"))
       } else {
-        ElMessageBox.alert(res.data["msg"], "登录失败")
+        alertError(res, "登录失败")
       }
     }).catch(err=>{
-      console.log(err)
-      ElMessageBox.alert("接口响应异常", "登录失败");
-    }).finally(() => {
-      formLoading.value = false
-    })
+      axiosError(err, "登录失败");
+    }).finally(() => formLoading.value = false)
   } else {
-    ElMessageBox.alert("账号密码不能为空", "登录失败")
+    alertError("账号密码不能为空", "登录失败")
   }
 }
 </script>
