@@ -199,7 +199,11 @@ function logout() {
               :min-scale="0.2"
               :preview-src-list="imgList"
               :initial-index="index"
-              fit="contain" />
+              fit="contain">
+              <template #error>
+                <el-empty description="图片加载失败咯" />
+              </template>
+            </el-image>
           </template>
           <template #footer>
             <el-rate
@@ -271,7 +275,7 @@ function logout() {
 }
 .item-img {
   width: 20vw;
-  height: 20vw;
+  height: 21vw;
 }
 .el-pagination {
   margin-top: 16px;
