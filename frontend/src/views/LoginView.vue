@@ -35,7 +35,7 @@ function loginHandler() {
 <template>
   <main>
     <el-row justify="center" align="middle" class="row">
-      <el-col :span="12">
+      <el-col :xs="22" :sm="18" :md="14" :lg="10" :xl="6">
         <el-card v-loading="formLoading">
           <template #header>
             <h1>登录</h1>

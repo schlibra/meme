@@ -176,7 +176,7 @@ function logout() {
   <el-divider />
   <el-scrollbar height="60vh">
     <el-row :gutter="8" class="main" v-loading="mainLoading">
-      <el-col :span="6" v-for="(img, index) in picList" :key="img.id">
+      <el-col  :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
           <template #header>
             <span>{{ img.name }}</span>
@@ -250,7 +250,7 @@ function logout() {
   text-align: center;
 }
 .typing {
-  margin-left: 35vw;
+  margin-left: calc(50vw - 150px);
   font-size: 40px;
   height: 64px;
 }
