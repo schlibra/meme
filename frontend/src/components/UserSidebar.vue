@@ -2,12 +2,20 @@
 import {Expand, Fold, User} from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import displayUtil from "@/lib/displayUtil.js";
+import router from "@/router/index.js";
 
 const prop = defineProps(["defaultActive"])
 const defaultActive = prop.defaultActive
 const expand = ref(false)
 
 onMounted(()=> expand.value = displayUtil.isXs)
+
+function gotoBasic() {
+  router.push("/user/basic")
+}
+function gotoPermission() {
+  router.push("/user/permission")
+}
 </script>
 
 <template>
@@ -16,11 +24,11 @@ onMounted(()=> expand.value = displayUtil.isXs)
       <h3 v-if="expand"><el-icon><User /></el-icon></h3>
       <h3 v-else>用户中心</h3>
     </el-menu-item>
-    <el-menu-item index="1">
+    <el-menu-item index="1" @click="gotoBasic">
       <el-icon><Menu /></el-icon>
       <span>基本设置</span>
     </el-menu-item>
-    <el-menu-item index="2">
+    <el-menu-item index="2" @click="gotoPermission">
       <el-icon><Lock /></el-icon>
       <span>用户权限</span>
     </el-menu-item>
