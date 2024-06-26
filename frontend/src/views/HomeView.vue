@@ -183,12 +183,12 @@ function logout() {
     <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-divider />
-  <el-scrollbar height="60vh">
+  <el-scrollbar height="calc(60vh - 50px)">
     <el-row :gutter="8" class="main" v-loading="mainLoading">
       <el-col  :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
           <template #header>
-            <span>{{ img.name }}</span>
+            <el-text truncated>{{ img.name }}</el-text>
           </template>
           <template #default>
             <el-image
@@ -272,5 +272,10 @@ function logout() {
 .item-img {
   width: 20vw;
   height: 20vw;
+}
+.el-pagination {
+  margin-top: 16px;
+  margin-bottom: 32px;
+  margin-left: 16px;
 }
 </style>
