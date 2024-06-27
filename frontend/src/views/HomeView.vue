@@ -53,10 +53,10 @@ onMounted(()=>{
         imgList.value.push(item.url)
       }
     } else {
-      alertError(res, "数据获取失败")
+      alertError(res, "数据获取失败", ()=>location.reload())
     }
   }).catch(err=>{
-    axiosError(err, "数据获取失败", location.reload)
+    axiosError(err, "数据获取失败", ()=>location.reload())
   }).finally(() => mainLoading.value = false)
 })
 
@@ -79,7 +79,7 @@ function sizeChange() {
       alertError(res, "数据获取失败")
     }
   }).catch(err=>{
-    axiosError(err, "数据获取失败", location.reload)
+    axiosError(err, "数据获取失败", ()=>location.reload())
   }).finally(() => mainLoading.value = false)
 }
 function pageChange() {
@@ -101,7 +101,7 @@ function pageChange() {
       alertError(res, "数据获取失败")
     }
   }).catch(err=>{
-    axiosError(err, "数据获取失败", location.reload)
+    axiosError(err, "数据获取失败", ()=>location.reload())
   }).finally(()=> mainLoading.value = false)
 }
 function randomImg() {
@@ -135,7 +135,7 @@ function uploadSubmit() {
     }
   }).then(res=>{
     if (res.data.code === 200) {
-      alertSuccess(res, "上传成功", location.reload)
+      alertSuccess(res, "上传成功", ()=>location.reload())
     } else {
       alertError(res, "上传失败")
     }
