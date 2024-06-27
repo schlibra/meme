@@ -38,7 +38,7 @@ onMounted(()=>{
         alertError(res, "数据获取失败", ()=> router.push("/login"))
       }
     }).catch(err=>{
-      axiosError(err, "数据获取失败", location.reload)
+      axiosError(err, "数据获取失败", ()=>location.reload())
     }).finally(()=> loading.value = false)
   } else {
     router.push("/login")
