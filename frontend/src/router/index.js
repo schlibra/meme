@@ -5,6 +5,7 @@ import RegisterView from '@/views/RegisterView.vue';
 import ForgetView from '@/views/ForgetView.vue';
 import UserBasic from "@/views/UserBasic.vue";
 import UserPermission from "@/views/UserPermission.vue";
+import UserSecurity from "@/views/UserSecurity.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,12 @@ const router = createRouter({
       name: "userBasic",
       component: UserBasic,
       meta: { title: "用户中心 - 基本设置" }
+    },
+    {
+      path: "/user/security",
+      name: "userSecurity",
+      component: UserSecurity,
+      meta: { title: "用户中心 - 安全设置" }
     },
     {
       path: "/user/permission",
