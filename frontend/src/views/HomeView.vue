@@ -146,13 +146,20 @@ function uploadSubmit() {
 function logout() {
   confirm("是否退出当前账号", "退出账号", {
     confirm() {
-      removeToken()
-      token.value = ""
-      userInfo.value = {}
-      confirm("已退出登录，是否前往登录页面", "前往登录", {
-        confirm() {
-          gotoLogin()
+      mainLoading.value = true
+      axios.post(UserUrl.logoutUrl, {}, {
+        headers: {
+          Authorization: `Bearer ${token.value}`
         }
+      }).finally(()=>{
+        mainLoading.value = false
+        token.value = ""
+        userInfo.value = {}
+        confirm("已退出登录，是否前往登录页面", "前往登录", {
+          confirm() {
+            gotoLogin()
+          }
+        })
       })
     }
   })
