@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 INSERT INTO `user`
 (`username`, `password`, `nickname`, `email`, `create`, `group`, `ban`)
 VALUES
-('user', '$2y$10$tycuij9Esug9UsdWcC48RuKXLXD3kHjNQjA/0aCb6h9qNaU3f3mOu', '用户1', 'user@example.com', NOW(), 1, 'N');
+('user', '$2y$10$tycuij9Esug9UsdWcC48RuKXLXD3kHjNQjA/0aCb6h9qNaU3f3mOu', '用户1', 'user@example.com', NOW(), 1, 'N'),
+('admin', '$2y$10$Az47ZzIHReD7BRTx5sfz6uJ.O6hqH98W5usfSdU1mNJe/EBBTQ7AW', '管理员', 'admin@example.com', now(), '2', 'N');
 
 -- 用户组表
 DROP TABLE IF EXISTS `group`;
