@@ -3,13 +3,21 @@ import {ElMessageBox} from "element-plus";
 function alertSuccess(res, title="操作成功", callback=_=>_) {
     let message = typeof res === "string" ? res : res.data["msg"]
     ElMessageBox.alert(message, title, {
-        type: "success"
+        type: "success",
+        customStyle: {
+            "word-wrap": "break-word",
+            "word-break": "break-word"
+        }
     }).then(callback)
 }
 function alertError(res, title="操作失败", callback=_=>_) {
     let message = typeof res === "string" ? res : res.data["msg"]
     ElMessageBox.alert(message, title, {
-        type: "error"
+        type: "error",
+        customStyle: {
+            "word-wrap": "break-word",
+            "word-break": "break-word"
+        }
     }).then(callback)
 }
 function axiosError(err, title="请求失败", callback=_=>_) {
@@ -20,7 +28,11 @@ function axiosError(err, title="请求失败", callback=_=>_) {
         message = err.message
     }
     ElMessageBox.alert(message, title, {
-        type: "error"
+        type: "error",
+        customStyle: {
+            "word-wrap": "break-word",
+            "word-break": "break-word"
+        }
     }).then(callback)
 }
 
