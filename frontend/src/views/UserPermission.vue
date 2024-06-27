@@ -26,7 +26,7 @@ onMounted(()=>{
         alertError(res, "数据获取失败", ()=>router.push("/login"))
       }
     }).catch(err=>{
-      axiosError(err, "数据获取失败", location.reload)
+      axiosError(err, "数据获取失败", ()=>location.reload())
     }).finally(()=>{
       loading.value = false
     })
@@ -39,7 +39,7 @@ onMounted(()=>{
 <template>
   <el-container>
     <el-aside style="width: unset">
-      <UserSidebar default-active="2" />
+      <UserSidebar default-active="3" />
     </el-aside>
     <el-container>
       <el-header style="height: 30px;">
