@@ -77,7 +77,11 @@
 | upload | varchar(1) | 是 | 允许上传图片 | Y | |
 | deletePic | varchar(1) | 是 | 允许删除图片 | Y | 只能删除自己上传的图片 |
 | deleteComment | varchar(1) | 是 | 允许删除评论 | Y | 只能删除自己发布的评论 |
+| updateComment | varchar(1) | 是 | 允许修改评论 | Y | |
 | comment | varchar(1) | 是 | 允许评论 | Y | |
+| score | varchar(1) | 是 | 允许评分 | Y | |
+| updateScore | varchar(1) | 是 | 允许修改评分 | Y | |
+| deleteScore | varchar(1) | 是 | 允许删除评分 | Y | |
 | create | datetime | 是 | 创建时间 | | |
 | update | datetime | 是 | 修改时间 | | |
 
