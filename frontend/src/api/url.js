@@ -11,7 +11,9 @@ const UserUrl = {
     registerUrl: userUrl + "/register",
     sendCodeUrl: userUrl + "/sendCode",
     forgetUrl: userUrl + "/forget",
-    infoUrl: userUrl + "/info"
+    infoUrl: userUrl + "/info",
+    verifyUrl: userUrl + "/verify",
+    passwordUrl: userUrl + "/password"
 }
 
 const PicsUrl = {

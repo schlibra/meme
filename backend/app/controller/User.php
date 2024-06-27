@@ -13,6 +13,7 @@ use think\db\exception\DataNotFoundException;
 use think\db\exception\DbException;
 use think\db\exception\ModelNotFoundException;
 use think\Exception;
+use think\facade\Cache;
 use think\facade\Db;
 use think\Request;
 use Firebase\JWT\JWT;
@@ -48,6 +49,7 @@ class User
                         "email" => $data["email"]
                     ];
                     $token = JWT::encode($payload, "meme_login_token_key", "HS256");
+                    Cache::set($username, $token);
                     return json(["code"=>200, "msg"=>"登录成功", "token"=>$token]);
                 }
             } else {
@@ -122,6 +124,9 @@ class User
             try {
                 $data = (array) JWT::decode($token, new Key("meme_email_token_key", "HS256"));
                 $_email = $data["email"];
+                if (Cache::get($_email) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
                 $_code = $data["code"];
                 if ($email === $_email) {
                     if ($code == $_code) {
@@ -165,11 +170,13 @@ class User
         $actionText = match ($action) {
             "register" => "注册IURT meme 2.0账号",
             "forget" => "重置IURT meme 2.0密码",
+            "verify" => "验证IURT meme 2.0邮箱",
             default => ""
         };
         $actionShort = match ($action) {
             "register" => "注册",
             "forget" => "重置密码",
+            "verify" => "验证邮箱",
             default => ""
         };
         $email = $request->post("email");
@@ -206,6 +213,7 @@ class User
                     "email" => $email
                 ];
                 $token = JWT::encode($payload, "meme_email_token_key", "HS256");
+                Cache::set($email, $token);
                 return json(["code" => 200, "msg" => "发送成功，请及时查收", "token" => $token]);
             } catch (\PHPMailer\PHPMailer\Exception$e) {
                 return json(["code" => 500, "msg" => "发送失败：".$e->getMessage()]);
@@ -220,6 +228,9 @@ class User
             try {
                 $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $username = $data["username"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
                 $email = $data["email"];
                 $row = Db::connect("mysql")
                     ->table("user")
@@ -264,6 +275,9 @@ class User
             try {
                 $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $username = $data["username"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
                 $_email = $data["email"];
                 $result = Db::connect("mysql")
                     ->table("user")
@@ -295,6 +309,93 @@ class User
                 }
             } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
                 return json(["code"=>401, "msg"=>"Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
+    function logout(Request$request) {
+        $token = $request->header("Authorization", "");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                Cache::delete($username);
+                return json(["code" => 200, "msg" => "已退出登录"]);
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 200, "msg" => "已退出登录"]);
+            }
+        } else {
+            return json(["code" => 200, "msg" => "已退出登录"]);
+        }
+    }
+    function changePassword(Request$request) {
+        $token = $request->header("Authorization", "");
+        $oldPassword = $request->post("oldPassword");
+        $newPassword = $request->post("newPassword");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                $email = $data["email"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $username)
+                    ->where("email", $email)
+                    ->find();
+                if ($user) {
+                    if (password_verify($oldPassword, $user["password"])) {
+                        $user["password"] = password_hash($newPassword, PASSWORD_BCRYPT);
+                        Db::connect("mysql")
+                            ->table("user")
+                            ->save($user);
+                        Cache::delete($username);
+                        return json(["code" => 200, "msg" => "密码修改成功"]);
+                    } else {
+                        return json(["code" => 401, "msg" => "原密码不正确"]);
+                    }
+                } else {
+                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code"=>401, "msg"=>"Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
+
+    function verify(Request$request)
+    {
+        $token = $request->header("Authorization", "");
+        $code = $request->post("code");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array)JWT::decode($token, new Key("meme_email_token_key", "HS256"));
+                $_email = $data["email"];
+                if (Cache::get($_email) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
+                $_code = $data["code"];
+                if ($code == $_code) {
+                    Db::connect("mysql")
+                        ->table("user")
+                        ->where("email", $_email)
+                        ->update([
+                            "verified" => "Y"
+                        ]);
+                    return json(["code" => 200, "msg" => "验证成功"]);
+                } else {
+                    return json(["code" => 401, "msg" => "验证码不正确"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
             }
         } else {
             return json(["code" => 401, "msg" => "未登录"]);
