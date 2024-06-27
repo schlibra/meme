@@ -1,5 +1,5 @@
 <script setup>
-import {Expand, Fold, User} from "@element-plus/icons-vue";
+import {ChatLineRound, Expand, Fold, Key, Lock, User} from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import displayUtil from "@/lib/displayUtil.js";
 import router from "@/router/index.js";
@@ -12,6 +12,9 @@ onMounted(()=> expand.value = displayUtil.isXs)
 
 function gotoBasic() {
   router.push("/user/basic")
+}
+function gotoSecurity() {
+  router.push("/user/security")
 }
 function gotoPermission() {
   router.push("/user/permission")
@@ -28,15 +31,19 @@ function gotoPermission() {
       <el-icon><Menu /></el-icon>
       <span>基本设置</span>
     </el-menu-item>
-    <el-menu-item index="2" @click="gotoPermission">
+    <el-menu-item index="2" @click="gotoSecurity">
       <el-icon><Lock /></el-icon>
+      <span>安全设置</span>
+    </el-menu-item>
+    <el-menu-item index="3" @click="gotoPermission">
+      <el-icon><Key /></el-icon>
       <span>用户权限</span>
     </el-menu-item>
-    <el-menu-item index="3">
+    <el-menu-item index="4">
       <el-icon><Picture /></el-icon>
       <span>图片列表</span>
     </el-menu-item>
-    <el-menu-item index="4">
+    <el-menu-item index="5">
       <el-icon><ChatLineRound /></el-icon>
       <span>评论列表</span>
     </el-menu-item>
