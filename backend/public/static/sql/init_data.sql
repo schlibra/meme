@@ -37,16 +37,20 @@ CREATE TABLE IF NOT EXISTS `group`  (
     `deletePic` varchar(1) NOT NULL COMMENT '允许删除图片',
     `deleteComment` varchar(1) NOT NULL COMMENT '允许删除评论',
     `comment` varchar(1) NOT NULL COMMENT '允许评论',
+    `updateComment` varchar(1) NOT NULL COMMENT '允许更新评论',
+    `score` varchar(1) NOT NULL COMMENT '允许评分',
+    `updateScore` varchar(1) NOT NULL COMMENT '允许更新评分',
+    `deleteScore` varchar(1) NOT NULL COMMENT '允许删除评分',
     `create` datetime NOT NULL COMMENT '创建时间',
     `update` datetime NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`id`)
 );
 -- 用户组数据
 INSERT INTO `group`
-(name, admin, upload, updatePic, deletePic, deleteComment, comment, `create`, `update`)
+(name, admin, upload, updatePic, deletePic, deleteComment, updateComment, comment, score, updateScore, deleteScore, `create`, `update`)
 VALUES
-('普通用户', 'N', 'N', 'N', 'N', 'Y', 'Y', NOW(), NOW()),
-('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
+('普通用户', 'N', 'N', 'N', 'N', 'N', 'N', 'Y', 'Y', 'N', 'Y', NOW(), NOW()),
+('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
 
 -- 图片表
 DROP TABLE IF EXISTS `pics`;
@@ -61,5 +65,17 @@ CREATE TABLE IF NOT EXISTS `pics`  (
     `verified` varchar(1) NOT NULL COMMENT '图片是否审核',
     `update` datetime NOT NULL COMMENT '更新时间',
     `delete` datetime NULL COMMENT '删除时间',
+    PRIMARY KEY (`id`)
+);
+
+-- 评分表
+DROP TABLE IF EXISTS `score`;
+CREATE TABLE IF NOT EXISTS `score`  (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '数据id',
+    `pic` int NOT NULL COMMENT '图片id',
+    `user` int NOT NULL COMMENT '用户id',
+    `score` float NOT NULL COMMENT '评分',
+    `create` datetime NOT NULL COMMENT '创建时间',
+    `update` datetime NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`id`)
 );
