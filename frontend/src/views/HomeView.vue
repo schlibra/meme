@@ -213,17 +213,17 @@ function logout() {
             </el-image>
           </template>
           <template #footer>
-            <el-rate
-              v-model="img.score"
-              disabled
-              show-score
-              text-color="#ff9900"
-              score-template="{value} 分" />
-            <br />
-            <el-button
-                type="primary"
-                style="margin-left: 3px"
-                @click="openDetail(index)">查看详情</el-button>
+            <el-space direction="vertical">
+              <el-rate
+                v-model="img.score"
+                disabled
+                show-score
+                text-color="#ff9900"
+                :score-template="img.score === 0 ? '暂无评分' : `${img.score}分`" />
+              <el-button
+                  type="primary"
+                  @click="openDetail(index)">查看详情</el-button>
+            </el-space>
           </template>
         </el-card>
       </el-col>
