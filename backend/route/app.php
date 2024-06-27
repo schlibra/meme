@@ -21,10 +21,13 @@ Route::put("user/password", "User/changePassword");
 Route::post("user/logout", "User/logout");
 Route::post("user/verify", "User/verify");
 // 图片
-Route::any("pics/", "Pics");
-Route::post("pics", "Pics/create");
-Route::get("pics/:id", "Pics/read");
-Route::delete("pics/:id", "Pics/delete");
+Route::get("pics/", "Pics/index");
+Route::post("pics/", "Pics/create");
+Route::get("pics/image/:id", "Pics/read");
+Route::delete("pics/image/:id", "Pics/delete");
+Route::post("pics/score", "Pics/addScore");
+Route::put("pics/score", "Pics/updateScore");
+Route::get("pics/score", "Pics/getScore");
 
 // 访问前端
 Route::get("/", "Index");
@@ -32,5 +35,6 @@ Route::get("login", "Index");
 Route::get("register", "Index");
 Route::get("user/basic", "Index");
 Route::get("user/permission", "Index");
+Route::get("user/security", "Index");
 // assets资源加载
 Route::get("assets/:file", "Assets/index");
