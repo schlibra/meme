@@ -74,38 +74,38 @@ function registerHandler() {
   <main >
     <el-row justify="center" align="middle" class="row">
       <el-col :xs="22" :sm="18" :md="14" :lg="10" :xl="6">
-        <el-scrollbar height="100vh">
+
         <el-card v-loading="formLoading">
           <template #header>
             <h1>注册</h1>
           </template>
           <template #default>
             <el-form label-width="auto" label-position="top">
-              <el-form-item label="用户名">
-                <el-input v-model="username" placeholder="输入用户名" />
-              </el-form-item>
-              <el-form-item label="昵称">
-                <el-input v-model="nickname" placeholder="输入昵称" />
-              </el-form-item>
-              <el-form-item label="密码">
-                <el-input type="password" v-model="password" placeholder="输入密码" />
-              </el-form-item>
-              <el-form-item label="确认密码">
-                <el-input type="password" v-model="confirm" placeholder="再次输入密码" />
-              </el-form-item>
-              <el-form-item label="邮箱">
-                <el-row style="width: 100%;" :gutter="8">
-                  <el-col :span="20">
-                    <el-input type="text" v-model="email" placeholder="输入邮箱" />
-                  </el-col>
-                  <el-col :span="4">
-                    <el-button type="info" @click="sendCodeHandler">发送验证码</el-button>
-                  </el-col>
-                </el-row>
-              </el-form-item>
-              <el-form-item label="邮箱验证码">
-                <el-input type="text" v-model="code" placeholder="输入邮箱验证码" />
-              </el-form-item>
+              <el-scrollbar height="40vh">
+                <el-form-item label="用户名">
+                  <el-input v-model="username" placeholder="输入用户名" />
+                </el-form-item>
+                <el-form-item label="昵称">
+                  <el-input v-model="nickname" placeholder="输入昵称" />
+                </el-form-item>
+                <el-form-item label="密码">
+                  <el-input type="password" v-model="password" placeholder="输入密码" />
+                </el-form-item>
+                <el-form-item label="确认密码">
+                  <el-input type="password" v-model="confirm" placeholder="再次输入密码" />
+                </el-form-item>
+                <el-form-item label="邮箱">
+                  <el-row style="width: 100%;" :gutter="8">
+                    <el-space style="margin-left: 4px;">
+                      <el-input type="text" v-model="email" placeholder="输入邮箱" />
+                      <el-button type="info" @click="sendCodeHandler">发送验证码</el-button>
+                    </el-space>
+                  </el-row>
+                </el-form-item>
+                <el-form-item label="邮箱验证码">
+                  <el-input type="text" v-model="code" placeholder="输入邮箱验证码" />
+                </el-form-item>
+              </el-scrollbar>
               <div class="right">
                 <el-link href="/login">已有账号，立刻登录</el-link>
               </div>
@@ -115,7 +115,6 @@ function registerHandler() {
             <el-button class="register" type="primary" @click="registerHandler" size="large">注册</el-button>
           </template>
         </el-card>
-        </el-scrollbar>
       </el-col>
     </el-row>
   </main>
