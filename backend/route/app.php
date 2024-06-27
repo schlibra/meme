@@ -11,20 +11,26 @@
 use think\facade\Route;
 
 // 用户
-Route::rule("user/", "User", "POST");
-Route::rule("user/info", "User/getInfo", "GET");
-Route::rule("user/info", "User/updateInfo", "PUT");
+Route::post("user/login", "User/login");
+Route::post("user/register", "User/register");
+Route::post("user/forget", "User/forget");
+Route::post("user/sendCode", "User/sendCode");
+Route::get("user/info", "User/getInfo");
+Route::put("user/info", "User/updateInfo");
+Route::put("user/password", "User/changePassword");
+Route::post("user/logout", "User/logout");
+Route::post("user/verify", "User/verify");
 // 图片
-Route::rule("pics/", "Pics");
-Route::rule("pics", "Pics/create", "POST");
-Route::rule("pics/:id", "Pics/read", "GET");
-Route::rule("pics/:id", "Pics/delete", "DELETE");
+Route::any("pics/", "Pics");
+Route::post("pics", "Pics/create");
+Route::get("pics/:id", "Pics/read");
+Route::delete("pics/:id", "Pics/delete");
 
 // 访问前端
-Route::rule("/", "Index", "GET");
-Route::rule("login", "Index", "GET");
-Route::rule("register", "Index", "GET");
-Route::rule("user/basic", "Index", "GET");
-Route::rule("user/permission", "Index", "GET");
+Route::get("/", "Index");
+Route::get("login", "Index");
+Route::get("register", "Index");
+Route::get("user/basic", "Index");
+Route::get("user/permission", "Index");
 // assets资源加载
-Route::rule("assets/:file", "Assets/index", "GET");
+Route::get("assets/:file", "Assets/index");
