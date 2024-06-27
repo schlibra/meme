@@ -7,10 +7,10 @@ import router from "@/router/index.js";
 import axios from "axios";
 import {UserUrl} from "@/api/url.js";
 import {alertError, axiosError} from "@/lib/requestAlert.js";
-import {CircleCheckFilled, CircleClose, CircleCloseFilled} from "@element-plus/icons-vue";
+import {CircleCheckFilled, CircleCloseFilled} from "@element-plus/icons-vue";
 
 const token = getToken()
-const user = ref({})
+const user = ref({score: ""})
 const loading = ref(true)
 
 onMounted(()=>{
@@ -76,6 +76,22 @@ onMounted(()=>{
           </el-form-item>
           <el-form-item label="删除评论">
             <el-icon v-if="user['deleteComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+          </el-form-item>
+          <el-form-item label="更新评论">
+            <el-icon v-if="user['updateComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+          </el-form-item>
+          <el-form-item label="发布评分">
+            <el-icon v-if="user['score'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+          </el-form-item>
+          <el-form-item label="删除评分">
+            <el-icon v-if="user['deleteScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+          </el-form-item>
+          <el-form-item label="更新评分">
+            <el-icon v-if="user['updateScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
             <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
           </el-form-item>
         </el-form>
