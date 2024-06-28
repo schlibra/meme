@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `group`  (
     `upload` varchar(1) NOT NULL COMMENT '允许上传图片',
     `updatePic` varchar(1) NOT NULL COMMENT '允许更新图片',
     `deletePic` varchar(1) NOT NULL COMMENT '允许删除图片',
+    `restorePic` varchar(1) NOT NULL COMMENT '允许还原图片',
     `deleteComment` varchar(1) NOT NULL COMMENT '允许删除评论',
     `comment` varchar(1) NOT NULL COMMENT '允许评论',
     `updateComment` varchar(1) NOT NULL COMMENT '允许更新评论',
@@ -47,10 +48,10 @@ CREATE TABLE IF NOT EXISTS `group`  (
 );
 -- 用户组数据
 INSERT INTO `group`
-(name, admin, upload, updatePic, deletePic, deleteComment, updateComment, comment, score, updateScore, deleteScore, `create`, `update`)
+(name, admin, upload, updatePic, deletePic, restorePic, deleteComment, updateComment, comment, score, updateScore, deleteScore, `create`, `update`)
 VALUES
-('普通用户', 'N', 'N', 'N', 'N', 'N', 'N', 'Y', 'Y', 'N', 'Y', NOW(), NOW()),
-('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
+('普通用户', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'Y', 'Y', 'N', 'Y', NOW(), NOW()),
+('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
 
 -- 图片表
 DROP TABLE IF EXISTS `pics`;
