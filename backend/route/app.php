@@ -20,9 +20,12 @@ Route::put("user/info", "User/updateInfo");
 Route::put("user/password", "User/changePassword");
 Route::post("user/logout", "User/logout");
 Route::post("user/verify", "User/verify");
+Route::get("user/pics", "User/getPicList");
+Route::delete("user/pics", "User/deletePic");
+Route::patch("user/pics", "User/restorePic");
 // 图片
-Route::get("pics/", "Pics/index");
 Route::post("pics/", "Pics/create");
+Route::get("pics/list", "Pics/index");
 Route::get("pics/image/:id", "Pics/read");
 Route::delete("pics/image/:id", "Pics/delete");
 Route::post("pics/score", "Pics/addScore");
