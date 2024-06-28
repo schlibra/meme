@@ -23,6 +23,7 @@ Route::post("user/verify", "User/verify");
 Route::get("user/pics", "User/getPicList");
 Route::delete("user/pics", "User/deletePic");
 Route::patch("user/pics", "User/restorePic");
+Route::put("user/pics", "User/updatePic");
 // 图片
 Route::post("pics/upload", "Pics/create");
 Route::get("pics/list", "Pics/index");

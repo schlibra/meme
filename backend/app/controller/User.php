@@ -583,4 +583,76 @@ class User
             return json(["code" => 401, "msg" => "未登录"]);
         }
     }
+
+    function updatePic(Request$request) {
+        $token = $request->header("Authorization", "");
+        $pic_id = $request->post("pic");
+        $name = $request->post("name");
+        $description = $request->post("description");
+        $image = $request->file("image");
+        if ($image) {
+            chunk_split(base64_encode(file_get_contents($request->file("image")->getPathname())));
+        }
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                $email = $data["email"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $username)
+                    ->where("email", $email)
+                    ->find();
+                if ($user) {
+                    $group = Db::connect("mysql")
+                        ->table("group")
+                        ->where("id", $user["group"])
+                        ->find();
+                    if ($group) {
+                        if ($group["updatePic"] === "Y") {
+                            $_pic = Db::connect("mysql")
+                                ->table("pics")
+                                ->where("id", $pic_id)
+                                ->find();
+                            if ($_pic) {
+                                if ($_pic["user"] === $user["id"]) {
+                                    if ($name) {
+                                        $_pic["name"] = $name;
+                                    }
+                                    if ($description) {
+                                        $_pic["description"] = $description;
+                                    }
+                                    if ($image) {
+                                        $_pic["data"] = $image;
+                                    }
+                                    Db::connect("mysql")
+                                        ->table("pics")
+                                        ->save($_pic);
+                                    return json(["code" => 200, "msg" => "图片更新成功"]);
+                                } else {
+                                    return json(["code" => 403, "msg" => "没有权限编辑该图片"]);
+                                }
+                            } else {
+                                return json(["code" => 404, "msg" => "图片不存在"]);
+                            }
+                        } else {
+                            return json(["code" => 403, "msg" => "没有更新图片权限"]);
+                        }
+                    } else {
+                        return json(["code" => 401, "msg" => "没有权限"]);
+                    }
+                }else{
+                    return json(["code" => 401, "msg" => "用户不存在"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
 }
