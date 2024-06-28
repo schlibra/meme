@@ -307,7 +307,7 @@ function submitScore() {
           <el-space>
             <el-rate
                 v-model="imgDetailScore" allow-half :disabled="!token"
-                :texts="['极差', '差', '一般', '好', '很好']" show-text/>
+                :texts="['使', '就这', '假嗖嗖', '刑', '唯一真神']" show-text/>
             <el-button v-if="token" type="primary" @click="submitScore">提交评分</el-button>
           </el-space>
         </el-form-item>
