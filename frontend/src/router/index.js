@@ -6,6 +6,7 @@ import ForgetView from '@/views/ForgetView.vue';
 import UserBasic from "@/views/UserBasic.vue";
 import UserPermission from "@/views/UserPermission.vue";
 import UserSecurity from "@/views/UserSecurity.vue";
+import AboutView from "@/views/AboutView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +52,12 @@ const router = createRouter({
       name: "userPermission",
       component: UserPermission,
       meta: { title: "用户中心 - 用户权限" }
+    },
+    {
+      path: "/about",
+      name: "about",
+      component: AboutView,
+      meta: { title: "关于页面" }
     }
   ]
 })
