@@ -401,4 +401,186 @@ class User
             return json(["code" => 401, "msg" => "未登录"]);
         }
     }
+
+    function getPicList(Request$request){
+        $token = $request->header("Authorization", "");
+        $pageSize = (int)$request->get("pageSize", 10);
+        $pageNum = (int)$request->get("pageNum", 1);
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                $email = $data["email"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $username)
+                    ->where("email", $email)
+                    ->find();
+                if ($user) {
+                    $pic = Db::connect("mysql")
+                        ->table("pics")
+                        ->where("user", $user["id"])
+                        ->limit(($pageNum-1)*$pageSize, $pageSize)
+                        ->select();
+                    $picCount = Db::connect()
+                        ->table("pics")
+                        ->where("user", $user["id"])
+                        ->count();
+                    $score = Db::connect("mysql")
+                        ->table("score")
+                        ->select();
+                    for ($i = 0; $i < count($pic); ++$i) {
+                        $pic_item = $pic[$i];
+                        $pic_item["score"] = 0;
+                        $scoreSum = 0;
+                        $scoreCount = 0;
+                        $pic_item["url"] = $request->domain() . "/pics/image/" . $pic_item["id"];
+                        for ($j = 0; $j < count($score); ++$j) {
+                            $score_item = $score[$j];
+                            if ($score_item["pic"] === $pic_item["id"]) {
+                                $scoreSum += $score_item["score"];
+                                $scoreCount++;
+                            }
+                        }
+                        if ($scoreCount) {
+                            $pic_item["score"] = $scoreSum / $scoreCount;
+                        }
+                        $pic_item["create"] = explode(" ", $pic_item["create"])[0];
+                        $pic_item["update"] = explode(" ", $pic_item["update"])[0];
+                        unset($pic_item["data"]);
+                        unset($pic_item["user"]);
+                        unset($pic_item["type"]);
+                        $pic[$i] = $pic_item;
+                    }
+                    return json(["code" => 200, "msg" => "数据获取成功", "data" => $pic, "total" => $picCount]);
+                } else {
+                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
+    function deletePic(Request$request) {
+        $token = $request->header("Authorization", "");
+        $pic_id = $request->get("pic", "");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                $email = $data["email"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $username)
+                    ->where("email", $email)
+                    ->find();
+                if ($user) {
+                    $group = Db::connect("mysql")
+                        ->table("group")
+                        ->where("id", $user["group"])
+                        ->find();
+                    if ($group) {
+                        if ($group["deletePic"] === "Y") {
+                            $pic = Db::connect("mysql")
+                                ->table("pics")
+                                ->where("delete", "=", null)
+                                ->where("id", $pic_id)
+                                ->find();
+                            if ($pic) {
+                                if ($pic["user"] === $user["id"]) {
+                                    $pic["delete"] = date("Y-m-d H:i:s");
+                                    Db::connect("mysql")
+                                        ->table("pics")
+                                        ->save($pic);
+                                    return json(["code" => 200, "msg" => "删除成功"]);
+                                } else {
+                                    return json(["code" => 403, "msg" => "没有权限操作该图片"]);
+                                }
+                            } else {
+                                return json(["code" => 404, "msg" => "图片不存在"]);
+                            }
+                        } else {
+                            return json(["code" => 403, "msg" => "没有删除权限"]);
+                        }
+                    } else {
+                        return json(["code" => 401, "msg" => "没有权限"]);
+                    }
+                } else {
+                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
+    function restorePic(Request$request) {
+        $token = $request->header("Authorization", "");
+        $pic_id = $request->post("pic", "");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                $email = $data["email"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $username)
+                    ->where("email", $email)
+                    ->find();
+                if ($user) {
+                    $group = Db::connect("mysql")
+                        ->table("group")
+                        ->where("id", $user["group"])
+                        ->find();
+                    if ($group) {
+                        if ($group["restorePic"] === "Y") {
+                            $pic = Db::connect("mysql")
+                                ->table("pics")
+                                ->whereNotNull("delete")
+                                ->where("id", $pic_id)
+                                ->find();
+                            if ($pic) {
+                                if ($pic["user"] === $user["id"]) {
+                                    $pic["delete"] = null;
+                                    Db::connect("mysql")
+                                        ->table("pics")
+                                        ->save($pic);
+                                    return json(["code" => 200, "msg" => "还原成功"]);
+                                } else {
+                                    return json(["code" => 403, "msg" => "没有权限操作该图片"]);
+                                }
+                            } else {
+                                return json(["code" => 404, "msg" => "图片不存在"]);
+                            }
+                        } else {
+                            return json(["code" => 403, "msg" => "没有还原权限"]);
+                        }
+                    } else {
+                        return json(["code" => 401, "msg" => "没有权限"]);
+                    }
+                } else {
+                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
 }
