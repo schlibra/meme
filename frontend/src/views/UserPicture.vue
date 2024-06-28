@@ -81,7 +81,34 @@ function editPic(index) {
   editDialog.value = true
 }
 function editSubmit() {
-
+  let pic = editId.value
+  let name = editName.value
+  let description = editDescription.value
+  let image = editImage.value["files"][0]
+  editLoading.value = true
+  axios.put(UserUrl.picsUrl, {
+    pic,
+    name,
+    description,
+    image
+  }, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  }).then(res=>{
+    if (res.data.code === 200) {
+      alertSuccess(res, "更新成功", ()=>{
+        reload()
+        editDialog.value = false
+      })
+    } else {
+      alertError(res, "更新失败")
+    }
+  }).catch(err=>{
+    axiosError(err, "更新失败")
+  }).finally(()=> {
+    editLoading.value = false
+  })
 }
 function restorePic(index) {
   confirm(`是否还原图片“${picList.value[index].name}”`, "还原图片", {
