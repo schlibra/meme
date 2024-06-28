@@ -20,6 +20,7 @@ const UserUrl = {
 
 const PicsUrl = {
     picsUrl: picsUrl,
+    uploadUrl: picsUrl + "/upload",
     listUrl: picsUrl + "/list",
     scoreUrl: picsUrl + "/score",
     imageUrl: picsUrl + "/image"

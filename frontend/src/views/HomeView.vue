@@ -107,7 +107,7 @@ function uploadSubmit() {
   let name = uploadName.value
   let description = uploadDescription.value
   uploadLoading.value = true
-  axios.post(PicsUrl.picsUrl, {
+  axios.post(PicsUrl.uploadUrl, {
     image,
     name,
     description
@@ -120,6 +120,7 @@ function uploadSubmit() {
     if (res.data.code === 200) {
       alertSuccess(res, "上传成功", ()=>{
         reload()
+        uploadDialog.value = false
         uploadFile.value["files"] = [];
         uploadName.value = ""
         uploadDescription.value = ""

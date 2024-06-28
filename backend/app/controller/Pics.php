@@ -153,10 +153,6 @@ class Pics
         }
     }
 
-    public function save(Request $request)
-    {
-        //
-    }
     public function read($id)
     {
         $data = Db::connect("mysql")
@@ -172,10 +168,6 @@ class Pics
         } else {
             return json(["code" => 404, "msg" => "图片不存在"]);
         }
-    }
-    public function update(Request $request, $id)
-    {
-        //
     }
     public function delete(Request$request,$id)
     {
