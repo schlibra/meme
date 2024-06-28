@@ -260,7 +260,7 @@ function submitScore() {
     <el-pagination
         :total="totalCount" :page-size="20" :page-sizes="[20, 40, 80, 100]"
         :layout="displayUtil.isXs ? 'sizes, prev, pager, next, total' : 'sizes, prev, pager, next, total, jumper'" :size="displayUtil.isXs ? 'small' : 'default'"
-        @size-change="sizeChange" @current-change="pageChange"
+        @size-change="reload" @current-change="reload"
         v-model:current-page="currentPage" v-model:page-size="pageSize"/>
   </div>
 
