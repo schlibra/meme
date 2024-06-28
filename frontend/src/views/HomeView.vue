@@ -17,6 +17,10 @@ const picList = ref([])
 const imgList = ref([]);
 const totalCount = ref(0);
 const mainLoading = ref(true)
+const showDrawer = ref(false)
+const imgDetail = ref({})
+const imgDetailScore = ref(0)
+const detailLoading = ref(false)
 
 const uploadDialog = ref(false);
 const uploadName = ref("");
@@ -39,7 +43,7 @@ onMounted(()=>{
       }
     }).catch(() => removeToken())
   }
-  axios.get(PicsUrl.picsUrl, {
+  axios.get(PicsUrl.listUrl, {
     headers: token.value ? {
       Authorization: `Bearer ${token.value}`
     } : {}
@@ -59,32 +63,9 @@ onMounted(()=>{
     axiosError(err, "数据获取失败", ()=>location.reload())
   }).finally(() => mainLoading.value = false)
 })
-
-function sizeChange() {
+function reload() {
   mainLoading.value = true
-  axios.get(PicsUrl.picsUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
-    headers: token.value ? {
-      Authorization: `Bearer ${token.value}`
-    } : {}
-  }).then(res=>{
-    if (res.data.code === 200) {
-      imgList.value = [];
-      picList.value = res.data.data
-      totalCount.value = res.data.total
-      for (const index in res.data.data) {
-        const item = res.data.data[index]
-        imgList.value.push(item.url)
-      }
-    } else {
-      alertError(res, "数据获取失败")
-    }
-  }).catch(err=>{
-    axiosError(err, "数据获取失败", ()=>location.reload())
-  }).finally(() => mainLoading.value = false)
-}
-function pageChange() {
-  mainLoading.value = true
-  axios.get(PicsUrl.picsUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
+  axios.get(PicsUrl.listUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
     headers: token.value ? {
       Authorization: `Bearer ${token.value}`
     } : {}
@@ -117,7 +98,9 @@ function gotoAdmin() {
 
 }
 function openDetail(index) {
-
+  imgDetail.value = picList.value[index]
+  showDrawer.value = true
+  console.log(imgDetail)
 }
 function uploadSubmit() {
   let image = uploadFile.value["files"][0];
@@ -135,7 +118,12 @@ function uploadSubmit() {
     }
   }).then(res=>{
     if (res.data.code === 200) {
-      alertSuccess(res, "上传成功", ()=>location.reload())
+      alertSuccess(res, "上传成功", ()=>{
+        reload()
+        uploadFile.value["files"] = [];
+        uploadName.value = ""
+        uploadDescription.value = ""
+      })
     } else {
       alertError(res, "上传失败")
     }
@@ -158,11 +146,46 @@ function logout() {
         confirm("已退出登录，是否前往登录页面", "前往登录", {
           confirm() {
             gotoLogin()
-          }
+          },
+          cancel: reload,
+          close: reload
         })
       })
     }
   })
+}
+function submitScore() {
+  let score = imgDetailScore.value
+  let pic = imgDetail.value["id"]
+  if (score) {
+    confirm(`确定为图片“${imgDetail.value.name}”打${score}分吗`, "打分确认", {
+      confirm() {
+        detailLoading.value = true
+        axios.post(PicsUrl.scoreUrl, {
+          score,
+          pic
+        }, {
+          headers: {
+            Authorization: `Bearer ${token.value}`
+          }
+        }).then(res=>{
+          if (res.data.code === 200) {
+            alertSuccess(res, "评分成功", () => {
+              reload()
+              imgDetail.value["scored"] = "Y"
+              imgDetail.value["myScore"] = score
+            })
+          } else {
+            alertError(res, "评分失败")
+          }
+        }).catch(err=>{
+          axiosError(err, "评分失败")
+        }).finally(()=>detailLoading.value = false)
+      }
+    })
+  } else {
+    alertError("请先选择评分再点击提交", "评分失败")
+  }
 }
 </script>
 
@@ -259,6 +282,40 @@ function logout() {
       <el-button @click="uploadSubmit" type="primary">提交</el-button>
     </template>
   </el-dialog>
+  <el-drawer :size="displayUtil.isXs ? '75%' : '50%'" v-model="showDrawer">
+    <template #header>
+      <span>图片详情</span>
+    </template>
+    <template #default>
+      <el-form label-width="auto" v-loading="detailLoading">
+        <el-form-item label="上传者">
+          <el-text type="info">{{ imgDetail.nickname }}</el-text>
+        </el-form-item>
+        <el-form-item label="图片描述">
+          <el-text type="info">{{ imgDetail.description }}</el-text>
+        </el-form-item>
+        <el-form-item label="我的评分" v-if="imgDetail['scored'] === 'Y'">
+          <el-rate
+              v-model="imgDetail['myScore']" allow-half disabled
+              score-template="{value} 分"/>
+        </el-form-item>
+        <el-form-item label="为图片评分" v-else>
+          <el-space>
+            <el-rate
+                v-model="imgDetailScore" allow-half
+                :texts="['极差', '差', '一般', '好', '很好']" show-text/>
+            <el-button type="primary" @click="submitScore">提交评分</el-button>
+          </el-space>
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <el-space>
+        <el-input placeholder="输入评论内容" />
+        <el-button type="primary">发送评论</el-button>
+      </el-space>
+    </template>
+  </el-drawer>
 </template>
 
 <style scoped lang="scss">
