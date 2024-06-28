@@ -14,11 +14,15 @@ const UserUrl = {
     infoUrl: userUrl + "/info",
     verifyUrl: userUrl + "/verify",
     passwordUrl: userUrl + "/password",
-    logoutUrl: userUrl + "/logout"
+    logoutUrl: userUrl + "/logout",
+    picsUrl: userUrl + "/pics"
 }
 
 const PicsUrl = {
-    picsUrl: picsUrl
+    picsUrl: picsUrl,
+    listUrl: picsUrl + "/list",
+    scoreUrl: picsUrl + "/score",
+    imageUrl: picsUrl + "/image"
 }
 
 export { UserUrl, PicsUrl }
