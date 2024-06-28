@@ -7,6 +7,7 @@ import UserBasic from "@/views/UserBasic.vue";
 import UserPermission from "@/views/UserPermission.vue";
 import UserSecurity from "@/views/UserSecurity.vue";
 import AboutView from "@/views/AboutView.vue";
+import UserPicture from "@/views/UserPicture.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +53,12 @@ const router = createRouter({
       name: "userPermission",
       component: UserPermission,
       meta: { title: "用户中心 - 用户权限" }
+    },
+    {
+      path: "/user/picture",
+      name: "userPicture",
+      component: UserPicture,
+      meta: { title: "用户中心 - 图片列表" }
     },
     {
       path: "/about",
