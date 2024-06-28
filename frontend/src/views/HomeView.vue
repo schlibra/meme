@@ -217,7 +217,7 @@ function submitScore() {
     <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-divider />
-  <el-scrollbar :height="token ? 'calc(100vh - 340px)' : 'calc(100vh - 280px)'">
+  <el-scrollbar :height="displayUtil.isXs ? token ? 'calc(100vh - 420px)' : 'calc(100vh - 360px)' : token ? 'calc(100vh - 340px)' : 'calc(100vh - 280px)'">
     <el-row :gutter="8" class="main" v-loading="mainLoading">
       <el-col  :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
