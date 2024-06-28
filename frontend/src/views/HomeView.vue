@@ -155,6 +155,10 @@ function logout() {
   })
 }
 function submitScore() {
+  if (!token.value) {
+    alertError("没有登录无法评分", "评分失败")
+    return
+  }
   let score = imgDetailScore.value
   let pic = imgDetail.value["id"]
   if (score) {
@@ -213,7 +217,7 @@ function submitScore() {
     <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-divider />
-  <el-scrollbar height="calc(60vh - 50px)">
+  <el-scrollbar height="calc(100vh - 280px)">
     <el-row :gutter="8" class="main" v-loading="mainLoading">
       <el-col  :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
@@ -302,9 +306,9 @@ function submitScore() {
         <el-form-item label="为图片评分" v-else>
           <el-space>
             <el-rate
-                v-model="imgDetailScore" allow-half
+                v-model="imgDetailScore" allow-half :disabled="!token"
                 :texts="['极差', '差', '一般', '好', '很好']" show-text/>
-            <el-button type="primary" @click="submitScore">提交评分</el-button>
+            <el-button v-if="token" type="primary" @click="submitScore">提交评分</el-button>
           </el-space>
         </el-form-item>
       </el-form>
