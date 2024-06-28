@@ -64,10 +64,11 @@ class Pics
             $pic["score"] = 0;
             for ($j = 0; $j < count($score); ++$j) {
                 $score_item = $score[$j];
-                if ($score_item["user"] === $userId) {
-                    $pic["scored"] = "Y";
-                }
                 if ($score_item["pic"] === $pic["id"]) {
+                    if ($score_item["user"] === $userId) {
+                        $pic["scored"] = "Y";
+                        $pic["myScore"] = $score_item["score"];
+                    }
                     $_score += $score_item["score"];
                     $scoreCount++;
                 }
@@ -91,6 +92,9 @@ class Pics
 
     public function create(Request$request)
     {
+        if (!$request->file("image")) {
+            return json(["code" => 401, "msg" => "未选择图片"]);
+        }
         $image = chunk_split(base64_encode(file_get_contents($request->file("image")->getPathname())));
         $type = $request->file("image")->getMime();
         if (empty($image)) {
@@ -99,6 +103,9 @@ class Pics
         $token = $request->header("Authorization", "");
         $description = $request->post("description", "");
         $name = $request->post("name", "");
+        if (empty($name)) {
+            return json(["code" => 401, "msg" => "图片名称不能为空"]);
+        }
         if (str_starts_with($token, "Bearer")) {
             $token = str_replace("Bearer ", "", $token);
             try {
