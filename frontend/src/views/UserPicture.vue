@@ -167,9 +167,9 @@ function deletePic(index) {
               </el-table-column>
               <el-table-column label="操作" width="160">
                 <template #default="scope">
-                  <el-button type="primary" @click="editPic(scope.$index)">编辑</el-button>
-                  <el-button type="warning" v-if="picList[scope.$index].delete" @click="restorePic(scope.$index)">还原</el-button>
-                  <el-button type="danger" @click="deletePic(scope.$index)" v-else>删除</el-button>
+                  <el-button type="primary" @click="editPic(scope.$index)" v-if="user['updatePic'] === 'Y'">编辑</el-button>
+                  <el-button type="warning" v-if="picList[scope.$index].delete && user['restorePic'] === 'Y'" @click="restorePic(scope.$index)">还原</el-button>
+                  <el-button type="danger" @click="deletePic(scope.$index)" v-if="!picList[scope.$index].delete && user['deletePic'] === 'Y'">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
