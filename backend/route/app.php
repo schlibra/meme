@@ -24,7 +24,7 @@ Route::get("user/pics", "User/getPicList");
 Route::delete("user/pics", "User/deletePic");
 Route::patch("user/pics", "User/restorePic");
 // 图片
-Route::post("pics/", "Pics/create");
+Route::post("pics/upload", "Pics/create");
 Route::get("pics/list", "Pics/index");
 Route::get("pics/image/:id", "Pics/read");
 Route::delete("pics/image/:id", "Pics/delete");
