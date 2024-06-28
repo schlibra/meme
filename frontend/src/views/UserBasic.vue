@@ -90,9 +90,13 @@ function update() {
               <el-text v-else>{{ user.nickname }}</el-text>
             </el-form-item>
             <el-form-item label="邮箱" class="label">
-              <el-input v-if="edit" v-model="user.email" />
-              <el-text v-if="edit" type="info">修改后需要验证邮箱才能使用邮箱登录</el-text>
-              <el-text v-else>{{ user.email }}</el-text>
+              <el-space>
+                <el-input v-if="edit" v-model="user.email" />
+                <el-text v-if="edit" type="info">修改后需要验证邮箱才能使用邮箱登录</el-text>
+                <el-text v-else>{{ user.email }}</el-text>
+                <el-tag v-if="user['verified'] === 'Y' && !edit" type="success">已验证</el-tag>
+                <el-tag v-if="user['verified'] === 'Y' && !edit" type="danger">未验证</el-tag>
+              </el-space>
             </el-form-item>
             <el-form-item label="性别" class="label">
               <el-input v-if="edit" v-model="user.sex" />

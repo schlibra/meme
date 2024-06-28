@@ -73,7 +73,7 @@ class Pics
                     $scoreCount++;
                 }
                 if ($scoreCount) {
-                    $pic["score"] = $_score / $scoreCount;
+                    $pic["score"] = number_format($_score / $scoreCount, 2);
                 }
             }
             $_userId = $pic["user"];
