@@ -20,10 +20,13 @@ Route::put("user/info", "User/updateInfo");
 Route::put("user/password", "User/changePassword");
 Route::post("user/logout", "User/logout");
 Route::post("user/verify", "User/verify");
+// 用户-图片
 Route::get("user/pics", "User/getPicList");
 Route::delete("user/pics", "User/deletePic");
 Route::patch("user/pics", "User/restorePic");
 Route::put("user/pics", "User/updatePic");
+// 用户-评分
+Route::get("user/score", "User/getScore");
 // 图片
 Route::post("pics/upload", "Pics/create");
 Route::get("pics/list", "Pics/index");

@@ -655,4 +655,41 @@ class User
             return json(["code" => 401, "msg" => "未登录"]);
         }
     }
+    function getScore(Request$request){
+        $token = $request->header("Authorization", "");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $username = $data["username"];
+                $email = $data["email"];
+                if (Cache::get($username) !== $token) {
+                    return json(["code" => 401, "msg" => "token无效"]);
+                }
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $username)
+                    ->where("email", $email)
+                    ->find();
+                if ($user) {
+                    $score = Db::connect("mysql")
+                        ->table("score")
+                        ->where("user", $user["id"])
+                        ->select();
+                    for ($i = 0; $i < count($score); ++$i) {
+                        $item = $score[$i];
+                        $item["url"] = $request->domain() . "/pics/image/" . $item["pic"];
+                        $score[$i] = $item;
+                    }
+                    return json(["code" => 200, "msg" => "数据获取成功", "data" => $score]);
+                } else {
+                    return json(["code" => 401, "msg" => "用户不存在"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            }
+        } else {
+            return json(["code" => 401, "msg" => "未登录"]);
+        }
+    }
 }
