@@ -23,7 +23,8 @@ const PicsUrl = {
     uploadUrl: picsUrl + "/upload",
     listUrl: picsUrl + "/list",
     scoreUrl: picsUrl + "/score",
-    imageUrl: picsUrl + "/image"
+    imageUrl: picsUrl + "/image",
+    randomUrl: picsUrl + "/random"
 }
 
 export { UserUrl, PicsUrl }

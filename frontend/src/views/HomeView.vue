@@ -28,6 +28,9 @@ const uploadDescription = ref("");
 const uploadFile = ref(null);
 const uploadLoading = ref(false)
 
+const randomPic = ref({})
+const showRandom = ref(false)
+
 onMounted(()=>{
   if (token.value) {
     axios.get(UserUrl.infoUrl, {
@@ -86,7 +89,12 @@ function reload() {
   }).finally(()=> mainLoading.value = false)
 }
 function randomImg() {
-
+  axios.get(PicsUrl.randomUrl).then(res=>{
+    randomPic.value = res.data.data
+    showRandom.value = true
+  }).catch(err=>{
+    axiosError(err, "随机图片获取成功")
+  })
 }
 function gotoLogin() {
   router.push("/login")
@@ -321,6 +329,24 @@ function submitScore() {
       </el-space>
     </template>
   </el-drawer>
+  <el-dialog v-model="showRandom">
+    <template #header>
+      <span>{{ randomPic["name"] }}</span>
+    </template>
+    <template #default>
+      <el-space direction="vertical">
+        <el-text>{{ randomPic["description"] }}</el-text>
+        <el-image :src="randomPic['url']">
+          <template #error>
+            <el-empty title="图片加载失败" />
+          </template>
+        </el-image>
+      </el-space>
+    </template>
+    <template #footer>
+      <el-button @click="showRandom = false">关闭</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">

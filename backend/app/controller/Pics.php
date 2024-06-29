@@ -90,6 +90,18 @@ class Pics
         return json(["code" => 200, "msg" => "数据获取成功", "data" => $pics, "total" => $count]);
     }
 
+    function randomPic(Request$request) {
+        $item = Db::connect("mysql")
+            ->table("pics")
+            ->where("delete", "=")
+            ->orderRaw("rand()")
+            ->find();
+        unset($item["data"]);
+        unset($item["type"]);
+        $item["url"] = $request->domain() . "/pics/image/" . $item["id"];
+        return json(["code" => 200, "msg" => "数据获取成功", "data" => $item]);
+    }
+
     public function create(Request$request)
     {
         if (!$request->file("image")) {
