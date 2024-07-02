@@ -21,7 +21,7 @@ const contrib = ref([
   },
   {
     username: "yaoyangyaha",
-    work: "后端开发、程序测试<br /><br /><br />"
+    work: "前后端开发、程序测试、需求编写和完成需求、简介与文档主编<br />"
   }
 ])
 onMounted(()=> {
