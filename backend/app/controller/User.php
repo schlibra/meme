@@ -241,6 +241,7 @@ class User
                     unset($row["password"]);
                     unset($row["ban"]);
                     unset($row["reason"]);
+                    $row["avatar"] = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("sha256", $row["email"]);
                     $permission = Db::connect("mysql")
                         ->table("group")
                         ->where("id", $row["group"])

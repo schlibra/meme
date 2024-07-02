@@ -77,6 +77,9 @@ function update() {
         <el-main>
           <h2>基本设置</h2>
           <el-form label-position="top" v-loading="loading">
+            <el-form-item label="用户头像" class="label">
+              <el-avatar size="large" :src="user['avatar']" />
+            </el-form-item>
             <el-form-item label="用户ID" class="label">
               <el-input v-if="edit" v-model="user.id" disabled />
               <el-text v-else>{{ user.id }}</el-text>
@@ -95,7 +98,7 @@ function update() {
                 <el-text v-if="edit" type="info">修改后需要验证邮箱才能使用邮箱登录</el-text>
                 <el-text v-else>{{ user.email }}</el-text>
                 <el-tag v-if="user['verified'] === 'Y' && !edit" type="success">已验证</el-tag>
-                <el-tag v-if="user['verified'] === 'Y' && !edit" type="danger">未验证</el-tag>
+                <el-tag v-if="user['verified'] !== 'Y' && !edit" type="danger">未验证</el-tag>
               </el-space>
             </el-form-item>
             <el-form-item label="性别" class="label">
