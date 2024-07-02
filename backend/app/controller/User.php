@@ -191,7 +191,7 @@ class User
                 $mail->SMTPAuth = true;
                 $mail->Username = env("SMTP_USERNAME", "");
                 $mail->Password = env("SMTP_PASSWORD", "");
-                $mail->SMTPSecure = env("SMTP_SECURE", "ssl");
+                $mail->SMTPSecure = env("SMTP_SECURE", "");
                 $mail->Port = env("SMTP_PORT", 25);
                 $mail->setFrom(env("SMTP_USERNAME"), "IURT meme");
                 $mail->addAddress($email);

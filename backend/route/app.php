@@ -44,7 +44,7 @@ Route::get("user/basic", "Index");
 Route::get("user/permission", "Index");
 Route::get("user/security", "Index");
 Route::get("user/picture", "Index");
-Route::get("user/about", "Index");
+Route::get("about", "Index");
 // assets资源加载
 Route::get("assets/:file", "Assets/index");
 
