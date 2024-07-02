@@ -8,6 +8,7 @@ import UserPermission from "@/views/UserPermission.vue";
 import UserSecurity from "@/views/UserSecurity.vue";
 import AboutView from "@/views/AboutView.vue";
 import UserPicture from "@/views/UserPicture.vue";
+import DocView from "@/views/DocView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,6 +66,12 @@ const router = createRouter({
       name: "about",
       component: AboutView,
       meta: { title: "关于页面" }
+    },
+    {
+      path: "/doc",
+      name: "doc",
+      component: DocView,
+      meta: { title: "文档" }
     }
   ]
 })

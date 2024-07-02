@@ -31,6 +31,7 @@ const uploadLoading = ref(false)
 const randomPic = ref({})
 const showRandom = ref(false)
 
+
 onMounted(()=>{
   if (token.value) {
     axios.get(UserUrl.infoUrl, {
@@ -336,7 +337,7 @@ function submitScore() {
     <template #default>
       <el-space direction="vertical">
         <el-text>{{ randomPic["description"] }}</el-text>
-        <el-image :src="randomPic['url']">
+        <el-image :src="randomPic['url']" :preview-src-list="[randomPic['url'],randomPic['url'],]" >
           <template #error>
             <el-empty title="图片加载失败" />
           </template>
@@ -344,6 +345,10 @@ function submitScore() {
       </el-space>
     </template>
     <template #footer>
+      <el-button
+          type="primary"
+          @click="">查看详情
+      </el-button>
       <el-button @click="showRandom = false">关闭</el-button>
     </template>
   </el-dialog>
