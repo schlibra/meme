@@ -47,7 +47,3 @@ Route::get("user/picture", "Index");
 Route::get("about", "Index");
 // assets资源加载
 Route::get("assets/:file", "Assets/index");
-
-Route::get("random", function() {
-    return json([\think\helper\Str::random(8)]);
-});
