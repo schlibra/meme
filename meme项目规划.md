@@ -123,4 +123,5 @@
 | comment | varchar(500) | 是 | 评论内容 | 评论内容 | |
 | create | datetime | 是 | 发布时间 | | |
 | verified | varchar(1) | 是 | 评论通过审核 | Y | |
+| update | datetime | 是 | 更新时间 | | |
 | delete | datetime | 否 | 删除时间 |  | |
