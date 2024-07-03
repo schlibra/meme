@@ -16,12 +16,15 @@ interface user {
 const contrib = ref([
   {
     username: "schlibra",
-    work: "项目负责人、前端开发、后端开发、需求编写、数据库设计",
-    nickname: ""
+    work: "项目负责人、前端开发、后端开发、需求编写、数据库设计"
   },
   {
     username: "yaoyangyaha",
-    work: "前后端开发、程序测试、需求编写和完成需求、简介与文档主编<br />"
+    work: "前端开发、程序测试、需求编写和完成需求、简介与文档主编<br />"
+  },
+  {
+    username: "interuseration-IURT",
+    work: "<br /><br /><br />"
   }
 ])
 onMounted(()=> {
@@ -54,7 +57,7 @@ onMounted(()=> {
               <template #description>
                 <el-text size="large">
                   <span>IURT meme 2.0梗图收集展示程序，用于记录群友发的有趣的内容，项目灵感来源于</span>
-                  <el-link href="https://github.com/modcrafts/a60-shop"><GithubOutlined /><span>modcrafts/a60-shop</span></el-link>
+                  <el-link href="https://github.com/NoneMeme/NoneMeme"><GithubOutlined /><span>NoneMeme/NoneMeme</span></el-link>
                   <span>，后来将项目重构，使程序中的图片更容易管理</span>
                 </el-text>
               </template>

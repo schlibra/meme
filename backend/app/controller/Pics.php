@@ -91,11 +91,59 @@ class Pics
     }
 
     function randomPic(Request$request) {
+        $token = $request->header("Authorization", "");
+        $userId = null;
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $_username = $data["username"];
+                $_email = $data["email"];
+                $user = Db::connect("mysql")
+                    ->table("user")
+                    ->where("username", $_username)
+                    ->where("email", $_email)
+                    ->find();
+                if ($user) {
+                    $userId = $user["id"];
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {}
+        }
+        $allUser = Db::connect("mysql")
+            ->table("user")
+            ->select();
+        $score = Db::connect("mysql")
+            ->table("score")
+            ->select();
         $item = Db::connect("mysql")
             ->table("pics")
             ->where("delete", "=")
             ->orderRaw("rand()")
             ->find();
+        $score_sum = 0;
+        $score_count = 0;
+        $item["scored"] = "N";
+        foreach ($score as $score_item) {
+            if ($score_item["pic"] === $item["id"]) {
+                if ($score_item["user"] === $userId) {
+                    $item["scored"] = "Y";
+                    $item["myScore"] = $score_item["score"];
+                }
+                $score_sum += $score_item["score"];
+                $score_count++;
+            }
+        }
+        if ($score_count) {
+            $item["score"] = number_format($score_sum / $score_count, 2);
+        } else {
+            $item["score"] = 0;
+        }
+        $item["nickname"] = "未知用户";
+        foreach ($allUser as $user) {
+            if ($user["id"] === $item["user"]) {
+                $item["nickname"] = $user["nickname"];
+            }
+        }
         unset($item["data"]);
         unset($item["type"]);
         $item["url"] = $request->domain() . "/pics/image/" . $item["id"];

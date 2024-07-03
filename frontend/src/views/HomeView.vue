@@ -106,10 +106,15 @@ function gotoUser() {
 function gotoAdmin() {
 
 }
+function randomDetail() {
+  imgDetail.value = randomPic.value
+  imgDetailScore.value = 0
+  showDrawer.value = true
+}
 function openDetail(index) {
   imgDetail.value = picList.value[index]
+  imgDetailScore.value = 0
   showDrawer.value = true
-  console.log(imgDetail)
 }
 function uploadSubmit() {
   let image = uploadFile.value["files"][0];
@@ -347,8 +352,7 @@ function submitScore() {
     <template #footer>
       <el-button
           type="primary"
-          @click="">查看详情
-      </el-button>
+          @click="randomDetail">查看详情</el-button>
       <el-button @click="showRandom = false">关闭</el-button>
     </template>
   </el-dialog>
