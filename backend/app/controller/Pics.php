@@ -196,6 +196,7 @@ class Pics
                                     "user" => $user["id"],
                                     "data" => $image,
                                     "type" => $type,
+                                    "verified" => "N",
                                     "create" => date("Y-m-d H:i:s"),
                                     "update" => date("Y-m-d H:i:s")
                                 ]);
