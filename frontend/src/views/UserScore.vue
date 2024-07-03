@@ -103,10 +103,10 @@ function deleteScore(index) {
           alertSuccess(res, "删除成功", getList)
         },
         bad(res) {
-          alertSuccess(res, "删除失败")
+          alertError(res, "删除失败")
         },
         error(err) {
-          alertSuccess(err, "删除失败")
+          alertError(err, "删除失败")
         },
         final() {
           dataLoading.value = false
@@ -179,8 +179,9 @@ function restoreScore(index) {
               <el-table-column label="操作">
                 <template #default="scope">
                   <el-button @click="editScore(scope.$index)" v-if="user['updateScore'] === 'Y'" type="primary">编辑</el-button>
-                  <el-button @click="restoreScore(scope.$index)" type="warning" v-if="scoreList[scope.$index].delete">还原</el-button>
-                  <el-button @click="deleteScore(scope.$index)" type="danger" v-else>删除</el-button>
+                  <el-button @click="restoreScore(scope.$index)" type="warning" v-if="scoreList[scope.$index].delete&&user['restoreScore']==='Y'">还原</el-button>
+                  <el-button @click="deleteScore(scope.$index)" type="danger" v-if="!scoreList[scope.$index].delete&&user['deleteScore']==='Y'">删除</el-button>
+                  <el-text type="info" v-if="user['updateScore']!=='Y'&&!(scoreList[scope.$index].delete&&user['restoreScore']==='Y')&&scoreList[scope.$index].delete&&user['deleteScore']!=='Y'">没有权限操作</el-text>
                 </template>
               </el-table-column>
             </el-table>

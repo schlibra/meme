@@ -197,6 +197,7 @@ function deletePic(index) {
                   <el-button type="primary" @click="editPic(scope.$index)" v-if="user['updatePic'] === 'Y'">编辑</el-button>
                   <el-button type="warning" v-if="picList[scope.$index].delete && user['restorePic'] === 'Y'" @click="restorePic(scope.$index)">还原</el-button>
                   <el-button type="danger" @click="deletePic(scope.$index)" v-if="!picList[scope.$index].delete && user['deletePic'] === 'Y'">删除</el-button>
+                  <el-text v-if="user['updatePic']!=='Y'&&!(picList[scope.$index].delete&&user['restorePic']==='Y')&&!picList[scope.$index].delete&&user['deletePic']!=='Y'" type="info">没有权限操作</el-text>
                 </template>
               </el-table-column>
             </el-table>
