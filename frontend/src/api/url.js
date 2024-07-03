@@ -25,6 +25,7 @@ const PicsUrl = {
     listUrl: picsUrl + "/list",
     scoreUrl: picsUrl + "/score",
     imageUrl: picsUrl + "/image",
+    commentUrl: picsUrl + "/comment",
     randomUrl: picsUrl + "/random"
 }
 

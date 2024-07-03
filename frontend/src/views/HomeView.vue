@@ -7,6 +7,7 @@ import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken, removeToken} from "@/lib/tokenLib.js";
 import confirm from "@/lib/confirmLib.js";
 import displayUtil from "@/lib/displayUtil.js";
+import {Get} from "@/lib/axiosLib.js";
 
 const token = ref(getToken())
 const userInfo = ref({})
@@ -31,6 +32,7 @@ const uploadLoading = ref(false)
 const randomPic = ref({})
 const showRandom = ref(false)
 
+const commentList = ref([])
 
 onMounted(()=>{
   if (token.value) {
@@ -109,11 +111,13 @@ function gotoAdmin() {
 function randomDetail() {
   imgDetail.value = randomPic.value
   imgDetailScore.value = 0
+  getCommentList()
   showDrawer.value = true
 }
 function openDetail(index) {
   imgDetail.value = picList.value[index]
   imgDetailScore.value = 0
+  getCommentList()
   showDrawer.value = true
 }
 function uploadSubmit() {
@@ -205,6 +209,17 @@ function submitScore() {
   } else {
     alertError("请先选择评分再点击提交", "评分失败")
   }
+}
+function getCommentList() {
+  let pic = imgDetail.value["id"]
+  Get(PicsUrl.commentUrl, {
+    pic
+  }, {
+    ok(_, data) {
+      commentList.value = data;
+    },
+    error: err => axiosError(err, "评论获取失败")
+  })
 }
 </script>
 
@@ -327,6 +342,21 @@ function submitScore() {
           </el-space>
         </el-form-item>
       </el-form>
+      <el-text size="large" type="info" style="margin-bottom: 24px;">评论区</el-text>
+      <br>
+      <div>
+        <div v-for="item in commentList" style="margin-top: 8px;margin-bottom: 8px;">
+          <el-space direction="horizontal">
+            <el-avatar :src="item['avatar']" />
+            <el-text>{{ item.nickname }}</el-text>
+          </el-space>
+          <br />
+          <el-space wrap direction="horizontal" >
+            <el-link type="primary" v-if="item['reply']">@{{ item["replyNickname"] }}</el-link>
+            <el-text size="large">{{ item["comment"] }}</el-text>
+          </el-space>
+        </div>
+      </div>
     </template>
     <template #footer>
       <el-space>

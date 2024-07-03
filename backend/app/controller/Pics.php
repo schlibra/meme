@@ -11,7 +11,6 @@ use Firebase\JWT\SignatureInvalidException;
 use think\facade\Cache;
 use think\facade\Db;
 use think\Request;
-use function Symfony\Component\VarDumper\Dumper\esc;
 
 class Pics
 {
@@ -445,10 +444,12 @@ class Pics
             return json(["code" => 403, "msg" => "未登录"]);
         }
     }
-    function getComment() {
+    function getComment(Request$request) {
+        $pic = $request->get("pic");
         $comments = Db::connect()
             ->table("comment")
             ->where("delete")
+            ->where("pic", $pic)
             ->select();
         $users = Db::connect()
             ->table("user")
@@ -460,6 +461,15 @@ class Pics
                 if ($comment["user"] === $user["id"]) {
                     $comment["nickname"] = $user["nickname"];
                     $comment["avatar"] = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("sha256", $user["email"]);
+                }
+            }
+            if ($comment["reply"] > 0) {
+                for ($j = 0; $j < count($comments); ++$j) {
+                    for ($k = 0; $k < count($users); ++$k) {
+                        if ($comments[$j]["user"] === $users[$k]["id"]) {
+                            $comment["replyNickname"] = $users[$k]["nickname"];
+                        }
+                    }
                 }
             }
             $comments[$i] = $comment;

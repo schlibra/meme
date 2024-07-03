@@ -58,7 +58,7 @@ function Patch(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:_
         } else {
             action.bad(res)
         }
-    }).catch(err=>action.error(err)).finally(()=>action.final())
+    }).catch(err=>action.error(err)).finally(()=>action.final)
 }
 
 export { Get, Delete, Patch }
