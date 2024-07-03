@@ -36,22 +36,24 @@ CREATE TABLE IF NOT EXISTS `group`  (
     `updatePic` varchar(1) NOT NULL COMMENT '允许更新图片',
     `deletePic` varchar(1) NOT NULL COMMENT '允许删除图片',
     `restorePic` varchar(1) NOT NULL COMMENT '允许还原图片',
-    `deleteComment` varchar(1) NOT NULL COMMENT '允许删除评论',
     `comment` varchar(1) NOT NULL COMMENT '允许评论',
     `updateComment` varchar(1) NOT NULL COMMENT '允许更新评论',
+    `deleteComment` varchar(1) NOT NULL COMMENT '允许删除评论',
+    `restoreComment` varchar(1) NOT NULL COMMENT '允许还原评论',
     `score` varchar(1) NOT NULL COMMENT '允许评分',
     `updateScore` varchar(1) NOT NULL COMMENT '允许更新评分',
     `deleteScore` varchar(1) NOT NULL COMMENT '允许删除评分',
+    `restoreScore` varchar(1) NOT NULL COMMENT '允许还原评分',
     `create` datetime NOT NULL COMMENT '创建时间',
     `update` datetime NOT NULL COMMENT '修改时间',
     PRIMARY KEY (`id`)
 );
 -- 用户组数据
 INSERT INTO `group`
-(name, admin, upload, updatePic, deletePic, restorePic, deleteComment, updateComment, comment, score, updateScore, deleteScore, `create`, `update`)
+(`name`, `admin`, `upload`, `updatePic`, `deletePic`, `restorePic`, `comment`, `updateComment`, `deleteComment`, `restoreComment`, `score`, `updateScore`, `deleteScore`, `restoreScore`, `create`, `update`)
 VALUES
-('普通用户', 'N', 'N', 'N', 'N', 'N', 'N', 'N', 'Y', 'Y', 'N', 'Y', NOW(), NOW()),
-('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
+('普通用户', 'N', 'Y', 'N', 'N', 'N', 'Y', 'N', 'N', 'N', 'Y', 'N', 'N', 'N', NOW(), NOW()),
+('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());
 
 -- 图片表
 DROP TABLE IF EXISTS `pics`;
@@ -78,5 +80,6 @@ CREATE TABLE IF NOT EXISTS `score`  (
     `score` float NOT NULL COMMENT '评分',
     `create` datetime NOT NULL COMMENT '创建时间',
     `update` datetime NOT NULL COMMENT '修改时间',
+    `delete` datetime NULL COMMENT '删除时间',
     PRIMARY KEY (`id`)
 );

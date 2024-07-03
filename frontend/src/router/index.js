@@ -9,6 +9,7 @@ import UserSecurity from "@/views/UserSecurity.vue";
 import AboutView from "@/views/AboutView.vue";
 import UserPicture from "@/views/UserPicture.vue";
 import DocView from "@/views/DocView.vue";
+import UserScore from "@/views/UserScore.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,6 +61,12 @@ const router = createRouter({
       name: "userPicture",
       component: UserPicture,
       meta: { title: "用户中心 - 图片列表" }
+    },
+    {
+      path: "/user/score",
+      name: "userScore",
+      component: UserScore,
+      meta: { title: "用户中心 - 评分列表" }
     },
     {
       path: "/about",

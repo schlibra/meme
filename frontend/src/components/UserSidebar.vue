@@ -22,6 +22,9 @@ function gotoPermission() {
 function gotoPicture() {
   router.push("/user/picture")
 }
+function gotoScore() {
+  router.push("/user/score")
+}
 </script>
 
 <template>
@@ -46,7 +49,7 @@ function gotoPicture() {
       <el-icon><Picture /></el-icon>
       <span>图片列表</span>
     </el-menu-item>
-    <el-menu-item index="5">
+    <el-menu-item index="5" @click="gotoScore">
       <el-icon><Star /></el-icon>
       <span>评分列表</span>
     </el-menu-item>

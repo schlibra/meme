@@ -45,57 +45,71 @@ onMounted(()=>{
       <el-header style="height: 30px;">
         <UserTop title="用户权限" />
       </el-header>
-      <el-main>
-        <h2>用户权限</h2>
-        <el-form v-loading="loading" label-width="auto">
-          <el-form-item label="当前用户">
-            <el-text type="info">{{ user["nickname"] }}（{{ user.username }}）</el-text>
-          </el-form-item>
-          <el-form-item label="用户组">
-            <el-text type="info">{{ user["groupName"] }}</el-text>
-          </el-form-item>
-          <el-form-item label="管理员权限">
-            <el-icon v-if="user['admin'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="上传图片">
-            <el-icon v-if="user['upload'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="更新图片">
-            <el-icon v-if="user['updatePic'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="删除图片">
-            <el-icon v-if="user['deletePic'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="发送评论">
-            <el-icon v-if="user['comment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="删除评论">
-            <el-icon v-if="user['deleteComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="更新评论">
-            <el-icon v-if="user['updateComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="发布评分">
-            <el-icon v-if="user['score'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="删除评分">
-            <el-icon v-if="user['deleteScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-          <el-form-item label="更新评分">
-            <el-icon v-if="user['updateScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
-            <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
-          </el-form-item>
-        </el-form>
-      </el-main>
+      <el-scrollbar height="calc(100vh - 30px)">
+        <el-main>
+          <h2>用户权限</h2>
+          <el-form v-loading="loading" label-width="auto">
+            <el-form-item label="当前用户">
+              <el-text type="info">{{ user["nickname"] }}（{{ user.username }}）</el-text>
+            </el-form-item>
+            <el-form-item label="用户组">
+              <el-text type="info">{{ user["groupName"] }}</el-text>
+            </el-form-item>
+            <el-form-item label="管理员权限">
+              <el-icon v-if="user['admin'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="上传图片">
+              <el-icon v-if="user['upload'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="更新图片">
+              <el-icon v-if="user['updatePic'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="删除图片">
+              <el-icon v-if="user['deletePic'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="还原图片">
+              <el-icon v-if="user['restorePic'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="发送评论">
+              <el-icon v-if="user['comment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="更新评论">
+              <el-icon v-if="user['updateComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="删除评论">
+              <el-icon v-if="user['deleteComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="还原评论">
+              <el-icon v-if="user['restoreComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="发布评分">
+              <el-icon v-if="user['score'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="更新评分">
+              <el-icon v-if="user['updateScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="删除评分">
+              <el-icon v-if="user['deleteScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+            <el-form-item label="还原评分">
+              <el-icon v-if="user['restoreScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
+            </el-form-item>
+          </el-form>
+        </el-main>
+      </el-scrollbar>
     </el-container>
   </el-container>
 </template>

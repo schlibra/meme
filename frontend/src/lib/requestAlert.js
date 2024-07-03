@@ -1,5 +1,8 @@
 import {ElMessageBox} from "element-plus";
 
+function axiosOk(res) {
+    return res.data.code === 200
+}
 function alertSuccess(res, title="操作成功", callback=_=>_) {
     let message = typeof res === "string" ? res : res.data["msg"]
     ElMessageBox.alert(message, title, {
@@ -35,5 +38,4 @@ function axiosError(err, title="请求失败", callback=_=>_) {
         }
     }).then(callback)
 }
-
-export { alertSuccess, alertError, axiosError }
+export { axiosOk, alertSuccess, alertError, axiosError }

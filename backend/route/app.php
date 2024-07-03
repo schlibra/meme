@@ -25,8 +25,13 @@ Route::get("user/pics", "User/getPicList");
 Route::delete("user/pics", "User/deletePic");
 Route::patch("user/pics", "User/restorePic");
 Route::put("user/pics", "User/updatePic");
+Route::delete("user/pics", "User/deletePic");
+Route::patch("user/pics", "User/restorePic");
 // 用户-评分
-Route::get("user/score", "User/getScore");
+Route::get("user/scores", "User/getScore");
+Route::put("user/scores", "User/updateScore");
+Route::delete("user/scores", "User/deleteScore");
+Route::patch("user/scores", "User/restoreScore");
 // 图片
 Route::post("pics/upload", "Pics/create");
 Route::get("pics/list", "Pics/index");

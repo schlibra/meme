@@ -27,7 +27,7 @@ class Pics
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 $_email = $data["email"];
-                $user = Db::connect("mysql")
+                $user = Db::connect()
                     ->table("user")
                     ->where("username", $_username)
                     ->where("email", $_email)
@@ -37,23 +37,23 @@ class Pics
                 }
             } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {}
         }
-        $allUser = Db::connect("mysql")
+        $allUser = Db::connect()
             ->table("user")
             ->select();
         $userList = [];
         foreach ($allUser as $user) {
             $userList[$user["id"]] = $user;
         }
-        $pics = Db::connect("mysql")
+        $pics = Db::connect()
             ->table("pics")
-            ->where("delete", "=", null)
+            ->where("delete")
             ->limit(($pageNum-1)*$pageSize, $pageSize)
             ->select();
-        $count = Db::connect("mysql")
+        $count = Db::connect()
             ->table("pics")
-            ->where("delete", "=", null)
+            ->where("delete")
             ->count();
-        $score = Db::connect("mysql")
+        $score = Db::connect()
             ->table("score")
             ->select();
         for ($i = 0; $i < count($pics); ++$i) {
@@ -69,8 +69,10 @@ class Pics
                         $pic["scored"] = "Y";
                         $pic["myScore"] = $score_item["score"];
                     }
-                    $_score += $score_item["score"];
-                    $scoreCount++;
+                    if (!$score_item["delete"]) {
+                        $_score += $score_item["score"];
+                        $scoreCount++;
+                    }
                 }
                 if ($scoreCount) {
                     $pic["score"] = number_format($_score / $scoreCount, 2);
@@ -99,7 +101,7 @@ class Pics
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 $_email = $data["email"];
-                $user = Db::connect("mysql")
+                $user = Db::connect()
                     ->table("user")
                     ->where("username", $_username)
                     ->where("email", $_email)
@@ -109,15 +111,15 @@ class Pics
                 }
             } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {}
         }
-        $allUser = Db::connect("mysql")
+        $allUser = Db::connect()
             ->table("user")
             ->select();
-        $score = Db::connect("mysql")
+        $score = Db::connect()
             ->table("score")
             ->select();
-        $item = Db::connect("mysql")
+        $item = Db::connect()
             ->table("pics")
-            ->where("delete", "=")
+            ->where("delete")
             ->orderRaw("rand()")
             ->find();
         $score_sum = 0;
@@ -129,8 +131,10 @@ class Pics
                     $item["scored"] = "Y";
                     $item["myScore"] = $score_item["score"];
                 }
-                $score_sum += $score_item["score"];
-                $score_count++;
+                if (!$score_item["delete"]) {
+                    $score_sum += $score_item["score"];
+                    $score_count++;
+                }
             }
         }
         if ($score_count) {
@@ -172,19 +176,19 @@ class Pics
                 $data = (array) JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 $_email = $data["email"];
-                $user = Db::connect("mysql")
+                $user = Db::connect()
                     ->table("user")
                     ->where("username", $_username)
                     ->where("email", $_email)
                     ->find();
                 if ($user) {
-                    $permission = Db::connect("mysql")
+                    $permission = Db::connect()
                         ->table("group")
                         ->where("id", $user["group"])
                         ->find();
                     if ($permission) {
                         if ($permission["upload"] === "Y") {
-                            Db::connect("mysql")
+                            Db::connect()
                                 ->table("pics")
                                 ->insert([
                                     "name" => $name,
@@ -215,7 +219,7 @@ class Pics
 
     public function read($id)
     {
-        $data = Db::connect("mysql")
+        $data = Db::connect()
             ->table("pics")
             ->where("id", $id)
             ->find();
@@ -238,24 +242,24 @@ class Pics
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 $_email = $data["email"];
-                $user = Db::connect("mysql")
+                $user = Db::connect()
                     ->table("user")
                     ->where("username", $_username)
                     ->where("email", $_email)
                     ->find();
                 if ($user) {
-                    $group = Db::connect("mysql")
+                    $group = Db::connect()
                         ->table("group")
                         ->where("id", $user["group"])
                         ->find();
                     if ($group) {
-                        $pic = Db::connect("mysql")
+                        $pic = Db::connect()
                             ->table("pics")
                             ->where("id", $id)
                             ->find();
                         if ($pic) {
                             if ($group["deleteComment"] === "Y" && $pic["user"] === $user["id"]) {
-                                Db::connect("mysql")
+                                Db::connect()
                                     ->table("pics")
                                     ->where("id", $id)
                                     ->update([
@@ -292,19 +296,28 @@ class Pics
                     return json(["code" => 401, "登录状态过期"]);
                 }
                 $_email = $data["email"];
-                $user = Db::connect("mysql")
+                $user = Db::connect()
                     ->table("user")
                     ->where("username", $_username)
                     ->where("email", $_email)
                     ->find();
+                $pics = Db::connect()
+                    ->table("pics")
+                    ->where("delete")
+                    ->select();
                 if ($user) {
-                    $score = Db::connect("mysql")
+                    $score = Db::connect()
                         ->table("score")
                         ->where("user", $user["id"])
                         ->select();
                     for ($i = 0; $i < count($score); ++$i) {
                         $item = $score[$i];
                         $item["url"] = $request->domain() . "/pics/image/" . $item["pic"];
+                        foreach ($pics as $pic) {
+                            if ($item["pic"] === $pic["id"]) {
+                                $item["name"] = $pic["name"];
+                            }
+                        }
                         $score[$i] = $item;
                     }
                     return json(["code" => 200, "msg" => "数据获取成功", "data" => $score]);
@@ -331,19 +344,19 @@ class Pics
                     return json(["code" => 401, "登录状态过期"]);
                 }
                 $_email = $data["email"];
-                $user = Db::connect("mysql")
+                $user = Db::connect()
                     ->table("user")
                     ->where("username", $_username)
                     ->where("email", $_email)
                     ->find();
                 if ($user) {
-                    $group = Db::connect("mysql")
+                    $group = Db::connect()
                         ->table("group")
                         ->where("id", $user["group"])
                         ->find();
                     if ($group) {
                         if ($group["score"] === "Y") {
-                            $_score = Db::connect("mysql")
+                            $_score = Db::connect()
                                 ->table("score")
                                 ->where("pic", $pic)
                                 ->where("user", $user["id"])
@@ -351,7 +364,7 @@ class Pics
                             if ($_score) {
                                 return json(["code" => 401, "msg" => "不能重复评分"]);
                             }
-                            Db::connect("mysql")
+                            Db::connect()
                                 ->table("score")
                                 ->insert([
                                     "pic" => $pic,
@@ -376,8 +389,5 @@ class Pics
         }else{
             return json(["code" => 403, "msg" => "未登录"]);
         }
-    }
-    public function updateScore(Request$request) {
-        return json(["code" => 200, "msg" => "更新评分"]);
     }
 }

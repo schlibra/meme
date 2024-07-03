@@ -15,7 +15,8 @@ const UserUrl = {
     verifyUrl: userUrl + "/verify",
     passwordUrl: userUrl + "/password",
     logoutUrl: userUrl + "/logout",
-    picsUrl: userUrl + "/pics"
+    picsUrl: userUrl + "/pics",
+    scoreUrl: userUrl + "/scores"
 }
 
 const PicsUrl = {

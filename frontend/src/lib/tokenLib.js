@@ -8,4 +8,5 @@ function getToken() {
 function removeToken() {
     localStorage.removeItem("token")
 }
+globalThis.getToken = getToken
 export { setToken, getToken, removeToken }
