@@ -40,6 +40,8 @@ Route::delete("pics/image/:id", "Pics/delete");
 Route::post("pics/score", "Pics/addScore");
 Route::put("pics/score", "Pics/updateScore");
 Route::get("pics/score", "Pics/getScore");
+Route::get("pics/comment", "Pics/getComment");
+Route::post("pics/comment", "Pics/addComment");
 Route::get("pics/random", "Pics/randomPic");
 // 访问前端
 Route::get("/", "Index");

@@ -740,7 +740,7 @@ class User
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "登录状态过期"]);
+                    return json(["code" => 401, "msg" => "登录状态过期"]);
                 }
                 $_email = $data["email"];
                 $user = Db::connect()
@@ -795,7 +795,7 @@ class User
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "登录状态过期"]);
+                    return json(["code" => 401, "msg" => "登录状态过期"]);
                 }
                 $_email = $data["email"];
                 $user = Db::connect()
@@ -849,7 +849,7 @@ class User
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "登录状态过期"]);
+                    return json(["code" => 401, "msg" => "登录状态过期"]);
                 }
                 $_email = $data["email"];
                 $user = Db::connect()

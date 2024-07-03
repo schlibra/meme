@@ -83,3 +83,18 @@ CREATE TABLE IF NOT EXISTS `score`  (
     `delete` datetime NULL COMMENT '删除时间',
     PRIMARY KEY (`id`)
 );
+
+-- 评论表
+DROP TABLE IF EXISTS `comment`;
+CREATE TABLE IF NOT EXISTS `comment`  (
+    `id` int NOT NULL AUTO_INCREMENT COMMENT '数据id',
+    `pic` int NOT NULL COMMENT '图片id',
+    `user` int NOT NULL COMMENT '用户id',
+    `reply` int NOT NULL COMMENT '回复评论id',
+    `comment` varchar(500) NOT NULL COMMENT '评论内容',
+    `verified` varchar(1) NOT NULL COMMENT '评论通过审核',
+    `update` datetime NOT NULL COMMENT '评论更新时间',
+    `create` datetime NOT NULL COMMENT '评论发送时间',
+    `delete` datetime NULL COMMENT '评论删除时间',
+    PRIMARY KEY (`id`)
+);

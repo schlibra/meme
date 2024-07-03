@@ -294,7 +294,7 @@ class Pics
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "登录状态过期"]);
+                    return json(["code" => 401, "msg" => "登录状态过期"]);
                 }
                 $_email = $data["email"];
                 $user = Db::connect()
@@ -342,7 +342,7 @@ class Pics
                 $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
                 $_username = $data["username"];
                 if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "登录状态过期"]);
+                    return json(["code" => 401, "msg" => "登录状态过期"]);
                 }
                 $_email = $data["email"];
                 $user = Db::connect()
@@ -390,5 +390,80 @@ class Pics
         }else{
             return json(["code" => 403, "msg" => "未登录"]);
         }
+    }
+    function addComment(Request$request) {
+        $token = $request->header("Authorization", "");
+        $pic = $request->post("pic");
+        $reply = $request->post("reply");
+        $comment = $request->post("comment");
+        if (str_starts_with($token, "Bearer")) {
+            $token = str_replace("Bearer ", "", $token);
+            try {
+                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
+                $_username = $data["username"];
+                if (Cache::get($_username) !== $token) {
+                    return json(["code" => 401, "msg" => "登录状态过期"]);
+                }
+                $_email = $data["email"];
+                $user = Db::connect()
+                    ->table("user")
+                    ->where("username", $_username)
+                    ->where("email", $_email)
+                    ->find();
+                if ($user) {
+                    $permission = Db::connect()
+                        ->table("group")
+                        ->where("id", $user["group"])
+                        ->find();
+                    if ($permission) {
+                        if ($permission["comment"] === "Y") {
+                            Db::connect()
+                                ->table("comment")
+                                ->insert([
+                                    "pic" => $pic,
+                                    "user" => $user["id"],
+                                    "reply" => $reply,
+                                    "comment" => $comment,
+                                    "verified" => "N",
+                                    "create" => date("Y-m-d H:i:s"),
+                                    "update" => date("Y-m-d H:i:s")
+                                ]);
+                            return json(["code" => 200, "msg" => "评论发送成功"]);
+                        } else {
+                            return json(["code" => 403, "msg" => "没有评论权限"]);
+                        }
+                    } else {
+                        return json(["code" => 401, "msg" => "没有权限"]);
+                    }
+                } else {
+                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                }
+            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
+                return json(["code" => 401, "msg" => "登录状态过期", "exception" => $e->getMessage()]);
+            }
+        }else{
+            return json(["code" => 403, "msg" => "未登录"]);
+        }
+    }
+    function getComment() {
+        $comments = Db::connect()
+            ->table("comment")
+            ->where("delete")
+            ->select();
+        $users = Db::connect()
+            ->table("user")
+            ->select();
+        for ($i = 0; $i < count($comments); ++$i) {
+            $comment = $comments[$i];
+            for ($j = 0; $j < count($users); ++$j) {
+                $user = $users[$j];
+                if ($comment["user"] === $user["id"]) {
+                    $comment["nickname"] = $user["nickname"];
+                    $comment["avatar"] = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("sha256", $user["email"]);
+                }
+            }
+            $comments[$i] = $comment;
+        }
+        return json(["code" => 200, "msg" => "数据获取成功", "data" => $comments]);
     }
 }
