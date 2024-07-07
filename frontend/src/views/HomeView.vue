@@ -243,6 +243,7 @@ function submitComment() {
         }).then(res=>{
           if (res.data.code === 200) {
             alertSuccess(res, "评论成功", () => {
+              comment.value = ""
               reload()
               getCommentList()
             })
