@@ -33,7 +33,7 @@ const randomPic = ref({})
 const showRandom = ref(false)
 
 const commentList = ref([])
-const comments = ref('')
+const comment = ref('')
 
 onMounted(()=>{
   if (token.value) {
@@ -187,8 +187,7 @@ function submitScore() {
         detailLoading.value = true
         axios.post(PicsUrl.scoreUrl, {
           score,
-          pic,
-
+          pic
         }, {
           headers: {
             Authorization: `Bearer ${token.value}`
@@ -229,17 +228,14 @@ function submitComment() {
     alertError("没有登录无法提交评论", "评论失败")
     return
   }
-  let comment = comments.value;
-  let pic = imgDetailScore.value;
-  if(comment) {
-
+  if(comment.value) {
     confirm(`确定在图片“${imgDetail.value.name}”的评论区下评论吗？`, "评论确认", {
       confirm() {
         detailLoading.value = true
         axios.post(PicsUrl.commentUrl, {
-          comment,
-          pic,
-          reply:0
+          comment: comment.value,
+          pic: imgDetail.value["id"],
+          reply: 0
         }, {
           headers: {
             Authorization: `Bearer ${token.value}`
@@ -248,7 +244,7 @@ function submitComment() {
           if (res.data.code === 200) {
             alertSuccess(res, "评论成功", () => {
               reload()
-
+              getCommentList()
             })
           } else {
             alertError(res, "评论失败")
@@ -298,14 +294,10 @@ function submitComment() {
           </template>
           <template #default>
             <el-image
-              class="item-img"
-              :src="img.url"
-              :zoom-rate="1.2"
-              :max-scale="7"
-              :min-scale="0.2"
+              class="item-img" :src="img.url" :zoom-rate="1.2"
+              :max-scale="7" :min-scale="0.2"
               :preview-src-list="imgList"
-              :initial-index="index"
-              fit="contain">
+              :initial-index="index" fit="contain">
               <template #error>
                 <el-empty description="图片加载失败咯" />
               </template>
@@ -314,10 +306,7 @@ function submitComment() {
           <template #footer>
             <el-space direction="vertical">
               <el-rate
-                v-model="img.score"
-                disabled
-                show-score
-                text-color="#ff9900"
+                v-model="img.score" disabled show-score text-color="#ff9900"
                 :score-template="img.score === 0 ? '暂无评分' : `${img.score}分`" />
               <el-button
                   type="primary"
@@ -402,13 +391,8 @@ function submitComment() {
     </template>
     <template #footer>
       <el-space>
-        <el-input :rows="1"
-                  type="textarea"
-                  maxlength="500"
-                  placeholder="输入评论内容"
-                  v-model="comments"
-                  show-word-limit
-        />
+        <el-input :rows="1" type="textarea" maxlength="500"
+                  placeholder="输入评论内容" v-model="comment" show-word-limit/>
         <el-button v-if="token" type="primary" @click="submitComment">发送评论</el-button>
       </el-space>
     </template>
