@@ -19,6 +19,7 @@ class Pics
         $token = $request->header("Authorization", "");
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
+        $name = $request->get("name", "");
         $userId = null;
         if (str_starts_with($token, "Bearer")) {
             $token = str_replace("Bearer ", "", $token);
@@ -46,11 +47,13 @@ class Pics
         $pics = Db::connect()
             ->table("pics")
             ->where("delete")
+            ->whereLike("name", "%$name%")
             ->limit(($pageNum-1)*$pageSize, $pageSize)
             ->select();
         $count = Db::connect()
             ->table("pics")
             ->where("delete")
+            ->whereLike("name", "%$name%")
             ->count();
         $score = Db::connect()
             ->table("score")

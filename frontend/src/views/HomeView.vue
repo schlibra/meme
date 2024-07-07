@@ -14,6 +14,7 @@ const userInfo = ref({})
 const strings = ref(["IURT meme 2.0"])
 const currentPage = ref(1)
 const pageSize = ref(20)
+const search = ref("")
 const picList = ref([])
 const imgList = ref([]);
 const totalCount = ref(0);
@@ -72,7 +73,7 @@ onMounted(()=>{
 })
 function reload() {
   mainLoading.value = true
-  axios.get(PicsUrl.listUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}`, {
+  axios.get(PicsUrl.listUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}&name=${search.value}`, {
     headers: token.value ? {
       Authorization: `Bearer ${token.value}`
     } : {}
@@ -285,8 +286,9 @@ function submitComment() {
     <el-button size="small" type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
     <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
+  <el-input class="search" v-model="search" placeholder="搜索图片" @change="reload" />
   <el-divider />
-  <el-scrollbar :height="displayUtil.isXs ? token ? 'calc(100vh - 420px)' : 'calc(100vh - 360px)' : token ? 'calc(100vh - 340px)' : 'calc(100vh - 280px)'">
+  <el-scrollbar :height="displayUtil.isXs ? token ? 'calc(100vh - 460px)' : 'calc(100vh - 400px)' : token ? 'calc(100vh - 380px)' : 'calc(100vh - 320px)'">
     <el-row :gutter="8" class="main" v-loading="mainLoading">
       <el-col  :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
@@ -448,5 +450,10 @@ function submitComment() {
   margin-top: 16px;
   margin-bottom: 32px;
   margin-left: 16px;
+}
+.search {
+  margin-top: 10px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 </style>
