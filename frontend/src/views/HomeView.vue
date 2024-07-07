@@ -33,6 +33,7 @@ const randomPic = ref({})
 const showRandom = ref(false)
 
 const commentList = ref([])
+const comments = ref('')
 
 onMounted(()=>{
   if (token.value) {
@@ -360,7 +361,13 @@ function getCommentList() {
     </template>
     <template #footer>
       <el-space>
-        <el-input placeholder="输入评论内容" />
+        <el-input :rows="1"
+                  type="textarea"
+                  maxlength="500"
+                  placeholder="输入评论内容"
+                  v-model="comments"
+                  show-word-limit
+        />
         <el-button type="primary">发送评论</el-button>
       </el-space>
     </template>
