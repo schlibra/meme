@@ -10,6 +10,7 @@ import AboutView from "@/views/AboutView.vue";
 import UserPicture from "@/views/UserPicture.vue";
 import DocView from "@/views/DocView.vue";
 import UserScore from "@/views/UserScore.vue";
+import AdminBasic from "@/views/AdminBasic.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -73,12 +74,12 @@ const router = createRouter({
       name: "about",
       component: AboutView,
       meta: { title: "关于页面" }
-    },
+    } ,
     {
-      path: "/doc",
-      name: "doc",
-      component: DocView,
-      meta: { title: "文档" }
+      path: "/admin/basic",
+      name: "adminBasic",
+      component: AdminBasic,
+      meta: { title: "后台管理页面 - 基本信息" }
     }
   ]
 })

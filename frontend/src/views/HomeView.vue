@@ -107,7 +107,7 @@ function gotoUser() {
   router.push("/user/basic")
 }
 function gotoAdmin() {
-
+  router.push("/admin/basic")
 }
 function randomDetail() {
   imgDetail.value = randomPic.value
@@ -274,7 +274,7 @@ function submitComment() {
     <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
     <el-button type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
-    <el-button type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
+    <el-button type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">进入后台</el-button>
     <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <div class="buttons hidden-sm-and-up">
