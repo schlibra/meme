@@ -187,7 +187,8 @@ function submitScore() {
         detailLoading.value = true
         axios.post(PicsUrl.scoreUrl, {
           score,
-          pic
+          pic,
+
         }, {
           headers: {
             Authorization: `Bearer ${token.value}`
@@ -222,6 +223,46 @@ function getCommentList() {
     error: err => axiosError(err, "评论获取失败")
   })
 }
+
+function submitComment() {
+  if (!token.value) {
+    alertError("没有登录无法提交评论", "评论失败")
+    return
+  }
+  let comment = comments.value;
+  let pic = imgDetailScore.value;
+  if(comment) {
+
+    confirm(`确定在图片“${imgDetail.value.name}”的评论区下评论吗？`, "评论确认", {
+      confirm() {
+        detailLoading.value = true
+        axios.post(PicsUrl.commentUrl, {
+          comment,
+          pic,
+          reply:0
+        }, {
+          headers: {
+            Authorization: `Bearer ${token.value}`
+          }
+        }).then(res=>{
+          if (res.data.code === 200) {
+            alertSuccess(res, "评论成功", () => {
+              reload()
+
+            })
+          } else {
+            alertError(res, "评论失败")
+          }
+        }).catch(err=>{
+          axiosError(err, "评论失败")
+        }).finally(()=>detailLoading.value = false)
+      }
+    })
+  } else {
+    alertError("请先输入评论内容后再提交", "评论失败")
+  }
+}
+
 </script>
 
 <template>
@@ -368,7 +409,7 @@ function getCommentList() {
                   v-model="comments"
                   show-word-limit
         />
-        <el-button type="primary">发送评论</el-button>
+        <el-button v-if="token" type="primary" @click="submitComment">发送评论</el-button>
       </el-space>
     </template>
   </el-drawer>
