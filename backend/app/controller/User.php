@@ -3,6 +3,9 @@ declare (strict_types=1);
 
 namespace app\controller;
 
+use app\lib\Authorization;
+use app\model\GroupModel;
+use app\model\UserModel;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\Key;
@@ -30,9 +33,12 @@ class User
     {
         $username = $request->post("username", "");
         $password = $request->post("password", "");
-        $data = Db::connect()
-            ->table("user")
-            ->where("username", $username)
+//        $data = Db::connect()
+//            ->table("user")
+//            ->where("username", $username)
+//            ->whereOr("email", $username)
+//            ->find();
+        $data = UserModel::where("username", $username)
             ->whereOr("email", $username)
             ->find();
         if ($data) {
@@ -228,158 +234,80 @@ class User
 
     function getInfo(Request $request)
     {
-        $token = $request->header("Authorization", "");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $email = $data["email"];
-                $row = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $email)
-                    ->find();
-                if ($row) {
-                    unset($row["password"]);
-                    unset($row["ban"]);
-                    unset($row["reason"]);
-                    $row["avatar"] = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("sha256", $row["email"]);
-                    $permission = Db::connect()
-                        ->table("group")
-                        ->where("id", $row["group"])
-                        ->find();
-                    if ($permission) {
-                        unset($permission["id"]);
-                        $row = array_merge($row, $permission);
-                        $row["groupName"] = $row["name"];
-                        unset($row["name"]);
-                    }
-                    $row["exp"] = $data["exp"];
-                    return json(["code" => 200, "msg" => "用户信息获取成功", "data" => $row]);
-                } else {
-                    return json(["code" => 401, "msg" => "用户不存在"]);
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+        $auth = Authorization::loginAuth($request);
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            unset($user["password"]);
+            unset($user["ban"]);
+            unset($user["reason"]);
+            $user["avatar"] = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("md5", $user["email"]);
+            $group = GroupModel::where("id", $user->group)->find();
+            if ($group) {
+                unset($group["id"]);
+                $user = array_merge($user->toArray(), $group->toArray());
             }
+            return json(["code" => 200, "msg" => "数据获取成功", "data" => $user]);
         } else {
-            return json(["code" => 401, "msg" => "Token数据错误"]);
+            return json(["code" => 401, "msg" => $auth["msg"]]);
         }
     }
 
     function updateInfo(Request $request)
     {
-        $token = $request->header("Authorization", "");
         $nickname = $request->post("nickname");
         $birth = $request->post("birth");
         $sex = $request->post("sex");
         $description = $request->post("description");
         $email = $request->post("email");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $_email = $data["email"];
-                $result = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $_email)
-                    ->find();
-                if ($result) {
-                    if ($email === $_email) $email = null;
-                    if ($email && Db::connect()
-                            ->table("user")
-                            ->where("email", $email)
-                            ->find()) {
-                        return json(["code" => 401, "msg" => "邮箱已存在"]);
-                    }
-                    if ($nickname) $result["nickname"] = $nickname;
-                    if ($birth) $result["birth"] = $birth;
-                    if ($sex) $result["sex"] = $sex;
-                    if ($description) $result["description"] = $description;
-                    if ($email) {
-                        $result["email"] = $email;
-                        $result["verified"] = "N";
-                    }
-                    Db::connect()
-                        ->table("user")
-                        ->save($result);
-                    return json(["code" => 200, "msg" => "用户信息更新成功"]);
-                } else {
-                    return json(["code" => 401, "msg" => "用户不存在"]);
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+        $auth = Authorization::loginAuth($request);
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $_email = $user->email;
+            if ($email === $_email) $email = null;
+            if ($email && UserModel::where("email", $email)) {
+                return json(["code" => 401, "msg" => "邮箱已存在"]);
             }
+            if ($nickname) $user->nickname = $nickname;
+            if ($birth) $user->birth = $birth;
+            if ($sex) $user->sex = $sex;
+            if ($description) $user->description = $description;
+            if ($email) {
+                $user->email = $email;
+                $user->verified = "N";
+            }
+            $user->save();
+            return json(["code" => 200, "msg" => "用户信息更新成功"]);
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return json(["code" => 401, $auth["msg"]]);
         }
     }
 
     function logout(Request $request)
     {
-        $token = $request->header("Authorization", "");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                Cache::delete($username);
-                return json(["code" => 200, "msg" => "已退出登录"]);
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 200, "msg" => "已退出登录"]);
-            }
-        } else {
-            return json(["code" => 200, "msg" => "已退出登录"]);
+        $auth = Authorization::loginAuth($request);
+        if ($auth["status"]) {
+            Cache::delete($auth["data"]->username);
         }
+        return json(["code" => 200, "msg" => "已退出登录"]);
     }
 
     function changePassword(Request $request)
     {
-        $token = $request->header("Authorization", "");
-        $oldPassword = $request->post("oldPassword");
         $newPassword = $request->post("newPassword");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                $email = $data["email"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $email)
-                    ->find();
-                if ($user) {
-                    if (password_verify($oldPassword, $user["password"])) {
-                        $user["password"] = password_hash($newPassword, PASSWORD_BCRYPT);
-                        Db::connect()
-                            ->table("user")
-                            ->save($user);
-                        Cache::delete($username);
-                        return json(["code" => 200, "msg" => "密码修改成功"]);
-                    } else {
-                        return json(["code" => 401, "msg" => "原密码不正确"]);
-                    }
-                } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+        $oldPassword = $request->post("oldPassword");
+        $auth = Authorization::loginAuth($request);
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            if (password_verify($oldPassword, $user->password)) {
+                $user->password = password_hash($newPassword, PASSWORD_BCRYPT);
+                $user->save();
+                Cache::delete($user->username);
+                return json(["code" => 200, "msg" => "密码修改成功"]);
+            } else {
+                return json(["code" => 401, "msg" => "原密码不正确"]);
             }
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return json(["code" => 401, "msg" => $auth["msg"]]);
         }
     }
 
