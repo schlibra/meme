@@ -25,8 +25,7 @@ use think\Request;
 use Firebase\JWT\JWT;
 use think\response\Json;
 
-class User
-{
+class User {
     function login(Request $request): Json {
         $username = $request->post("username", "");
         $password = $request->post("password", "");
@@ -63,7 +62,6 @@ class User
             }
         }
     }
-
     function register(Request $request): Json{
         $username = $request->post("username", "");
         $nickname = $request->post("nickname", "");
@@ -98,7 +96,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function forget(Request $request): Json {
         $email = $request->post("email");
         $code = $request->post("code");
@@ -128,7 +125,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function sendCode(Request $request): Json {
         $action = $request->post("action");
         $actionText = match ($action) {
@@ -184,7 +180,6 @@ class User
             }
         }
     }
-
     function getInfo(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         if ($auth["status"]) {
@@ -200,7 +195,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function updateInfo(Request $request): Json {
         $nickname = $request->post("nickname");
         $birth = $request->post("birth");
@@ -229,7 +223,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function logout(Request $request):Json {
         $auth = Authorization::loginAuth($request);
         if ($auth["status"]) {
@@ -237,7 +230,6 @@ class User
         }
         return JsonBack::jsonBack(200, "已退出登录");
     }
-
     function changePassword(Request $request): Json {
         $newPassword = $request->post("newPassword");
         $oldPassword = $request->post("oldPassword");
@@ -256,7 +248,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function verify(Request $request): Json {
         $code = $request->post("code");
         $auth = Authorization::emailAuth($request);
@@ -279,7 +270,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function getPicList(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         if ($auth["status"]) {
@@ -312,7 +302,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function deletePic(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         $picId = $request->get("pic", "");
@@ -344,7 +333,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function restorePic(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         $picId = $request->get("pic", "");
@@ -377,8 +365,7 @@ class User
         }
     }
 
-    function updatePic(Request $request): Json
-    {
+    function updatePic(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         $picId = $request->post("pic");
         $name = $request->post("name");
@@ -416,9 +403,7 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
-    function getScore(Request $request): Json
-    {
+    function getScore(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
@@ -434,14 +419,11 @@ class User
                 $scoreItem->name = $pic->name;
             }
             return JsonBack::jsonBack(200, "数据获取成功", $score, $scoreCount);
-
         } else {
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
-    function updateScore(Request $request): Json
-    {
+    function updateScore(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         $id = $request->post("id");
         $score = $request->post("score");
@@ -472,7 +454,6 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-
     function deleteScore(Request $request): Json{
         $auth = Authorization::loginAuth($request);
         $id = $request->post("id");
@@ -503,8 +484,7 @@ class User
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
-    function restoreScore(Request $request): Json
-    {
+    function restoreScore(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         $id = $request->post("id");
         if ($auth["status"]) {

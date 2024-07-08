@@ -16,6 +16,7 @@ use think\model\relation\HasOne;
  * @property mixed create
  * @property mixed update
  * @property mixed delete
+ * @property mixed name
  */
 class ScoreModel extends Model
 {

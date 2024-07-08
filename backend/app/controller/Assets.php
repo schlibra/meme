@@ -3,12 +3,12 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
+use app\lib\JsonBack;
 use think\Request;
+use think\Response;
 
-class Assets
-{
-    public function index(Request$request)
-    {
+class Assets {
+    public function index(Request$request):Response {
         $filename = $request->url();
         $filepath = root_path() . "view/dist/$filename";
         if (file_exists($filepath)) {
@@ -25,12 +25,10 @@ class Assets
                 "Content-Type" => $type
             ]);
         } else {
-            return json([
-                "code" => 404,
-                "msg" => "文件不存在",
+            return JsonBack::jsonBack(404, "文件不存在", [
                 "filename" => $filename,
                 "realPath" => $filepath
-            ])->code(404);
+            ]);
         }
     }
 }
