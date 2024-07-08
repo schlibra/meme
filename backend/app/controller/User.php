@@ -4,18 +4,18 @@ declare (strict_types=1);
 namespace app\controller;
 
 use app\lib\Authorization;
+use app\lib\JsonBack;
 use app\model\GroupModel;
+use app\model\PicsModel;
+use app\model\ScoreModel;
 use app\model\UserModel;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\Key;
 use Firebase\JWT\SignatureInvalidException;
+use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
-use think\db\exception\DataNotFoundException;
-use think\db\exception\DbException;
-use think\db\exception\ModelNotFoundException;
-use think\Exception;
 use think\facade\Cache;
 use think\facade\Db;
 use think\Request;
@@ -24,159 +24,109 @@ use think\response\Json;
 
 class User
 {
-    /**
-     * @throws ModelNotFoundException
-     * @throws DataNotFoundException
-     * @throws DbException
-     */
-    function login(Request $request)
-    {
+    function login(Request $request): Json {
         $username = $request->post("username", "");
         $password = $request->post("password", "");
-//        $data = Db::connect()
-//            ->table("user")
-//            ->where("username", $username)
-//            ->whereOr("email", $username)
-//            ->find();
-        $data = UserModel::where("username", $username)
+        $user = UserModel::where("username", $username)
             ->whereOr("email", $username)
-            ->find();
-        if ($data) {
-            if (password_verify($password, $data["password"])) {
-                if ($data["ban"] === "Y") {
-                    return json(["code" => 401, "msg" => "用户已被封禁：" . $data['reason']]);
+            ->findOrEmpty();
+        if ($user->isEmpty()) {
+            return JsonBack::jsonBack(401, "用户不存在");
+        } else {
+            if (password_verify($password, $user->password)) {
+                if ($user->ban === "Y") {
+                    return JsonBack::jsonBack(401, "用户已被封禁：".$user->reason);
                 } else {
-                    $url = $request->domain();
-                    $payload = [
-                        "iss" => $url,
-                        "aud" => $url,
-                        "kid" => $url,
-                        "iat" => time(),
-                        "exp" => time() + 36000,
-                        "username" => $data["username"],
-                        "email" => $data["email"]
-                    ];
-                    $token = JWT::encode($payload, "meme_login_token_key", "HS256");
-                    Cache::set($username, $token);
-                    return json(["code" => 200, "msg" => "登录成功", "token" => $token]);
+                    if ($user->email === $username && $user->verified !== "Y") {
+                        return JsonBack::jsonBack(401, "邮箱未通过验证，请先使用用户名登录");
+                    } else {
+                        $url = $request->domain();
+                        $payload = [
+                            "iss" => $url,
+                            "aud" => $url,
+                            "kid" => $url,
+                            "iat" => time(),
+                            "exp" => time() + 36000,
+                            "username" => $user->username,
+                            "email" => $user->email
+                        ];
+                        $token = JWT::encode($payload, "meme_login_token_key", "HS256");
+                        Cache::set($username, $token);
+                        return JsonBack::jsonBack(200, "登录成功", null, null, $token);
+                    }
                 }
             } else {
-                return json(["code" => 401, "msg" => "密码错误"]);
+                return JsonBack::jsonBack(401, "密码错误");
             }
-        } else {
-            return json(["code" => 401, "msg" => "用户不存在"]);
         }
     }
 
-    function register(Request $request)
-    {
-        $token = $request->header("Authorization", "");
+    function register(Request $request): Json{
         $username = $request->post("username", "");
         $nickname = $request->post("nickname", "");
         $email = $request->post("email", "");
         $code = $request->post("code", "");
         $password = $request->post("password", "");
         $password = password_hash($password, PASSWORD_BCRYPT);
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_email_token_key", "HS256"));
-                $_email = $data["email"];
-                $_code = $data["code"];
-                if ($email === $_email) {
-                    if ($code == $_code) {
-                        if (Db::connect()
-                            ->table("user")
-                            ->where("username", $username)
-                            ->whereOr("email", $email)
-                            ->find()) {
-                            return json(["code" => 401, "msg" => "用户名或邮箱已存在"]);
-                        } else {
-                            Db::connect()
-                                ->table("user")
-                                ->insert([
-                                    "username" => $username,
-                                    "nickname" => $nickname,
-                                    "password" => $password,
-                                    "email" => $email,
-                                    "verified" => "Y",
-                                    "create" => date("Y-m-d H:i:s"),
-                                    "group" => 1,
-                                    "ban" => "N",
-                                    "reason" => ""
-                                ]);
-                            return json(["code" => 200, "msg" => "注册成功"]);
-                        }
-
-                    } else {
-                        return json(["code" => 401, "msg" => "邮箱验证码不正确"]);
-                    }
+        $auth = Authorization::emailAuth($request);
+        if ($auth["status"]) {
+            $data = $auth["data"];
+            if ($data["email"] === $email && $data["code"] === $code) {
+                if (UserModel::where("username", $username)->whereOr("email", $email)->findOrEmpty()->isEmpty()) {
+                    $user = new UserModel;
+                    $user->username = $username;
+                    $user->nickname = $nickname;
+                    $user->password = $password;
+                    $user->email = $email;
+                    $user->verified = "Y";
+                    $user->create = date("Y-m-d H:i:s");
+                    $user->groupId = 1;
+                    $user->ban = "N";
+                    $user->reason = "";
+                    $user->save();
+                    return JsonBack::jsonBack(200, "用户注册成功");
                 } else {
-                    return json(["code" => 401, "msg" => "邮箱地址被修改"]);
+                    return JsonBack::jsonBack(401, "用户名或邮箱已存在");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息解码失败：" . $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "验证码不正确");
             }
         } else {
-            return json(["code" => 401, "msg" => "请发送验证码"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function forget(Request $request)
-    {
-        $token = $request->header("Authorization", "");
+    function forget(Request $request): Json {
         $email = $request->post("email");
         $code = $request->post("code");
         $password = $request->post("password");
         $password = password_hash($password, PASSWORD_BCRYPT);
         $username = $request->post("username");
-        if (str_starts_with($token, "Bearer ")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_email_token_key", "HS256"));
-                $_email = $data["email"];
-                if (Cache::get($_email) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $_code = $data["code"];
-                if ($email === $_email) {
-                    if ($code == $_code) {
-                        $result = Db::connect()
-                            ->table("user")
-                            ->where("email", $email)
-                            ->find();
-                        if ($result) {
-                            if ($result["username"] === $username) {
-                                Db::connect()
-                                    ->table("user")
-                                    ->update([
-                                        "id" => $result["id"],
-                                        "password" => $password
-                                    ]);
-                                return json(["code" => 200, "msg" => "密码更新成功"]);
-                            } else {
-                                return json(["code" => 401, "msg" => "用户名不匹配"]);
-                            }
-                        } else {
-                            return json(["code" => 401, "msg" => "邮箱不存在"]);
-                        }
-                    } else {
-                        return json(["code" => 401, "msg" => "验证码不正确"]);
-                    }
+        $auth = Authorization::emailAuth($request);
+        if ($auth["status"]) {
+            $data = $auth["data"];
+            $_email = $data["email"];
+            $_code = $data["code"];
+            if ($email === $_email && $code === $_code) {
+                $user = UserModel::where("username", $username)
+                    ->where("email", $email)
+                    ->findOrEmpty();
+                if ($user->isEmpty()) {
+                    return JsonBack::jsonBack(401, "账号不存在");
                 } else {
-                    return json(["code" => 401, "msg" => "邮箱不正确"]);
+                    $user->password = $password;
+                    $user->save();
+                    return JsonBack::jsonBack(200, "密码重置成功");
                 }
-
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息解码失败：" . $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "验证码不正确");
             }
         } else {
-            return json(["code" => 401, "msg" => "请发送验证码"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function sendCode(Request $request)
-    {
+    function sendCode(Request $request): Json {
         $action = $request->post("action");
         $actionText = match ($action) {
             "register" => "注册IURT meme 2.0账号",
@@ -225,35 +175,30 @@ class User
                 ];
                 $token = JWT::encode($payload, "meme_email_token_key", "HS256");
                 Cache::set($email, $token);
-                return json(["code" => 200, "msg" => "发送成功，请及时查收", "token" => $token]);
-            } catch (\PHPMailer\PHPMailer\Exception$e) {
-                return json(["code" => 500, "msg" => "发送失败：" . $e->getMessage()]);
+                return JsonBack::jsonBack(200, "发送成功，请及时查收", null, null, $token);
+            } catch (Exception$e) {
+                return JsonBack::jsonBack(500, "发送失败：".$e->getMessage());
             }
         }
     }
 
-    function getInfo(Request $request)
-    {
+    function getInfo(Request $request): Json {
         $auth = Authorization::loginAuth($request);
         if ($auth["status"]) {
             $user = $auth["data"];
-            unset($user["password"]);
-            unset($user["ban"]);
-            unset($user["reason"]);
-            $user["avatar"] = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("md5", $user["email"]);
-            $group = GroupModel::where("id", $user->group)->find();
+            unset($user["password"], $user["ban"], $user["reason"]);
+            $user->avatar = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("md5", $user->email);
+            $group = $user->group;
             if ($group) {
-                unset($group["id"]);
                 $user = array_merge($user->toArray(), $group->toArray());
             }
-            return json(["code" => 200, "msg" => "数据获取成功", "data" => $user]);
+            return JsonBack::jsonBack(200, "数据获取成功", $user);
         } else {
-            return json(["code" => 401, "msg" => $auth["msg"]]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function updateInfo(Request $request)
-    {
+    function updateInfo(Request $request): Json {
         $nickname = $request->post("nickname");
         $birth = $request->post("birth");
         $sex = $request->post("sex");
@@ -264,7 +209,7 @@ class User
             $user = $auth["data"];
             $_email = $user->email;
             if ($email === $_email) $email = null;
-            if ($email && UserModel::where("email", $email)) {
+            if ($email && !UserModel::where("email", $email)->findOrEmpty()->isEmpty()) {
                 return json(["code" => 401, "msg" => "邮箱已存在"]);
             }
             if ($nickname) $user->nickname = $nickname;
@@ -276,23 +221,21 @@ class User
                 $user->verified = "N";
             }
             $user->save();
-            return json(["code" => 200, "msg" => "用户信息更新成功"]);
+            return JsonBack::jsonBack(200, "用户信息更新成功");
         } else {
-            return json(["code" => 401, $auth["msg"]]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function logout(Request $request)
-    {
+    function logout(Request $request):Json {
         $auth = Authorization::loginAuth($request);
         if ($auth["status"]) {
             Cache::delete($auth["data"]->username);
         }
-        return json(["code" => 200, "msg" => "已退出登录"]);
+        return JsonBack::jsonBack(200, "已退出登录");
     }
 
-    function changePassword(Request $request)
-    {
+    function changePassword(Request $request): Json {
         $newPassword = $request->post("newPassword");
         $oldPassword = $request->post("oldPassword");
         $auth = Authorization::loginAuth($request);
@@ -302,523 +245,290 @@ class User
                 $user->password = password_hash($newPassword, PASSWORD_BCRYPT);
                 $user->save();
                 Cache::delete($user->username);
-                return json(["code" => 200, "msg" => "密码修改成功"]);
+                return JsonBack::jsonBack(200, "密码修改成功");
             } else {
-                return json(["code" => 401, "msg" => "原密码不正确"]);
+                return JsonBack::jsonBack(401, "原密码不正确");
             }
         } else {
-            return json(["code" => 401, "msg" => $auth["msg"]]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function verify(Request $request)
-    {
-        $token = $request->header("Authorization", "");
+    function verify(Request $request): Json {
         $code = $request->post("code");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_email_token_key", "HS256"));
-                $_email = $data["email"];
-                if (Cache::get($_email) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $_code = $data["code"];
-                if ($code == $_code) {
-                    Db::connect()
-                        ->table("user")
-                        ->where("email", $_email)
-                        ->update([
-                            "verified" => "Y"
-                        ]);
-                    return json(["code" => 200, "msg" => "验证成功"]);
+        $auth = Authorization::emailAuth($request);
+        if ($auth["status"]) {
+            $data = $auth["data"];
+            $_code = $data["code"];
+            $_email = $data["email"];
+            if ($code === $_code) {
+                $user = UserModel::where("email", $_email)->findOrEmpty();
+                if ($user->isEmpty()) {
+                    return JsonBack::jsonBack(401, "用户不存在");
                 } else {
-                    return json(["code" => 401, "msg" => "验证码不正确"]);
+                    $user->verified = "Y";
+                    return JsonBack::jsonBack(200, "验证成功");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "验证码错误");
             }
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function getPicList(Request $request)
-    {
-        $token = $request->header("Authorization", "");
-        $pageSize = (int)$request->get("pageSize", 10);
-        $pageNum = (int)$request->get("pageNum", 1);
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                $email = $data["email"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $email)
-                    ->find();
-                if ($user) {
-                    $pic = Db::connect()
-                        ->table("pics")
-                        ->where("user", $user["id"])
-                        ->limit(($pageNum - 1) * $pageSize, $pageSize)
-                        ->select();
-                    $picCount = Db::connect()
-                        ->table("pics")
-                        ->where("user", $user["id"])
-                        ->count();
-                    $score = Db::connect()
-                        ->table("score")
-                        ->select();
-                    for ($i = 0; $i < count($pic); ++$i) {
-                        $pic_item = $pic[$i];
-                        $pic_item["score"] = 0;
-                        $scoreSum = 0;
-                        $scoreCount = 0;
-                        $pic_item["url"] = $request->domain() . "/pics/image/" . $pic_item["id"];
-                        for ($j = 0; $j < count($score); ++$j) {
-                            $score_item = $score[$j];
-                            if ($score_item["pic"] === $pic_item["id"]) {
-                                $scoreSum += $score_item["score"];
-                                $scoreCount++;
-                            }
-                        }
-                        if ($scoreCount) {
-                            $pic_item["score"] = $scoreSum / $scoreCount;
-                        }
-                        $pic_item["create"] = explode(" ", $pic_item["create"])[0];
-                        $pic_item["update"] = explode(" ", $pic_item["update"])[0];
-                        unset($pic_item["data"]);
-                        unset($pic_item["user"]);
-                        unset($pic_item["type"]);
-                        $pic[$i] = $pic_item;
+    function getPicList(Request $request): Json {
+        $auth = Authorization::loginAuth($request);
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $pageSize = (int)$request->get("pageSize", 10);
+            $pageNum = (int)$request->get("pageNum", 1);
+            $pic = PicsModel::where("user", $user->id)
+                ->limit(($pageNum - 1) * $pageSize, $pageSize)
+                ->select();
+            $picCount = PicsModel::where("user", $user->id)->count();
+            $score = ScoreModel::select();
+            foreach ($pic as &$picsItem) {
+                $picsItem->score = 0;
+                $scoreSum = 0;
+                $scoreCount = 0;
+                $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->id;
+                foreach ($score as $scoreItem) {
+                    if ($scoreItem->picId === $picsItem->picId) {
+                        $scoreSum += $scoreItem->score;
+                        $scoreCount++;
                     }
-                    return json(["code" => 200, "msg" => "数据获取成功", "data" => $pic, "total" => $picCount]);
-                } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+                if ($scoreCount) $picsItem->score = $scoreSum / $scoreCount;
+                $picsItem->create = explode(" ", $picsItem->create)[0];
+                $picsItem->update = explode(" ", $picsItem->update)[0];
+                unset($picsItem["data"], $picsItem["user"], $picsItem["type"]);
             }
+            return JsonBack::jsonBack(200, "数据获取成功", $pic, $picCount);
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function deletePic(Request $request)
-    {
-        $token = $request->header("Authorization", "");
-        $pic_id = $request->get("pic", "");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                $email = $data["email"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $email)
-                    ->find();
-                if ($user) {
-                    $group = Db::connect()
-                        ->table("group")
-                        ->where("id", $user["group"])
-                        ->find();
-                    if ($group) {
-                        if ($group["deletePic"] === "Y") {
-                            $pic = Db::connect()
-                                ->table("pics")
-                                ->where("delete")
-                                ->where("id", $pic_id)
-                                ->find();
-                            if ($pic) {
-                                if ($pic["user"] === $user["id"]) {
-                                    $pic["delete"] = date("Y-m-d H:i:s");
-                                    Db::connect()
-                                        ->table("pics")
-                                        ->save($pic);
-                                    return json(["code" => 200, "msg" => "删除成功"]);
-                                } else {
-                                    return json(["code" => 403, "msg" => "没有权限操作该图片"]);
-                                }
-                            } else {
-                                return json(["code" => 404, "msg" => "图片不存在"]);
-                            }
+    function deletePic(Request $request): Json {
+        $auth = Authorization::loginAuth($request);
+        $picId = $request->get("pic", "");
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->deletePic === "Y") {
+                    $pic = PicsModel::where("picId", $picId)
+                        ->findOrEmpty();
+                    if ($pic->isEmpty()) {
+                        if ($pic->userId === $user->userId) {
+                            $pic->delete = date("Y-m-d H:i:s");
+                            $pic->save();
+                            return JsonBack::jsonBack(200, "图片删除成功");
                         } else {
-                            return json(["code" => 403, "msg" => "没有删除权限"]);
+                            return JsonBack::jsonBack(403, "没有权限操作该图片");
                         }
                     } else {
-                        return json(["code" => 401, "msg" => "没有权限"]);
+                        return JsonBack::jsonBack(404, "找不到指定的图片");
                     }
                 } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                    return JsonBack::jsonBack(403, "没有删除权限");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "没有权限");
             }
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function restorePic(Request $request)
-    {
-        $token = $request->header("Authorization", "");
-        $pic_id = $request->post("pic", "");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                $email = $data["email"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $email)
-                    ->find();
-                if ($user) {
-                    $group = Db::connect()
-                        ->table("group")
-                        ->where("id", $user["group"])
-                        ->find();
-                    if ($group) {
-                        if ($group["restorePic"] === "Y") {
-                            $pic = Db::connect()
-                                ->table("pics")
-                                ->whereNotNull("delete")
-                                ->where("id", $pic_id)
-                                ->find();
-                            if ($pic) {
-                                if ($pic["user"] === $user["id"]) {
-                                    $pic["delete"] = null;
-                                    Db::connect()
-                                        ->table("pics")
-                                        ->save($pic);
-                                    return json(["code" => 200, "msg" => "还原成功"]);
-                                } else {
-                                    return json(["code" => 403, "msg" => "没有权限操作该图片"]);
-                                }
-                            } else {
-                                return json(["code" => 404, "msg" => "图片不存在"]);
-                            }
+    function restorePic(Request $request): Json {
+        $auth = Authorization::loginAuth($request);
+        $picId = $request->get("pic", "");
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->restorePic === "Y") {
+                    $pic = PicsModel::where("picId", $picId)
+                        ->findOrEmpty();
+                    if ($pic->isEmpty()) {
+                        if ($pic->userId === $user->userId) {
+                            $pic->delete = null;
+                            $pic->save();
+                            return JsonBack::jsonBack(200, "图片还原成功");
                         } else {
-                            return json(["code" => 403, "msg" => "没有还原权限"]);
+                            return JsonBack::jsonBack(403, "没有权限操作该图片");
                         }
                     } else {
-                        return json(["code" => 401, "msg" => "没有权限"]);
+                        return JsonBack::jsonBack(404, "找不到指定的图片");
                     }
                 } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                    return JsonBack::jsonBack(403, "没有还原权限");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "没有权限");
             }
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
     function updatePic(Request $request): Json
     {
-        $token = $request->header("Authorization", "");
-        $pic_id = $request->post("pic");
+        $auth = Authorization::loginAuth($request);
+        $picId = $request->post("pic");
         $name = $request->post("name");
         $description = $request->post("description");
         $image = $request->file("image");
         if ($image) {
             chunk_split(base64_encode(file_get_contents($request->file("image")->getPathname())));
         }
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                $email = $data["email"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $email)
-                    ->find();
-                if ($user) {
-                    $group = Db::connect()
-                        ->table("group")
-                        ->where("id", $user["group"])
-                        ->find();
-                    if ($group) {
-                        if ($group["updatePic"] === "Y") {
-                            $_pic = Db::connect()
-                                ->table("pics")
-                                ->where("id", $pic_id)
-                                ->find();
-                            if ($_pic) {
-                                if ($_pic["user"] === $user["id"]) {
-                                    if ($name) {
-                                        $_pic["name"] = $name;
-                                    }
-                                    if ($description) {
-                                        $_pic["description"] = $description;
-                                    }
-                                    if ($image) {
-                                        $_pic["data"] = $image;
-                                    }
-                                    Db::connect()
-                                        ->table("pics")
-                                        ->save($_pic);
-                                    return json(["code" => 200, "msg" => "图片更新成功"]);
-                                } else {
-                                    return json(["code" => 403, "msg" => "没有权限编辑该图片"]);
-                                }
-                            } else {
-                                return json(["code" => 404, "msg" => "图片不存在"]);
-                            }
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->updatePic === "Y") {
+                    $pic = PicsModel::where("picId", $picId)->findOrEmpty();
+                    if ($pic) {
+                        if ($pic->userId === $user->userId) {
+                            if ($name) $pic->name = $name;
+                            if ($description) $pic->description = $description;
+                            if ($image) $pic->data = $image;
+                            $pic->save();
+                            return JsonBack::jsonBack(200, "图片更新成功");
                         } else {
-                            return json(["code" => 403, "msg" => "没有更新图片权限"]);
+                            return JsonBack::jsonBack(403, "没有权限操作该图片");
                         }
                     } else {
-                        return json(["code" => 401, "msg" => "没有权限"]);
+                        return JsonBack::jsonBack(404, "找不到指定的图片");
                     }
                 } else {
-                    return json(["code" => 401, "msg" => "用户不存在"]);
+                    return JsonBack::jsonBack(403, "没有更新图片权限");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "没有权限");
             }
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
     function getScore(Request $request): Json
     {
-        $token = $request->header("Authorization", "");
+        $auth = Authorization::loginAuth($request);
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $username = $data["username"];
-                $email = $data["email"];
-                if (Cache::get($username) !== $token) {
-                    return json(["code" => 401, "msg" => "token无效"]);
-                }
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $username)
-                    ->where("email", $email)
-                    ->find();
-                $pics = Db::connect()
-                    ->table("pics")
-                    ->limit(($pageNum - 1) * $pageSize, $pageSize)
-                    ->select();
-                if ($user) {
-                    $score = Db::connect()
-                        ->table("score")
-                        ->where("user", $user["id"])
-                        ->select();
-                    $count = Db::connect()
-                        ->table("score")
-                        ->where("user", $user["id"])
-                        ->count();
-                    for ($i = 0; $i < count($score); ++$i) {
-                        $item = $score[$i];
-                        $item["url"] = $request->domain() . "/pics/image/" . $item["pic"];
-                        foreach ($pics as $pic) {
-                            if ($item["pic"] === $pic["id"]) {
-                                $item["name"] = $pic["name"];
-                            }
-                        }
-                        $score[$i] = $item;
-                    }
-                    return json(["code" => 200, "msg" => "数据获取成功", "data" => $score, "total" => $count]);
-                } else {
-                    return json(["code" => 401, "msg" => "用户不存在"]);
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $score = ScoreModel::where("userId", $user->userId)
+                ->limit(($pageNum - 1) * $pageSize, $pageSize)
+                ->select();
+            $scoreCount = ScoreModel::where("userId", $user->userId)->count();
+            foreach ($score as &$scoreItem) {
+                $scoreItem->url = $request->domain()."/pics/image/".$scoreItem->picId;
+                $pic = $scoreItem->pic;
+                $scoreItem->name = $pic->name;
             }
+            return JsonBack::jsonBack(200, "数据获取成功", $score, $scoreCount);
+
         } else {
-            return json(["code" => 401, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
     function updateScore(Request $request): Json
     {
-        $token = $request->header("Authorization", "");
+        $auth = Authorization::loginAuth($request);
         $id = $request->post("id");
         $score = $request->post("score");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $_username = $data["username"];
-                if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "msg" => "登录状态过期"]);
-                }
-                $_email = $data["email"];
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $_username)
-                    ->where("email", $_email)
-                    ->find();
-                if ($user) {
-                    $permission = Db::connect()
-                        ->table("group")
-                        ->where("id", $user["group"])
-                        ->find();
-                    if ($permission) {
-                        if ($permission["updateScore"] === "Y") {
-                            $score_item = Db::connect()
-                                ->table("score")
-                                ->where("id", $id)
-                                ->find();
-                            if ($score_item["user"] === $user["id"]) {
-                                $score_item["score"] = $score;
-                                Db::connect()
-                                    ->table("score")
-                                    ->save($score_item);
-                                return json(["code" => 200, "msg" => "评分修改成功"]);
-                            } else {
-                                return json(["code" => 403, "msg" => "没有权限操作该评分"]);
-                            }
-                        } else {
-                            return json(["code" => 403, "msg" => "没有修改评分权限"]);
-                        }
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->updateScore === "Y") {
+                    $scoreItem = ScoreModel::where("scoreId", $id)->findOrEmpty();
+                    if ($scoreItem->isEmpty()) {
+                        return JsonBack::jsonBack(404, "找不到指定的评分");
                     } else {
-                        return json(["code" => 401, "msg" => "没有权限"]);
+                        if ($scoreItem->userId === $user->userId) {
+                            $scoreItem->score = $score;
+                            $scoreItem->save();
+                            return JsonBack::jsonBack(200, "评分修改成功");
+                        } else {
+                            return JsonBack::jsonBack(403, "没有权限操作这条评分");
+                        }
                     }
                 } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                    return JsonBack::jsonBack(403, "没有修改评分权限");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "登录状态过期", "exception" => $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "没有权限");
             }
         } else {
-            return json(["code" => 403, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 
-    function deleteScore(Request $request): Json
-    {
-        $token = $request->header("Authorization", "");
-        $id = $request->get("id");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $_username = $data["username"];
-                if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "msg" => "登录状态过期"]);
-                }
-                $_email = $data["email"];
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $_username)
-                    ->where("email", $_email)
-                    ->find();
-                if ($user) {
-                    $permission = Db::connect()
-                        ->table("group")
-                        ->where("id", $user["group"])
-                        ->find();
-                    if ($permission) {
-                        if ($permission["deleteScore"] === "Y") {
-                            $score_item = Db::connect()
-                                ->table("score")
-                                ->where("id", $id)
-                                ->find();
-                            if ($score_item["user"] === $user["id"]) {
-                                $score_item["delete"] = date("Y-m-d H:i:s");
-                                Db::connect()
-                                    ->table("score")
-                                    ->save($score_item);
-                                return json(["code" => 200, "msg" => "评分删除成功"]);
-                            } else {
-                                return json(["code" => 403, "msg" => "没有权限操作该评分"]);
-                            }
-                        } else {
-                            return json(["code" => 403, "msg" => "没有删除评分权限"]);
-                        }
+    function deleteScore(Request $request): Json{
+        $auth = Authorization::loginAuth($request);
+        $id = $request->post("id");
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->deleteScore === "Y") {
+                    $scoreItem = ScoreModel::where("scoreId", $id)->findOrEmpty();
+                    if ($scoreItem->isEmpty()) {
+                        return JsonBack::jsonBack(404, "找不到指定的评分");
                     } else {
-                        return json(["code" => 401, "msg" => "没有权限"]);
+                        if ($scoreItem->userId === $user->userId) {
+                            $scoreItem->delete = date("Y-m-d H:i:s");
+                            $scoreItem->save();
+                            return JsonBack::jsonBack(200, "评分删除成功");
+                        } else {
+                            return JsonBack::jsonBack(403, "没有权限操作这条评分");
+                        }
                     }
                 } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                    return JsonBack::jsonBack(403, "没有删除评分权限");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "登录状态过期", "exception" => $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "没有权限");
             }
         } else {
-            return json(["code" => 403, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
     function restoreScore(Request $request): Json
     {
-        $token = $request->header("Authorization", "");
+        $auth = Authorization::loginAuth($request);
         $id = $request->post("id");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $_username = $data["username"];
-                if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "msg" => "登录状态过期"]);
-                }
-                $_email = $data["email"];
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $_username)
-                    ->where("email", $_email)
-                    ->find();
-                if ($user) {
-                    $permission = Db::connect()
-                        ->table("group")
-                        ->where("id", $user["group"])
-                        ->find();
-                    if ($permission) {
-                        if ($permission["restoreScore"] === "Y") {
-                            $score_item = Db::connect()
-                                ->table("score")
-                                ->where("id", $id)
-                                ->find();
-                            if ($score_item["user"] === $user["id"]) {
-                                $score_item["delete"] = null;
-                                Db::connect()
-                                    ->table("score")
-                                    ->save($score_item);
-                                return json(["code" => 200, "msg" => "评分还原成功"]);
-                            } else {
-                                return json(["code" => 403, "msg" => "没有权限操作该评分"]);
-                            }
-                        } else {
-                            return json(["code" => 403, "msg" => "没有还原评分权限"]);
-                        }
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->restoreScore === "Y") {
+                    $scoreItem = ScoreModel::where("scoreId", $id)->findOrEmpty();
+                    if ($scoreItem->isEmpty()) {
+                        return JsonBack::jsonBack(404, "找不到指定的评分");
                     } else {
-                        return json(["code" => 401, "msg" => "没有权限"]);
+                        if ($scoreItem->userId === $user->userId) {
+                            $scoreItem->delete = null;
+                            $scoreItem->save();
+                            return JsonBack::jsonBack(200, "评分还原成功");
+                        } else {
+                            return JsonBack::jsonBack(403, "没有权限操作这条评分");
+                        }
                     }
                 } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
+                    return JsonBack::jsonBack(403, "没有还原评分权限");
                 }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "登录状态过期", "exception" => $e->getMessage()]);
+            } else {
+                return JsonBack::jsonBack(401, "没有权限");
             }
         } else {
-            return json(["code" => 403, "msg" => "未登录"]);
+            return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }
 }

@@ -3,16 +3,31 @@
 namespace app\model;
 
 use think\Model;
+use think\model\relation\HasOne;
 
+/**
+ * @mixin Model
+ * @property mixed picId
+ * @property mixed name
+ * @property mixed description
+ * @property mixed userId
+ * @property array|mixed user
+ * @property mixed data
+ * @property mixed type
+ * @property mixed verified
+ * @property mixed create
+ * @property mixed update
+ * @property mixed delete
+ */
 class PicsModel extends Model
 {
     protected $table = "pics";
-    protected $pk = "id";
+    protected $pk = "picId";
     protected $schema = [
-        "id"            => "int",
+        "picId"         => "int",
         "name"          => "string",
         "description"   => "string",
-        "user"          => "int",
+        "userId"        => "int",
         "data"          => "string",
         "type"          => "string",
         "verified"      => "string",
@@ -20,4 +35,8 @@ class PicsModel extends Model
         "update"        => "datetime",
         "delete"        => "datetime",
     ];
+
+    public function user(): HasOne{
+        return $this->hasOne(UserModel::class, "userId", "userId");
+    }
 }

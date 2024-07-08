@@ -1,8 +1,14 @@
 <?php
+/** @noinspection ALL */
 declare (strict_types = 1);
 
 namespace app\controller;
 
+use app\lib\Authorization;
+use app\lib\JsonBack;
+use app\model\PicsModel;
+use app\model\ScoreModel;
+use app\model\UserModel;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
@@ -11,149 +17,84 @@ use Firebase\JWT\SignatureInvalidException;
 use think\facade\Cache;
 use think\facade\Db;
 use think\Request;
+use think\response\Json;
 
 class Pics
 {
-    public function index(Request$request)
-    {
-        $token = $request->header("Authorization", "");
+    public function index(Request$request): Json {
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
         $name = $request->get("name", "");
+        $auth = Authorization::loginAuth($request);
         $userId = null;
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $_username = $data["username"];
-                $_email = $data["email"];
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $_username)
-                    ->where("email", $_email)
-                    ->find();
-                if ($user) {
-                    $userId = $user["id"];
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {}
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $userId = $user->userId;
         }
-        $allUser = Db::connect()
-            ->table("user")
-            ->select();
-        $userList = [];
-        foreach ($allUser as $user) {
-            $userList[$user["id"]] = $user;
-        }
-        $pics = Db::connect()
-            ->table("pics")
-            ->where("delete")
+        $pics = PicsModel::where("delete")
             ->whereLike("name", "%$name%")
             ->limit(($pageNum-1)*$pageSize, $pageSize)
             ->select();
-        $count = Db::connect()
-            ->table("pics")
-            ->where("delete")
+        $picsCount = PicsModel::where("delete")
             ->whereLike("name", "%$name%")
             ->count();
-        $score = Db::connect()
-            ->table("score")
-            ->select();
-        for ($i = 0; $i < count($pics); ++$i) {
-            $pic = $pics[$i];
-            $_score = 0;
+        $scores = ScoreModel::where("delete")->select();
+        foreach ($pics as &$picsItem) {
+            $scoreSum = 0;
             $scoreCount = 0;
-            $pic["scored"] = "N";
-            $pic["score"] = 0;
-            for ($j = 0; $j < count($score); ++$j) {
-                $score_item = $score[$j];
-                if ($score_item["pic"] === $pic["id"]) {
-                    if ($score_item["user"] === $userId) {
-                        $pic["scored"] = "Y";
-                        $pic["myScore"] = $score_item["score"];
+            $picsItem->scored = "N";
+            $picsItem->score = 0;
+            foreach ($scores as $scoreItem) {
+                if ($scoreItem->picId === $picsItem->picId) {
+                    if ($scoreItem->userId === $userId) {
+                        $picsItem->scored = "Y";
+                        $picsItem->myScore = $scoreItem->score;
                     }
-                    if (!$score_item["delete"]) {
-                        $_score += $score_item["score"];
-                        $scoreCount++;
-                    }
+                    $scoreSum += $scoreItem->score;
+                    $scoreCount++;
                 }
-                if ($scoreCount) {
-                    $pic["score"] = number_format($_score / $scoreCount, 2);
-                }
+                if ($scoreCount) $picsItem->score = number_format($scoreSum / $scoreCount, 2);
             }
-            $_userId = $pic["user"];
-            if (isset($userList[$_userId])) {
-                $pic["nickname"] = $userList[$_userId]["nickname"];
-            } else {
-                $pic["nickname"] = "未知用户";
-            }
-            unset($pic["data"]);
-            unset($pic["type"]);
-            $pic["url"] = $request->domain() . "/pics/image/" . $pic["id"];
-            $pics[$i] = $pic;
+            $picsItem->nickname = $picsItem->user->nickname;
+            unset($picsItem["data"], $picsItem["type"]);
+            $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->picId;
         }
-        return json(["code" => 200, "msg" => "数据获取成功", "data" => $pics, "total" => $count]);
+        return JsonBack::jsonBack(200, "数据获取成功", $pics, $picsCount);
     }
 
-    function randomPic(Request$request) {
-        $token = $request->header("Authorization", "");
+    function randomPic(Request$request): Json {
+        $auth = Authorization::loginAuth($request);
         $userId = null;
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $_username = $data["username"];
-                $_email = $data["email"];
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $_username)
-                    ->where("email", $_email)
-                    ->find();
-                if ($user) {
-                    $userId = $user["id"];
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {}
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $userId = $user->userId;
         }
-        $allUser = Db::connect()
-            ->table("user")
+        $score = ScoreModel::where("delete")
             ->select();
-        $score = Db::connect()
-            ->table("score")
-            ->select();
-        $item = Db::connect()
-            ->table("pics")
-            ->where("delete")
-            ->orderRaw("rand()")
-            ->find();
-        $score_sum = 0;
-        $score_count = 0;
-        $item["scored"] = "N";
-        foreach ($score as $score_item) {
-            if ($score_item["pic"] === $item["id"]) {
-                if ($score_item["user"] === $userId) {
-                    $item["scored"] = "Y";
-                    $item["myScore"] = $score_item["score"];
+        $picsItem = PicsModel::where("delete")
+            ->order("picId", "rand()")
+            ->findOrEmpty();
+        $scoreSum = 0;
+        $scoreCount = 0;
+        $picsItem->scored = "N";
+        foreach ($score as $scoreItem) {
+            if ($scoreItem->picId === $picsItem->picId) {
+                if ($scoreItem->userId === $userId) {
+                    $picsItem->scored = "Y";
+                    $picsItem->myScore = $scoreItem->score;
                 }
-                if (!$score_item["delete"]) {
-                    $score_sum += $score_item["score"];
-                    $score_count++;
-                }
+                $scoreSum+=$scoreItem->score;
+                $scoreCount++;
             }
         }
-        if ($score_count) {
-            $item["score"] = number_format($score_sum / $score_count, 2);
+        if ($scoreCount) {
+            $picsItem->score = number_format($scoreSum / $scoreCount, 2);
         } else {
-            $item["score"] = 0;
+            $picsItem->score = 0;
         }
-        $item["nickname"] = "未知用户";
-        foreach ($allUser as $user) {
-            if ($user["id"] === $item["user"]) {
-                $item["nickname"] = $user["nickname"];
-            }
-        }
-        unset($item["data"]);
-        unset($item["type"]);
-        $item["url"] = $request->domain() . "/pics/image/" . $item["id"];
-        return json(["code" => 200, "msg" => "数据获取成功", "data" => $item]);
+        $picsItem->nickname = $picsItem->user->nickname;
+        $picsItem->url = $request->domain()."/pics/image/".$picsItem->picId;
+        return JsonBack::jsonBack(200, "数据获取成功", $picsItem);
     }
 
     public function create(Request$request)

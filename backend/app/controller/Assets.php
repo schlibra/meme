@@ -10,7 +10,6 @@ class Assets
     public function index(Request$request)
     {
         $filename = $request->url();
-//        file_exists()
         $filepath = root_path() . "view/dist/$filename";
         if (file_exists($filepath)) {
             $ext = explode(".", $filename);
