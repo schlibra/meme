@@ -16,11 +16,15 @@ function Get(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:_=>
     })
     axios.get(url + "?" + paramList.join("&"), config).then(res=>{
         if (axiosOk(res)) {
-            action.ok(res, res.data.data)
+            if (action.ok) action.ok(res, res.data.data)
         } else {
-            action.bad(res)
+            if (action.bad) action.bad(res)
         }
-    }).catch(err=>action.error(err)).finally(()=>action.final())
+    }).catch(err=>{
+        if (action.error) action.error(err)
+    }).finally(()=> {
+        if (action.final) action.final()
+    })
 }
 function Delete(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:_=>_}) {
     let paramList = [];
@@ -38,11 +42,15 @@ function Delete(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:
     })
     axios.delete(url + "?" + paramList.join("&"), config).then(res=>{
         if (axiosOk(res)) {
-            action.ok(res, res.data.data)
+            if (action.ok) action.ok(res, res.data.data)
         } else {
-            action.bad(res)
+            if (action.bad) action.bad(res)
         }
-    }).catch(err=>action.error(err)).finally(()=>action.final())
+    }).catch(err=>{
+        if (action.error) action.error(err)
+    }).finally(()=>{
+        if (action.final) action.final()
+    })
 }
 function Patch(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:_=>_}) {
     let config = {};
@@ -54,11 +62,55 @@ function Patch(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:_
     }
     axios.patch(url, params, config).then(res=>{
         if (axiosOk(res)) {
-            action.ok(res, res.data.data)
+            if (action.ok) action.ok(res, res.data.data)
         } else {
-            action.bad(res)
+            if (action.bad)action.bad(res)
         }
-    }).catch(err=>action.error(err)).finally(()=>action.final)
+    }).catch(err=>{
+        if (action.error) action.error(err)
+    }).finally(()=>{
+        if (action.final) action.final()
+    })
+}
+function Post(url, params, action={ok:_=>_,bad:_=>_,error:_=>_,final:_=>_}) {
+    let config = {};
+    let token = getToken();
+    if (token) {
+        config["headers"] = {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    axios.post(url, params, config).then(res=>{
+        if (axiosOk(res)) {
+            if (action.ok) action.ok(res, res.data.data)
+        } else {
+            if (action.bad)action.bad(res)
+        }
+    }).catch(err=>{
+        if (action.error) action.error(err)
+    }).finally(()=>{
+        if (action.final) action.final()
+    })
+}
+function Put(url, params, action={ok:_=>_,bad:_=>_,error:_=>_,final:_=>_}) {
+    let config = {};
+    let token = getToken();
+    if (token) {
+        config["headers"] = {
+            Authorization: `Bearer ${token}`
+        }
+    }
+    axios.put(url, params, config).then(res=>{
+        if (axiosOk(res)) {
+            if (action.ok) action.ok(res, res.data.data)
+        } else {
+            if (action.bad)action.bad(res)
+        }
+    }).catch(err=>{
+        if (action.error) action.error(err)
+    }).finally(()=>{
+        if (action.final) action.final()
+    })
 }
 
-export { Get, Delete, Patch }
+export { Get, Delete, Patch, Post, Put }

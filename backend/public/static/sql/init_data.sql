@@ -31,7 +31,7 @@ VALUES
 DROP TABLE IF EXISTS `group`;
 CREATE TABLE IF NOT EXISTS `group`  (
     `groupId` int NOT NULL AUTO_INCREMENT COMMENT '用户组id',
-    `name` varchar(30) NOT NULL COMMENT '用户组名称',
+    `groupName` varchar(30) NOT NULL COMMENT '用户组名称',
     `admin` varchar(1) NOT NULL COMMENT '是否管理员',
     `uploadPic` varchar(1) NOT NULL COMMENT '允许上传图片',
     `updatePic` varchar(1) NOT NULL COMMENT '允许更新图片',
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `group`  (
 ) CHARACTER SET = utf8;
 -- 用户组数据
 INSERT INTO `group`
-(`name`, `admin`, `uploadPic`, `updatePic`, `deletePic`, `restorePic`, `sendComment`, `updateComment`, `deleteComment`, `restoreComment`, `sendScore`, `updateScore`, `deleteScore`, `restoreScore`, `create`, `update`)
+(`groupName`, `admin`, `uploadPic`, `updatePic`, `deletePic`, `restorePic`, `sendComment`, `updateComment`, `deleteComment`, `restoreComment`, `sendScore`, `updateScore`, `deleteScore`, `restoreScore`, `create`, `update`)
 VALUES
 ('普通用户', 'N', 'Y', 'N', 'N', 'N', 'Y', 'N', 'N', 'N', 'Y', 'N', 'N', 'N', NOW(), NOW()),
 ('管理员', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y', NOW(), NOW());

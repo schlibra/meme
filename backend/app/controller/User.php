@@ -276,10 +276,10 @@ class User {
             $user = $auth["data"];
             $pageSize = (int)$request->get("pageSize", 10);
             $pageNum = (int)$request->get("pageNum", 1);
-            $pic = PicsModel::where("user", $user->id)
+            $pic = PicsModel::where("userId", $user->id)
                 ->limit(($pageNum - 1) * $pageSize, $pageSize)
                 ->select();
-            $picCount = PicsModel::where("user", $user->id)->count();
+            $picCount = PicsModel::where("userId", $user->id)->count();
             $score = ScoreModel::select();
             foreach ($pic as &$picsItem) {
                 $picsItem->score = 0;

@@ -7,7 +7,7 @@ import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken, removeToken} from "@/lib/tokenLib.js";
 import confirm from "@/lib/confirmLib.js";
 import displayUtil from "@/lib/displayUtil.js";
-import {Get} from "@/lib/axiosLib.js";
+import {Get, Post} from "@/lib/axiosLib.js";
 
 const token = ref(getToken())
 const userInfo = ref({})
@@ -37,68 +37,70 @@ const commentList = ref([])
 const comment = ref('')
 
 onMounted(()=>{
-  if (token.value) {
-    axios.get(UserUrl.infoUrl, {
-      headers: {
-        Authorization: `Bearer ${token.value}`
-      }
-    }).then(res=>{
-      if (res.data.code === 200) {
-        userInfo.value = res.data.data
-      } else {
-        token.value = "";
-        removeToken()
-      }
-    }).catch(() => removeToken())
-  }
-  axios.get(PicsUrl.listUrl, {
-    headers: token.value ? {
-      Authorization: `Bearer ${token.value}`
-    } : {}
-  }).then(res => {
-    if (res.data.code === 200) {
-      imgList.value = [];
-      picList.value = res.data.data
-      totalCount.value = res.data.total
-      for (const index in res.data.data) {
-        const item = res.data.data[index]
-        imgList.value.push(item.url)
-      }
-    } else {
-      alertError(res, "数据获取失败", ()=>location.reload())
+  Get(UserUrl.infoUrl, {}, {
+    ok(_, data) {
+      userInfo.value = data
+    },
+    bad(_) {
+      token.value = ""
+      removeToken()
+    },
+    error(err) {
+      axiosError(err, "信息获取失败")
     }
-  }).catch(err=>{
-    axiosError(err, "数据获取失败", ()=>location.reload())
-  }).finally(() => mainLoading.value = false)
+  })
+  Get(PicsUrl.listUrl, {}, {
+    ok(res, data) {
+      imgList.value = []
+      picList.value = data
+      totalCount.value = res.data.count
+      data.forEach(item=>{
+        imgList.value.push(item)
+      })
+    },
+    bad(res) {
+      alertError(res, "数据获取失败", ()=>location.reload())
+    },
+    error(err) {
+      axiosError(err, "数据获取失败", ()=>location.reload())
+    },
+    final() {
+      mainLoading.value = false
+    }
+  })
 })
 function reload() {
   mainLoading.value = true
-  axios.get(PicsUrl.listUrl + `?pageSize=${pageSize.value}&pageNum=${currentPage.value}&name=${search.value}`, {
-    headers: token.value ? {
-      Authorization: `Bearer ${token.value}`
-    } : {}
-  }).then(res=>{
-    if (res.data.code === 200) {
+  Get(PicsUrl.listUrl, {
+    pageSize: pageSize.value,
+    pageNum: currentPage.value,
+    name: search.value
+  }, {
+    ok(res, data) {
       imgList.value = [];
-      picList.value = res.data.data
+      picList.value = data
       totalCount.value = res.data.total
-      for (const index in res.data.data) {
-        const item = res.data.data[index]
-        imgList.value.push(item.url)
-      }
-    } else {
+      data.forEach(item=>{
+        imgList.value.push(item)
+      })
+    },
+    bad(res) {
       alertError(res, "数据获取失败")
+    },
+    error(err){
+      axiosError(err, "数据获取失败", ()=>location.reload())
+    },
+    final() {
+      mainLoading.value = false
     }
-  }).catch(err=>{
-    axiosError(err, "数据获取失败", ()=>location.reload())
-  }).finally(()=> mainLoading.value = false)
+  })
 }
 function randomImg() {
-  axios.get(PicsUrl.randomUrl).then(res=>{
-    randomPic.value = res.data.data
-    showRandom.value = true
-  }).catch(err=>{
-    axiosError(err, "随机图片获取成功")
+  Get(PicsUrl.randomUrl, {}, {
+    ok(_, data) {
+      randomPic.value = data
+      showRandom.value = true
+    }
   })
 }
 function gotoLogin() {
@@ -127,17 +129,12 @@ function uploadSubmit() {
   let name = uploadName.value
   let description = uploadDescription.value
   uploadLoading.value = true
-  axios.post(PicsUrl.uploadUrl, {
+  Post(PicsUrl.uploadUrl, {
     image,
     name,
     description
   }, {
-    headers: {
-      Authorization: `Bearer ${token.value}`,
-      "Content-Type": "multipart/form-data"
-    }
-  }).then(res=>{
-    if (res.data.code === 200) {
+    ok(res) {
       alertSuccess(res, "上传成功", ()=>{
         reload()
         uploadDialog.value = false
@@ -145,32 +142,35 @@ function uploadSubmit() {
         uploadName.value = ""
         uploadDescription.value = ""
       })
-    } else {
+    },
+    bad(res) {
       alertError(res, "上传失败")
+    },
+    error(err) {
+      axiosError(err, "上传失败")
+    },
+    final() {
+      uploadLoading.value = false
     }
-  }).catch(err=>{
-    axiosError(err, "上传失败")
-  }).finally(()=> uploadLoading.value = false)
+  })
 }
 function logout() {
   confirm("是否退出当前账号", "退出账号", {
     confirm() {
       mainLoading.value = true
-      axios.post(UserUrl.logoutUrl, {}, {
-        headers: {
-          Authorization: `Bearer ${token.value}`
+      Post(UserUrl.logoutUrl, {}, {
+        final() {
+          mainLoading.value = false
+          token.value = ""
+          userInfo.value = {}
+          confirm("已退出登录，是否前往登录页面", "前往登录", {
+            confirm() {
+              gotoLogin()
+            },
+            cancel: reload,
+            close: reload
+          })
         }
-      }).finally(()=>{
-        mainLoading.value = false
-        token.value = ""
-        userInfo.value = {}
-        confirm("已退出登录，是否前往登录页面", "前往登录", {
-          confirm() {
-            gotoLogin()
-          },
-          cancel: reload,
-          close: reload
-        })
       })
     }
   })

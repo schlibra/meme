@@ -60,7 +60,7 @@ onMounted(()=>{
               <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
             </el-form-item>
             <el-form-item label="上传图片">
-              <el-icon v-if="user['upload'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-if="user['uploadPic'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
               <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
             </el-form-item>
             <el-form-item label="更新图片">
@@ -76,7 +76,7 @@ onMounted(()=>{
               <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
             </el-form-item>
             <el-form-item label="发送评论">
-              <el-icon v-if="user['comment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-if="user['sendComment'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
               <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
             </el-form-item>
             <el-form-item label="更新评论">
@@ -92,7 +92,7 @@ onMounted(()=>{
               <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
             </el-form-item>
             <el-form-item label="发布评分">
-              <el-icon v-if="user['score'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
+              <el-icon v-if="user['sendScore'] === 'Y'" size="24" color="green"><CircleCheckFilled /></el-icon>
               <el-icon v-else size="24" color="red"><CircleCloseFilled /></el-icon>
             </el-form-item>
             <el-form-item label="更新评分">

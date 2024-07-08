@@ -7,7 +7,7 @@ use think\Model;
 /**
  * @mixin Model
  * @property mixed groupId
- * @property mixed name
+ * @property mixed groupName
  * @property mixed admin
  * @property mixed uploadPic
  * @property mixed updatePic
@@ -31,7 +31,7 @@ class GroupModel extends Model
     protected $pk = "groupId";
     protected $schema = [
         "groupId"           => "int",
-        "name"              => "string",
+        "groupName"         => "string",
         "admin"             => "string",
         "uploadPic"         => "string",
         "updatePic"         => "string",

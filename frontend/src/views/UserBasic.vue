@@ -82,7 +82,7 @@ function update() {
             </el-form-item>
             <el-form-item label="用户ID" class="label">
               <el-input v-if="edit" v-model="user.id" disabled />
-              <el-text v-else>{{ user.id }}</el-text>
+              <el-text v-else>{{ user["userId"] }}</el-text>
             </el-form-item>
             <el-form-item label="用户名" class="label">
               <el-input v-if="edit" v-model="user.username" disabled />
