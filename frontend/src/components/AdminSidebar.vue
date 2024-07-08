@@ -42,23 +42,27 @@ function gotoScore() {
     </el-menu-item>
     <el-menu-item index="2" @click="gotoBasic">
       <el-icon><Lock /></el-icon>
-      <span>我不知道</span>
+      <span>安全设置</span>
     </el-menu-item>
     <el-menu-item index="3" @click="gotoBasic">
       <el-icon><Key /></el-icon>
-      <span>我也不知道</span>
+      <span>用户组管理</span>
     </el-menu-item>
-    <el-menu-item index="4" @click="gotoBasic">
-      <el-icon><Picture /></el-icon>
-      <span>我还是不知道</span>
+    <el-menu-item index="4" >
+      <el-icon><User /></el-icon>
+      <span>用户管理</span>
     </el-menu-item>
     <el-menu-item index="5" @click="gotoBasic">
-      <el-icon><Star /></el-icon>
-      <span>什么功能你猜去吧</span>
+      <el-icon><Picture /></el-icon>
+      <span>图片管理</span>
     </el-menu-item>
-    <el-menu-item index="6">
+    <el-menu-item index="6" @click="gotoBasic">
+      <el-icon><Star /></el-icon>
+      <span>评分管理</span>
+    </el-menu-item>
+    <el-menu-item index="7">
       <el-icon><ChatLineRound /></el-icon>
-      <span>这个你应该问问SCH</span>
+      <span>评论管理</span>
     </el-menu-item>
     <el-menu-item @click="expand = !expand">
       <el-icon v-if="expand"><Expand /></el-icon>

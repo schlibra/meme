@@ -7,12 +7,13 @@ import {UserUrl} from "@/api/url.js";
 import UserTop from "@/components/AdminTop.vue";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken} from "@/lib/tokenLib.js";
+import {Get} from "@/lib/axiosLib.js";
 
 const token = getToken()
 const edit = ref(false)
 const user = ref({sex: "", birth: 0})
 const nowYear = new Date().getFullYear()
-const loading = ref(true)
+const mainLoading = ref(true)
 
 const birth = computed({
   get() {
@@ -27,19 +28,20 @@ const birth = computed({
 
 onMounted(()=>{
   if (token) {
-    axios.get(UserUrl.infoUrl, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    Get(UserUrl.infoUrl, {}, {
+      ok(res) {
+        
+      },
+      bad(res) {
+        alertError(res, "数据获取失败", () => router.push("/login"))
+      },
+      error(err) {
+        axiosError(err, "数据获取失败", () => location.reload())
+      },
+      final() {
+        mainLoading.value = false
       }
-    }).then(res=>{
-      if (res.data.code === 200) {
-        user.value = res.data.data
-      } else {
-        alertError(res, "数据获取失败", ()=> router.push("/login"))
-      }
-    }).catch(err=>{
-      axiosError(err, "数据获取失败", ()=>location.reload())
-    }).finally(()=> loading.value = false)
+    })
   } else {
     router.push("/login")
   }
@@ -78,7 +80,9 @@ function update() {
       <el-scrollbar height="calc(100vh - 30px)">
         <el-main>
           <h2>基本信息</h2>
+          <el-form label-position="top">
 
+          </el-form>
         </el-main>
       </el-scrollbar>
     </el-container>
