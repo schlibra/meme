@@ -1,4 +1,7 @@
 <?php
+/**
+ * @noinspection all
+ */
 declare (strict_types=1);
 
 namespace app\controller;

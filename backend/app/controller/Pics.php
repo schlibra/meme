@@ -1,11 +1,11 @@
 <?php
-/** @noinspection ALL */
 declare (strict_types = 1);
 
 namespace app\controller;
 
 use app\lib\Authorization;
 use app\lib\JsonBack;
+use app\model\CommentModel;
 use app\model\PicsModel;
 use app\model\ScoreModel;
 use app\model\UserModel;
@@ -163,116 +163,15 @@ class Pics
 
     public function read($id)
     {
-        $data = Db::connect()
-            ->table("pics")
-            ->where("id", $id)
-            ->find();
-        if ($data) {
-            $img = base64_decode($data["data"]);
-            $type = $data["type"];
+        $data = PicsModel::where("picId", $id)->findOrEmpty();
+        if ($data->isEmpty()) {
+            return JsonBack::jsonBack(404, "图片不存在");
+        } else {
+            $img = base64_decode($data->data);
+            $type = $data->type;
             return response($img)->header([
                 "Content-Type" => $type
             ]);
-        } else {
-            return json(["code" => 404, "msg" => "图片不存在"]);
-        }
-    }
-    public function delete(Request$request,$id)
-    {
-        $token = $request->header("Authorization", "");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $_username = $data["username"];
-                $_email = $data["email"];
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $_username)
-                    ->where("email", $_email)
-                    ->find();
-                if ($user) {
-                    $group = Db::connect()
-                        ->table("group")
-                        ->where("id", $user["group"])
-                        ->find();
-                    if ($group) {
-                        $pic = Db::connect()
-                            ->table("pics")
-                            ->where("id", $id)
-                            ->find();
-                        if ($pic) {
-                            if ($group["deleteComment"] === "Y" && $pic["user"] === $user["id"]) {
-                                Db::connect()
-                                    ->table("pics")
-                                    ->where("id", $id)
-                                    ->update([
-                                        "delete" => date("Y-m-d H:i:s")
-                                    ]);
-                                return json(["code" => 200, "msg" => "图片删除成功"]);
-                            } else {
-                                return json(["code" => 403, "msg" => "没有删除权限"]);
-                            }
-                        } else {
-                            return json(["code" => 404, "msg" => "图片不存在"]);
-                        }
-                    } else {
-                        return json(["code" => 401, "msg" => "没有权限"]);
-                    }
-                } else {
-                    return json(["code" => 401, "msg", "用户不存在"]);
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "Token信息错误：" . $e->getMessage()]);
-            }
-        } else {
-            return json(["code" => 403, "msg" => "未登录账号"]);
-        }
-    }
-    public function getScore(Request$request) {
-        $token = $request->header("Authorization", "");
-        if (str_starts_with($token, "Bearer")) {
-            $token = str_replace("Bearer ", "", $token);
-            try {
-                $data = (array)JWT::decode($token, new Key("meme_login_token_key", "HS256"));
-                $_username = $data["username"];
-                if (Cache::get($_username) !== $token) {
-                    return json(["code" => 401, "msg" => "登录状态过期"]);
-                }
-                $_email = $data["email"];
-                $user = Db::connect()
-                    ->table("user")
-                    ->where("username", $_username)
-                    ->where("email", $_email)
-                    ->find();
-                $pics = Db::connect()
-                    ->table("pics")
-                    ->where("delete")
-                    ->select();
-                if ($user) {
-                    $score = Db::connect()
-                        ->table("score")
-                        ->where("user", $user["id"])
-                        ->select();
-                    for ($i = 0; $i < count($score); ++$i) {
-                        $item = $score[$i];
-                        $item["url"] = $request->domain() . "/pics/image/" . $item["pic"];
-                        foreach ($pics as $pic) {
-                            if ($item["pic"] === $pic["id"]) {
-                                $item["name"] = $pic["name"];
-                            }
-                        }
-                        $score[$i] = $item;
-                    }
-                    return json(["code" => 200, "msg" => "数据获取成功", "data" => $score]);
-                } else {
-                    return json(["code" => 401, "msg" => "用户信息错误"]);
-                }
-            } catch (SignatureInvalidException|\DomainException|BeforeValidException|ExpiredException$e) {
-                return json(["code" => 401, "msg" => "登录状态过期", "exception" => $e->getMessage()]);
-            }
-        }else{
-            return json(["code" => 403, "msg" => "未登录"]);
         }
     }
     public function addScore(Request$request) {
@@ -390,34 +289,21 @@ class Pics
     }
     function getComment(Request$request) {
         $pic = $request->get("pic");
-        $comments = Db::connect()
-            ->table("comment")
-            ->where("delete")
-            ->where("pic", $pic)
+        $comments = CommentModel::where("delete")
+            ->where("picId", $pic)
             ->select();
-        $users = Db::connect()
-            ->table("user")
-            ->select();
-        for ($i = 0; $i < count($comments); ++$i) {
-            $comment = $comments[$i];
-            for ($j = 0; $j < count($users); ++$j) {
-                $user = $users[$j];
-                if ($comment["user"] === $user["id"]) {
-                    $comment["nickname"] = $user["nickname"];
-                    $comment["avatar"] = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("sha256", $user["email"]);
+        foreach ($comments as &$comment) {
+            $user = $comment->user;
+            $comment->nickname = $user->nickname;
+            $comment->avatar = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("md5", $user->email);
+            if ($comment->reply > 0) {
+                $reply = CommentModel::where("commentId", $comment->reply)->findOrEmpty();
+                if (!$reply->isEmpty()) {
+                    $replyUser = $reply->user;
+                    $comment->replyNickname = $replyUser->nickname;
                 }
             }
-            if ($comment["reply"] > 0) {
-                for ($j = 0; $j < count($comments); ++$j) {
-                    for ($k = 0; $k < count($users); ++$k) {
-                        if ($comments[$j]["user"] === $users[$k]["id"]) {
-                            $comment["replyNickname"] = $users[$k]["nickname"];
-                        }
-                    }
-                }
-            }
-            $comments[$i] = $comment;
         }
-        return json(["code" => 200, "msg" => "数据获取成功", "data" => $comments]);
+        return JsonBack::jsonBack(200, "数据获取成功", $comments);
     }
 }
