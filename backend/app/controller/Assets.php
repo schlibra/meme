@@ -25,7 +25,7 @@ class Assets {
                 "Content-Type" => $type
             ]);
         } else {
-            return JsonBack::jsonBack(404, "文件不存在", [
+            return jb(404, "文件不存在", [
                 "filename" => $filename,
                 "realPath" => $filepath
             ]);

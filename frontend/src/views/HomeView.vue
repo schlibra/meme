@@ -79,7 +79,7 @@ function reload() {
     ok(res, data) {
       imgList.value = [];
       picList.value = data
-      totalCount.value = res.data.total
+      totalCount.value = res.data.count
       data.forEach(item=>{
         imgList.value.push(item.url)
       })

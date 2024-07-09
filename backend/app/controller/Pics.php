@@ -3,21 +3,40 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
-use app\lib\Authorization;
-use app\lib\JsonBack;
 use app\model\CommentModel;
 use app\model\PicsModel;
 use app\model\ScoreModel;
 use think\Request;
 use think\Response;
 use think\response\Json;
+use hg\apidoc\annotation as ApiDoc;
 
+#[ApiDoc\Title("图片接口")]
 class Pics {
+    #[ApiDoc\Title("获取图片列表接口")]
+    #[ApiDoc\Url("/pics/pic")]
+    #[ApiDoc\Method("GET")]
+    #[ApiDoc\Query("pageSize", type: "int", require: false, desc: "分页大小")]
+    #[ApiDoc\Query("pageNum", type: "int", require: false, desc: "分页页码")]
+    #[ApiDoc\Header("Authorization", type: "string", require: false, desc: "Bearer Token")]
+    #[ApiDoc\Returned("picId", type: "int", require: true, default: 1, desc: "图片ID")]
+    #[ApiDoc\Returned("name", type: "string", require: true, default: "图片名称", desc: "图片名称")]
+    #[ApiDoc\Returned("description", type: "string", require: true, default: "图片描述", desc: "图片描述")]
+    #[ApiDoc\Returned("userId", type: "int", require: true, default: 1, desc: "上传者ID")]
+    #[ApiDoc\Returned("verified", type: "string", require: true, default: "Y", desc: "是否通过审核")]
+    #[ApiDoc\Returned("create", type: "datetime", require: true, default: "2024-07-01", desc: "上传时间")]
+    #[ApiDoc\Returned("update", type: "datetime", require: true, default: "2024-07-01", desc: "更新时间")]
+    #[ApiDoc\Returned("delete", type: "datetime", require: true, default: "2024-07-01", desc: "删除时间")]
+    #[ApiDoc\Returned("scored", type: "string", require: true, default: "Y", desc: "是否已打分")]
+    #[ApiDoc\Returned("score", type: "float", require: true, default: 5, desc: "评分")]
+    #[ApiDoc\Returned("myScore", type: "float", require: false, default: 5, desc: "我的评分")]
+    #[ApiDoc\Returned("nickname", type: "string", require: true, default: "用户1", desc: "上传者昵称")]
+    #[ApiDoc\Returned("url", type: "string", require: true, default: "http://127.0.0.1/pics/image/1", desc: "图片url")]
     public function index(Request$request): Json {
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
         $name = $request->get("name", "");
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $userId = null;
         if ($auth["status"]) {
             $user = $auth["data"];
@@ -51,10 +70,27 @@ class Pics {
             unset($picsItem["data"], $picsItem["type"]);
             $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->picId;
         }
-        return JsonBack::jsonBack(200, "数据获取成功", $pics, $picsCount);
+        return jb(200, "数据获取成功", $pics, $picsCount);
     }
+    #[ApiDoc\Title("获取随机图片接口")]
+    #[ApiDoc\Url("/pics/random")]
+    #[ApiDoc\Method("GET")]
+    #[ApiDoc\Header(name: "Authorization", type: "string", require: false, desc: "Bearer Token")]
+    #[ApiDoc\Returned("picId", type: "int", require: true, default: 1, desc: "图片ID")]
+    #[ApiDoc\Returned("name", type: "string", require: true, default: "图片名称", desc: "图片名称")]
+    #[ApiDoc\Returned("description", type: "string", require: true, default: "图片描述", desc: "图片描述")]
+    #[ApiDoc\Returned("userId", type: "int", require: true, default: 1, desc: "上传者ID")]
+    #[ApiDoc\Returned("verified", type: "string", require: true, default: "Y", desc: "是否通过审核")]
+    #[ApiDoc\Returned("create", type: "datetime", require: true, default: "2024-07-01", desc: "上传时间")]
+    #[ApiDoc\Returned("update", type: "datetime", require: true, default: "2024-07-01", desc: "更新时间")]
+    #[ApiDoc\Returned("delete", type: "datetime", require: true, default: "2024-07-01", desc: "删除时间")]
+    #[ApiDoc\Returned("scored", type: "string", require: true, default: "Y", desc: "是否已打分")]
+    #[ApiDoc\Returned("score", type: "float", require: true, default: 5, desc: "评分")]
+    #[ApiDoc\Returned("myScore", type: "float", require: false, default: 5, desc: "我的评分")]
+    #[ApiDoc\Returned("nickname", type: "string", require: true, default: "用户1", desc: "上传者昵称")]
+    #[ApiDoc\Returned("url", type: "string", require: true, default: "http://127.0.0.1/pics/image/1", desc: "图片url")]
     function randomPic(Request$request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $userId = null;
         if ($auth["status"]) {
             $user = $auth["data"];
@@ -62,33 +98,48 @@ class Pics {
         }
         $score = ScoreModel::where("delete")
             ->select();
+        $picsCount = PicsModel::where("delete")->count();
+        $picsIndex = rand(0, $picsCount - 1);
         $picsItem = PicsModel::where("delete")
-            ->order("picId", "rand()")
+            ->limit($picsIndex, 1)
             ->findOrEmpty();
-        $scoreSum = 0;
-        $scoreCount = 0;
-        $picsItem->scored = "N";
-        foreach ($score as $scoreItem) {
-            if ($scoreItem->picId === $picsItem->picId) {
-                if ($scoreItem->userId === $userId) {
-                    $picsItem->scored = "Y";
-                    $picsItem->myScore = $scoreItem->score;
+        if ($picsItem->isEmpty()) {
+            return jb(401, "没有图片");
+        }else {
+            $scoreSum = 0;
+            $scoreCount = 0;
+            $picsItem->scored = "N";
+            foreach ($score as $scoreItem) {
+                if ($scoreItem->picId === $picsItem->picId) {
+                    if ($scoreItem->userId === $userId) {
+                        $picsItem->scored = "Y";
+                        $picsItem->myScore = $scoreItem->score;
+                    }
+                    $scoreSum += $scoreItem->score;
+                    $scoreCount++;
                 }
-                $scoreSum+=$scoreItem->score;
-                $scoreCount++;
             }
+            if ($scoreCount) {
+                $picsItem->score = number_format($scoreSum / $scoreCount, 2);
+            } else {
+                $picsItem->score = 0;
+            }
+            $picsItem->nickname = $picsItem->user->nickname;
+            $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->picId;
+            return jb(200, "数据获取成功", $picsItem, $picsCount, $picsIndex);
         }
-        if ($scoreCount) {
-            $picsItem->score = number_format($scoreSum / $scoreCount, 2);
-        } else {
-            $picsItem->score = 0;
-        }
-        $picsItem->nickname = $picsItem->user->nickname;
-        $picsItem->url = $request->domain()."/pics/image/".$picsItem->picId;
-        return JsonBack::jsonBack(200, "数据获取成功", $picsItem);
     }
+    #[ApiDoc\Title("上传图片接口")]
+    #[ApiDoc\Url("/pics/pic")]
+    #[ApiDoc\Method("POST")]
+    #[ApiDoc\ContentType("multipart/form-data")]
+    #[ApiDoc\Header("Content-Type", type: "string", require: true, desc: "请求类型，使用multipart/form-data")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("image", type: "file", require: true, desc: "上传图片")]
+    #[ApiDoc\Param("name", type: "string", require: true, desc: "图片名称")]
+    #[ApiDoc\Param("description", type: "string", require: false, desc: "图片描述")]
     public function create(Request$request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         if ($auth["status"]) {
             $user = $auth["data"];
             $group = $user->group;
@@ -110,27 +161,31 @@ class Pics {
                             $pic->create = date("Y-m-d H:i:s");
                             $pic->update = date("Y-m-d H:i:s");
                             $pic->save();
-                            return JsonBack::jsonBack(200, "上传成功");
+                            return jb(200, "上传成功");
                         } else {
-                            return JsonBack::jsonBack(401, "图片名称不能为空");
+                            return jb(401, "图片名称不能为空");
                         }
                     } else {
-                        return JsonBack::jsonBack(401, "未选择图片");
+                        return jb(401, "未选择图片");
                     }
                 } else {
-                    return JsonBack::jsonBack(403, "没有上传图片权限");
+                    return jb(403, "没有上传图片权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("加载图片数据接口")]
+    #[ApiDoc\Url("/pics/image/<id>")]
+    #[ApiDoc\RouteParam("id", type: "int", require: true, desc: "图片ID")]
+    #[ApiDoc\Method("GET")]
     public function read($id): Json|Response {
         $data = PicsModel::where("picId", $id)->findOrEmpty();
         if ($data->isEmpty()) {
-            return JsonBack::jsonBack(404, "图片不存在");
+            return jb(404, "图片不存在");
         } else {
             $img = base64_decode($data->data);
             $type = $data->type;
@@ -139,8 +194,14 @@ class Pics {
             ]);
         }
     }
+    #[ApiDoc\Title("图片评分接口")]
+    #[ApiDoc\Url("/pics/score")]
+    #[ApiDoc\Method("POST")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片id")]
+    #[ApiDoc\Param("score", type: "float", require: true, desc: "打分值")]
     public function addScore(Request$request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $pic = $request->post("pic");
         $score = $request->post("score");
         if ($auth["status"]) {
@@ -155,17 +216,31 @@ class Pics {
                     $_score->create = date("Y-m-d H:i:s");
                     $_score->update = date("Y-m-d H:i:s");
                     $_score->save();
-                    return JsonBack::jsonBack(200, "评分成功");
+                    return jb(200, "评分成功");
                 } else {
-                    return JsonBack::jsonBack(403, "没有评分权限");
+                    return jb(403, "没有评分权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("获取指定图片评论列表接口")]
+    #[ApiDoc\Url("/pics/comment")]
+    #[ApiDoc\Method("GET")]
+    #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片ID")]
+    #[ApiDoc\Returned("commentId", type: "int", require: true, desc: "评论ID")]
+    #[ApiDoc\Returned("picId", type: "int", require: true, desc: "图片ID")]
+    #[ApiDoc\Returned("userId", type: "int", require: true, desc: "用户ID")]
+    #[ApiDoc\Returned("replyId", type: "int", require: true, desc: "回复ID")]
+    #[ApiDoc\Returned("verified", type: "int", require: true, desc: "是否通过审核")]
+    #[ApiDoc\Returned("update", type: "datetime", require: true, desc: "更新时间")]
+    #[ApiDoc\Returned("create", type: "datetime", require: true, desc: "发送时间")]
+    #[ApiDoc\Returned("delete", type: "datetime", require: false, desc: "删除时间")]
+    #[ApiDoc\Returned("nickname", type: "string", require: true, desc: "昵称")]
+    #[ApiDoc\Returned("avatar", type: "string", require: true, desc: "用户头像地址")]
     function getComment(Request$request): Json {
         $pic = $request->get("pic");
         $comments = CommentModel::where("delete")
@@ -183,10 +258,17 @@ class Pics {
                 }
             }
         }
-        return JsonBack::jsonBack(200, "数据获取成功", $comments);
+        return jb(200, "数据获取成功", $comments);
     }
+    #[ApiDoc\Title("发送评论接口")]
+    #[ApiDoc\Url("/pics/comment")]
+    #[ApiDoc\Method("POST")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片id")]
+    #[ApiDoc\Param("comment", type: "string", require: true, desc: "评论内容")]
+    #[ApiDoc\Param("reply", type: "int", require: true, desc: "回复消息id")]
     function addComment(Request$request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $pic = $request->post("pic");
         $comment = $request->post("comment");
         $reply = $request->post("reply");
@@ -204,15 +286,15 @@ class Pics {
                     $_comment->create = date("Y-m-d H:i:s");
                     $_comment->update = date("Y-m-d H:i:s");
                     $_comment->save();
-                    return JsonBack::jsonBack(200, "评论发送成功");
+                    return jb(200, "评论发送成功");
                 } else {
-                    return JsonBack::jsonBack(403, "没有评论权限");
+                    return jb(403, "没有评论权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
 }

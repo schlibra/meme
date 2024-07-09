@@ -6,8 +6,6 @@ declare (strict_types=1);
 
 namespace app\controller;
 
-use app\lib\Authorization;
-use app\lib\JsonBack;
 use app\model\CommentModel;
 use app\model\GroupModel;
 use app\model\PicsModel;
@@ -25,8 +23,16 @@ use think\facade\Db;
 use think\Request;
 use Firebase\JWT\JWT;
 use think\response\Json;
+use hg\apidoc\annotation as ApiDoc;
 
+#[ApiDoc\Title("用户接口")]
 class User {
+    #[ApiDoc\Title("用户登录接口")]
+    #[ApiDoc\Desc("通过用户名和密码进行登录，返回Token认证信息")]
+    #[ApiDoc\Url("/user/login")]
+    #[ApiDoc\Method("POST")]
+    #[ApiDoc\Param("username", type: "string", require: true, desc: "用户名")]
+    #[ApiDoc\Param("password", type: "string", require: true, desc: "密码")]
     function login(Request $request): Json {
         $username = $request->post("username", "");
         $password = $request->post("password", "");
@@ -34,14 +40,14 @@ class User {
             ->whereOr("email", $username)
             ->findOrEmpty();
         if ($user->isEmpty()) {
-            return JsonBack::jsonBack(401, "用户不存在");
+            return jb(401, "用户不存在");
         } else {
             if (password_verify($password, $user->password)) {
                 if ($user->ban === "Y") {
-                    return JsonBack::jsonBack(401, "用户已被封禁：".$user->reason);
+                    return jb(401, "用户已被封禁：".$user->reason);
                 } else {
                     if ($user->email === $username && $user->verified !== "Y") {
-                        return JsonBack::jsonBack(401, "邮箱未通过验证，请先使用用户名登录");
+                        return jb(401, "邮箱未通过验证，请先使用用户名登录");
                     } else {
                         $url = $request->domain();
                         $payload = [
@@ -55,14 +61,24 @@ class User {
                         ];
                         $token = JWT::encode($payload, "meme_login_token_key", "HS256");
                         Cache::set($username, $token);
-                        return JsonBack::jsonBack(200, "登录成功", null, null, $token);
+                        return jb(200, "登录成功", null, null, $token);
                     }
                 }
             } else {
-                return JsonBack::jsonBack(401, "密码错误");
+                return jb(401, "密码错误");
             }
         }
     }
+
+    #[ApiDoc\Title("用户注册接口")]
+    #[ApiDoc\Url("/user/register")]
+    #[ApiDoc\Method("POST")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "邮箱验证信息Bearer Token")]
+    #[ApiDoc\Param("username", type: "string", require: true, desc: "用户名")]
+    #[ApiDoc\Param("nickname", type: "string", require: true, desc: "昵称")]
+    #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
+    #[ApiDoc\Param("code", type: "string", require: true, desc: "验证码")]
+    #[ApiDoc\Param("password", type: "string", require: true, desc: "密码")]
     function register(Request $request): Json{
         $username = $request->post("username", "");
         $nickname = $request->post("nickname", "");
@@ -70,7 +86,7 @@ class User {
         $code = $request->post("code", "");
         $password = $request->post("password", "");
         $password = password_hash($password, PASSWORD_BCRYPT);
-        $auth = Authorization::emailAuth($request);
+        $auth = emailAuth($request);
         if ($auth["status"]) {
             $data = $auth["data"];
             if ($data["email"] === $email && (string)$data["code"] === $code) {
@@ -86,24 +102,32 @@ class User {
                     $user->ban = "N";
                     $user->reason = "";
                     $user->save();
-                    return JsonBack::jsonBack(200, "用户注册成功");
+                    return jb(200, "用户注册成功");
                 } else {
-                    return JsonBack::jsonBack(401, "用户名或邮箱已存在");
+                    return jb(401, "用户名或邮箱已存在");
                 }
             } else {
-                return JsonBack::jsonBack(401, "验证码不正确");
+                return jb(401, "验证码不正确");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("重置密码接口")]
+    #[ApiDoc\Url("/user/register")]
+    #[ApiDoc\Method("POST")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "邮箱验证信息Bearer TOken")]
+    #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
+    #[ApiDoc\Param("code", type: "string", require: true, desc: "验证码")]
+    #[ApiDoc\Param("password", type: "string", require: true, desc: "密码")]
+    #[ApiDoc\Param("username", type: "string", require: true, desc: "用户名")]
     function forget(Request $request): Json {
         $email = $request->post("email");
         $code = $request->post("code");
         $password = $request->post("password");
         $password = password_hash($password, PASSWORD_BCRYPT);
         $username = $request->post("username");
-        $auth = Authorization::emailAuth($request);
+        $auth = emailAuth($request);
         if ($auth["status"]) {
             $data = $auth["data"];
             $_email = $data["email"];
@@ -113,19 +137,25 @@ class User {
                     ->where("email", $email)
                     ->findOrEmpty();
                 if ($user->isEmpty()) {
-                    return JsonBack::jsonBack(401, "账号不存在");
+                    return jb(401, "账号不存在");
                 } else {
                     $user->password = $password;
                     $user->save();
-                    return JsonBack::jsonBack(200, "密码重置成功");
+                    return jb(200, "密码重置成功");
                 }
             } else {
-                return JsonBack::jsonBack(401, "验证码不正确");
+                return jb(401, "验证码不正确");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("发送验证码接口")]
+    #[ApiDoc\Desc("发送邮箱验证码，返回邮箱认证Token")]
+    #[ApiDoc\Url("/user/sendCode")]
+    #[ApiDoc\Method("POST")]
+    #[ApiDoc\Param("action", type: "string", require: true, desc: "验证码操作类型：register/forget/verify")]
+    #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
     function sendCode(Request $request): Json {
         $action = $request->post("action");
         $actionText = match ($action) {
@@ -175,14 +205,16 @@ class User {
                 ];
                 $token = JWT::encode($payload, "meme_email_token_key", "HS256");
                 Cache::set($email, $token);
-                return JsonBack::jsonBack(200, "发送成功，请及时查收", null, null, $token);
+                return jb(200, "发送成功，请及时查收", null, null, $token);
             } catch (Exception$e) {
-                return JsonBack::jsonBack(500, "发送失败：".$e->getMessage());
+                return jb(500, "发送失败：".$e->getMessage());
             }
         }
     }
+    #[ApiDoc\Title("获取用户信息接口")]
+    #[ApiDoc\Method("GET")]
     function getInfo(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         if ($auth["status"]) {
             $user = $auth["data"];
             unset($user["password"], $user["ban"], $user["reason"]);
@@ -191,18 +223,20 @@ class User {
             if ($group) {
                 $user = array_merge($user->toArray(), $group->toArray());
             }
-            return JsonBack::jsonBack(200, "数据获取成功", $user);
+            return jb(200, "数据获取成功", $user);
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("更新用户信息接口")]
+    #[ApiDoc\Method("PUT")]
     function updateInfo(Request $request): Json {
         $nickname = $request->post("nickname");
         $birth = $request->post("birth");
         $sex = $request->post("sex");
         $description = $request->post("description");
         $email = $request->post("email");
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         if ($auth["status"]) {
             $user = $auth["data"];
             $_email = $user->email;
@@ -219,39 +253,45 @@ class User {
                 $user->verified = "N";
             }
             $user->save();
-            return JsonBack::jsonBack(200, "用户信息更新成功");
+            return jb(200, "用户信息更新成功");
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("退出登录接口")]
+    #[ApiDoc\Method("POST")]
     function logout(Request $request):Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         if ($auth["status"]) {
             Cache::delete($auth["data"]->username);
         }
-        return JsonBack::jsonBack(200, "已退出登录");
+        return jb(200, "已退出登录");
     }
+    #[ApiDoc\Title("修改密码接口")]
+    #[ApiDoc\Method("PUT")]
     function changePassword(Request $request): Json {
         $newPassword = $request->post("newPassword");
         $oldPassword = $request->post("oldPassword");
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         if ($auth["status"]) {
             $user = $auth["data"];
             if (password_verify($oldPassword, $user->password)) {
                 $user->password = password_hash($newPassword, PASSWORD_BCRYPT);
                 $user->save();
                 Cache::delete($user->username);
-                return JsonBack::jsonBack(200, "密码修改成功");
+                return jb(200, "密码修改成功");
             } else {
-                return JsonBack::jsonBack(401, "原密码不正确");
+                return jb(401, "原密码不正确");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("验证邮箱接口")]
+    #[ApiDoc\Method("POST")]
     function verify(Request $request): Json {
         $code = $request->post("code");
-        $auth = Authorization::emailAuth($request);
+        $auth = emailAuth($request);
         if ($auth["status"]) {
             $data = $auth["data"];
             $_code = $data["code"];
@@ -259,20 +299,22 @@ class User {
             if ($code === $_code) {
                 $user = UserModel::where("email", $_email)->findOrEmpty();
                 if ($user->isEmpty()) {
-                    return JsonBack::jsonBack(401, "用户不存在");
+                    return jb(401, "用户不存在");
                 } else {
                     $user->verified = "Y";
-                    return JsonBack::jsonBack(200, "验证成功");
+                    return jb(200, "验证成功");
                 }
             } else {
-                return JsonBack::jsonBack(401, "验证码错误");
+                return jb(401, "验证码错误");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("获取当前用户图片列表接口")]
+    #[ApiDoc\Method("GET")]
     function getPicList(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         if ($auth["status"]) {
             $user = $auth["data"];
             $pageSize = (int)$request->get("pageSize", 10);
@@ -298,13 +340,15 @@ class User {
                 $picsItem->update = explode(" ", $picsItem->update)[0];
                 unset($picsItem["data"], $picsItem["user"], $picsItem["type"]);
             }
-            return JsonBack::jsonBack(200, "数据获取成功", $pic, $picCount);
+            return jb(200, "数据获取成功", $pic, $picCount);
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("删除图片接口")]
+    #[ApiDoc\Method("DELETE")]
     function deletePic(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $picId = $request->get("pic", "");
         if ($auth["status"]) {
             $user = $auth["data"];
@@ -314,28 +358,30 @@ class User {
                     $pic = PicsModel::where("picId", $picId)
                         ->findOrEmpty();
                     if ($pic->isEmpty()) {
-                        return JsonBack::jsonBack(404, "找不到指定的图片");
+                        return jb(404, "找不到指定的图片");
                     } else {
                         if ($pic->userId === $user->userId) {
                             $pic->delete = date("Y-m-d H:i:s");
                             $pic->save();
-                            return JsonBack::jsonBack(200, "图片删除成功");
+                            return jb(200, "图片删除成功");
                         } else {
-                            return JsonBack::jsonBack(403, "没有权限操作该图片");
+                            return jb(403, "没有权限操作该图片");
                         }
                     }
                 } else {
-                    return JsonBack::jsonBack(403, "没有删除权限");
+                    return jb(403, "没有删除权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("还原图片接口")]
+    #[ApiDoc\Method("PATCH")]
     function restorePic(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $picId = $request->post("pic", "");
         if ($auth["status"]) {
             $user = $auth["data"];
@@ -345,29 +391,30 @@ class User {
                     $pic = PicsModel::where("picId", $picId)
                         ->findOrEmpty();
                     if ($pic->isEmpty()) {
-                        return JsonBack::jsonBack(404, "找不到指定的图片");
+                        return jb(404, "找不到指定的图片");
                     } else {
                         if ($pic->userId === $user->userId) {
                             $pic->delete = null;
                             $pic->save();
-                            return JsonBack::jsonBack(200, "图片还原成功");
+                            return jb(200, "图片还原成功");
                         } else {
-                            return JsonBack::jsonBack(403, "没有权限操作该图片");
+                            return jb(403, "没有权限操作该图片");
                         }
                     }
                 } else {
-                    return JsonBack::jsonBack(403, "没有还原权限");
+                    return jb(403, "没有还原权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
-
+    #[ApiDoc\Title("更新图片接口")]
+    #[ApiDoc\Method("PUT")]
     function updatePic(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $picId = $request->post("pic");
         $name = $request->post("name");
         $description = $request->post("description");
@@ -387,25 +434,27 @@ class User {
                             if ($description) $pic->description = $description;
                             if ($image) $pic->data = $image;
                             $pic->save();
-                            return JsonBack::jsonBack(200, "图片更新成功");
+                            return jb(200, "图片更新成功");
                         } else {
-                            return JsonBack::jsonBack(403, "没有权限操作该图片");
+                            return jb(403, "没有权限操作该图片");
                         }
                     } else {
-                        return JsonBack::jsonBack(404, "找不到指定的图片");
+                        return jb(404, "找不到指定的图片");
                     }
                 } else {
-                    return JsonBack::jsonBack(403, "没有更新图片权限");
+                    return jb(403, "没有更新图片权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("获取当前用户评分列表接口")]
+    #[ApiDoc\Method("GET")]
     function getScore(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
         if ($auth["status"]) {
@@ -419,13 +468,15 @@ class User {
                 $pic = $scoreItem->pic;
                 if ($pic) $scoreItem["name"] = $pic->name;
             }
-            return JsonBack::jsonBack(200, "数据获取成功", $score, $scoreCount);
+            return jb(200, "数据获取成功", $score, $scoreCount);
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("更新评分接口")]
+    #[ApiDoc\Method("PUT")]
     function updateScore(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $id = $request->post("id");
         $score = $request->post("score");
         if ($auth["status"]) {
@@ -435,28 +486,30 @@ class User {
                 if ($group->updateScore === "Y") {
                     $scoreItem = ScoreModel::where("scoreId", $id)->findOrEmpty();
                     if ($scoreItem->isEmpty()) {
-                        return JsonBack::jsonBack(404, "找不到指定的评分");
+                        return jb(404, "找不到指定的评分");
                     } else {
                         if ($scoreItem->userId === $user->userId) {
                             $scoreItem->score = $score;
                             $scoreItem->save();
-                            return JsonBack::jsonBack(200, "评分修改成功");
+                            return jb(200, "评分修改成功");
                         } else {
-                            return JsonBack::jsonBack(403, "没有权限操作这条评分");
+                            return jb(403, "没有权限操作这条评分");
                         }
                     }
                 } else {
-                    return JsonBack::jsonBack(403, "没有修改评分权限");
+                    return jb(403, "没有修改评分权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("删除评分接口")]
+    #[ApiDoc\Method("DELETE")]
     function deleteScore(Request $request): Json{
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $id = $request->get("id");
         if ($auth["status"]) {
             $user = $auth["data"];
@@ -465,28 +518,30 @@ class User {
                 if ($group->deleteScore === "Y") {
                     $scoreItem = ScoreModel::where("scoreId", $id)->findOrEmpty();
                     if ($scoreItem->isEmpty()) {
-                        return JsonBack::jsonBack(404, "找不到指定的评分");
+                        return jb(404, "找不到指定的评分");
                     } else {
                         if ($scoreItem->userId === $user->userId) {
                             $scoreItem->delete = date("Y-m-d H:i:s");
                             $scoreItem->save();
-                            return JsonBack::jsonBack(200, "评分删除成功");
+                            return jb(200, "评分删除成功");
                         } else {
-                            return JsonBack::jsonBack(403, "没有权限操作这条评分");
+                            return jb(403, "没有权限操作这条评分");
                         }
                     }
                 } else {
-                    return JsonBack::jsonBack(403, "没有删除评分权限");
+                    return jb(403, "没有删除评分权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("还原评分接口")]
+    #[ApiDoc\Method("PATCH")]
     function restoreScore(Request $request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $id = $request->post("id");
         if ($auth["status"]) {
             $user = $auth["data"];
@@ -495,28 +550,30 @@ class User {
                 if ($group->restoreScore === "Y") {
                     $scoreItem = ScoreModel::where("scoreId", $id)->findOrEmpty();
                     if ($scoreItem->isEmpty()) {
-                        return JsonBack::jsonBack(404, "找不到指定的评分");
+                        return jb(404, "找不到指定的评分");
                     } else {
                         if ($scoreItem->userId === $user->userId) {
                             $scoreItem->delete = null;
                             $scoreItem->save();
-                            return JsonBack::jsonBack(200, "评分还原成功");
+                            return jb(200, "评分还原成功");
                         } else {
-                            return JsonBack::jsonBack(403, "没有权限操作这条评分");
+                            return jb(403, "没有权限操作这条评分");
                         }
                     }
                 } else {
-                    return JsonBack::jsonBack(403, "没有还原评分权限");
+                    return jb(403, "没有还原评分权限");
                 }
             } else {
-                return JsonBack::jsonBack(401, "没有权限");
+                return jb(401, "没有权限");
             }
         } else {
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
+    #[ApiDoc\Title("获取当前用户评论列表接口")]
+    #[ApiDoc\Method("GET")]
     function getComment(Request$request): Json {
-        $auth = Authorization::loginAuth($request);
+        $auth = loginAuth($request);
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
         if ($auth["status"]) {
@@ -528,9 +585,9 @@ class User {
                 if ($pic) $item->name = $pic->name;
                 $item->url = $request->domain()."/pics/image/".$pic->picId;
             }
-            return JsonBack::jsonBack(200, "数据获取成功", $comment, $count);
+            return jb(200, "数据获取成功", $comment, $count);
         }else{
-            return JsonBack::jsonBack(401, $auth["msg"]);
+            return jb(401, $auth["msg"]);
         }
     }
 }

@@ -22,8 +22,8 @@ const UserUrl = {
 
 const PicsUrl = {
     picsUrl: picsUrl,
-    uploadUrl: picsUrl + "/upload",
-    listUrl: picsUrl + "/list",
+    uploadUrl: picsUrl + "/pic",
+    listUrl: picsUrl + "/pic",
     scoreUrl: picsUrl + "/score",
     imageUrl: picsUrl + "/image",
     commentUrl: picsUrl + "/comment",
