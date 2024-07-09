@@ -64,7 +64,7 @@ function getList() {
   })
 }
 function editScore(index) {
-  updateId.value = scoreList.value[index].id
+  updateId.value = scoreList.value[index]["scoreId"]
   updateScore.value = scoreList.value[index].score
   updateName.value = scoreList.value[index].name
   updateDialog.value = true
@@ -92,12 +92,11 @@ function updateSubmit() {
   })
 }
 function deleteScore(index) {
-  let id = scoreList.value[index].id
-  dataLoading.value = true
   confirm("是否删除这条评分", "删除评分", {
     confirm() {
+      dataLoading.value = true
       Delete(UserUrl.scoreUrl, {
-        id
+        id: scoreList.value[index]["scoreId"]
       }, {
         ok(res) {
           alertSuccess(res, "删除成功", getList)
@@ -116,12 +115,11 @@ function deleteScore(index) {
   })
 }
 function restoreScore(index) {
-  let id = scoreList.value[index].id
-  dataLoading.value = true
   confirm("是否还原这条评分", "还原评分", {
     confirm() {
+      dataLoading.value = true
       Patch(UserUrl.scoreUrl, {
-        id
+        id: scoreList.value[index]["scoreId"]
       }, {
         ok(res) {
           alertSuccess(res, "还原成功", getList)

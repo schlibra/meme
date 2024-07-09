@@ -55,7 +55,7 @@ onMounted(()=>{
       picList.value = data
       totalCount.value = res.data.count
       data.forEach(item=>{
-        imgList.value.push(item)
+        imgList.value.push(item.url)
       })
     },
     bad(res) {
@@ -81,7 +81,7 @@ function reload() {
       picList.value = data
       totalCount.value = res.data.total
       data.forEach(item=>{
-        imgList.value.push(item)
+        imgList.value.push(item.url)
       })
     },
     bad(res) {
@@ -125,14 +125,11 @@ function openDetail(index) {
   showDrawer.value = true
 }
 function uploadSubmit() {
-  let image = uploadFile.value["files"][0];
-  let name = uploadName.value
-  let description = uploadDescription.value
   uploadLoading.value = true
   Post(PicsUrl.uploadUrl, {
-    image,
-    name,
-    description
+    image: uploadFile.value["files"][0],
+    name: uploadName.value,
+    description: uploadDescription.value
   }, {
     ok(res) {
       alertSuccess(res, "上传成功", ()=>{
@@ -152,7 +149,7 @@ function uploadSubmit() {
     final() {
       uploadLoading.value = false
     }
-  })
+  }, "multipart/form-data")
 }
 function logout() {
   confirm("是否退出当前账号", "退出账号", {
@@ -176,36 +173,32 @@ function logout() {
   })
 }
 function submitScore() {
-  if (!token.value) {
-    alertError("没有登录无法评分", "评分失败")
-    return
-  }
   let score = imgDetailScore.value
-  let pic = imgDetail.value["id"]
   if (score) {
     confirm(`确定为图片“${imgDetail.value.name}”打${score}分吗`, "打分确认", {
       confirm() {
         detailLoading.value = true
-        axios.post(PicsUrl.scoreUrl, {
+        Post(PicsUrl.scoreUrl, {
           score,
-          pic
+          pic: imgDetail.value["picId"]
         }, {
-          headers: {
-            Authorization: `Bearer ${token.value}`
-          }
-        }).then(res=>{
-          if (res.data.code === 200) {
-            alertSuccess(res, "评分成功", () => {
+          ok(res) {
+            alertSuccess(res, "评分成功", ()=>{
               reload()
               imgDetail.value["scored"] = "Y"
               imgDetail.value["myScore"] = score
             })
-          } else {
+          },
+          bad(res) {
             alertError(res, "评分失败")
+          },
+          error(err) {
+            axiosError(err, "评分失败")
+          },
+          final() {
+            detailLoading.value = false
           }
-        }).catch(err=>{
-          axiosError(err, "评分失败")
-        }).finally(()=>detailLoading.value = false)
+        })
       }
     })
   } else {
@@ -213,9 +206,8 @@ function submitScore() {
   }
 }
 function getCommentList() {
-  let pic = imgDetail.value["id"]
   Get(PicsUrl.commentUrl, {
-    pic
+    pic: imgDetail.value["picId"]
   }, {
     ok(_, data) {
       commentList.value = data;
@@ -225,35 +217,32 @@ function getCommentList() {
 }
 
 function submitComment() {
-  if (!token.value) {
-    alertError("没有登录无法提交评论", "评论失败")
-    return
-  }
   if(comment.value) {
     confirm(`确定在图片“${imgDetail.value.name}”的评论区下评论吗？`, "评论确认", {
       confirm() {
         detailLoading.value = true
-        axios.post(PicsUrl.commentUrl, {
+        Post(PicsUrl.commentUrl, {
           comment: comment.value,
-          pic: imgDetail.value["id"],
+          pic: imgDetail.value["picId"],
           reply: 0
         }, {
-          headers: {
-            Authorization: `Bearer ${token.value}`
-          }
-        }).then(res=>{
-          if (res.data.code === 200) {
-            alertSuccess(res, "评论成功", () => {
+          ok(res) {
+            alertSuccess(res, "评论成功", ()=>{
               comment.value = ""
               reload()
               getCommentList()
             })
-          } else {
+          },
+          bad(res) {
             alertError(res, "评论失败")
+          },
+          error(err) {
+            axiosError(err, "评论失败")
+          },
+          final() {
+            detailLoading.value = false
           }
-        }).catch(err=>{
-          axiosError(err, "评论失败")
-        }).finally(()=>detailLoading.value = false)
+        })
       }
     })
   } else {
@@ -268,13 +257,13 @@ function submitComment() {
     <vuetyped :strings="strings" :fade-out="true" :loop="true" cursor-char="_">
       <h1 class="typing"></h1>
     </vuetyped>
-    <h3 class="center" v-if="token">欢迎用户：{{ userInfo["nickname"] }}（{{ userInfo["username"] }} - {{ userInfo["groupName"] }}）</h3>
+    <h3 class="center" v-if="token">欢迎用户：{{ userInfo["nickname"] }}（{{ userInfo["username"] }} - {{ userInfo["groupName"] }}<el-tag type="danger" v-if="!userInfo['groupName']">用户组错误</el-tag>）</h3>
   </div>
   <div class="buttons hidden-xs-only">
     <el-button type="primary" @click="randomImg">随机梗图</el-button>
     <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
+    <el-button type="primary" v-if="token && userInfo['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
     <el-button type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">进入后台</el-button>
     <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
@@ -282,7 +271,7 @@ function submitComment() {
     <el-button size="small" type="primary" @click="randomImg">随机梗图</el-button>
     <el-button size="small" type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button size="small" type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button size="small" type="primary" v-if="token && userInfo['upload'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
+    <el-button size="small" type="primary" v-if="token && userInfo['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
     <el-button size="small" type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
     <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>

@@ -109,6 +109,7 @@ class Pics {
                             $pic->verified = "N";
                             $pic->create = date("Y-m-d H:i:s");
                             $pic->update = date("Y-m-d H:i:s");
+                            $pic->save();
                             return JsonBack::jsonBack(200, "上传成功");
                         } else {
                             return JsonBack::jsonBack(401, "图片名称不能为空");
@@ -143,7 +144,7 @@ class Pics {
         $pic = $request->post("pic");
         $score = $request->post("score");
         if ($auth["status"]) {
-            $user = $auth["user"];
+            $user = $auth["data"];
             $group = $user->group;
             if ($group) {
                 if ($group->sendScore === "Y") {
@@ -183,5 +184,35 @@ class Pics {
             }
         }
         return JsonBack::jsonBack(200, "数据获取成功", $comments);
+    }
+    function addComment(Request$request): Json {
+        $auth = Authorization::loginAuth($request);
+        $pic = $request->post("pic");
+        $comment = $request->post("comment");
+        $reply = $request->post("reply");
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->sendComment === "Y") {
+                    $_comment = new CommentModel;
+                    $_comment->userId = $user->userId;
+                    $_comment->picId = $pic;
+                    $_comment->comment = $comment;
+                    $_comment->reply = $reply;
+                    $_comment->verified = "N";
+                    $_comment->create = date("Y-m-d H:i:s");
+                    $_comment->update = date("Y-m-d H:i:s");
+                    $_comment->save();
+                    return JsonBack::jsonBack(200, "评论发送成功");
+                } else {
+                    return JsonBack::jsonBack(403, "没有评论权限");
+                }
+            } else {
+                return JsonBack::jsonBack(401, "没有权限");
+            }
+        } else {
+            return JsonBack::jsonBack(401, $auth["msg"]);
+        }
     }
 }

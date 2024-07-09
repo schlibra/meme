@@ -75,7 +75,7 @@ function reload() {
   }).finally(()=>picLoading.value = false)
 }
 function editPic(index) {
-  editId.value = picList.value[index].id
+  editId.value = picList.value[index]["picId"]
   editName.value = picList.value[index].name
   editDescription.value = picList.value[index].description
   editDialog.value = true
@@ -115,7 +115,7 @@ function restorePic(index) {
     confirm() {
       picLoading.value = true
       axios.patch(UserUrl.picsUrl, {
-        pic: picList.value[index].id
+        pic: picList.value[index]["picId"]
       }, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -136,7 +136,7 @@ function deletePic(index) {
   confirm(`是否删除图片“${picList.value[index].name}”`, "删除图片", {
     confirm() {
       picLoading.value = true
-      axios.delete(`${UserUrl.picsUrl}?pic=${picList.value[index].id}`, {
+      axios.delete(`${UserUrl.picsUrl}?pic=${picList.value[index]["picId"]}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

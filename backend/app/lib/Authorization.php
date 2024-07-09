@@ -56,7 +56,7 @@ class Authorization
         if (str_starts_with($token, "Bearer")) {
             $token = str_replace("Bearer ", "", $token);
             try {
-                $data = (array)JWT::decode($token, new Key("meme_email_token_key", "HS256"));
+                $data = (array)JWT::decode($token, new Key(self::$emailSecret, "HS256"));
                 $_email = $data["email"];
                 if (Cache::get($_email) !== $token) {
                     return self::returnData(false, "验证码信息无效");

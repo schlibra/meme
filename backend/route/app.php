@@ -14,7 +14,6 @@ use think\facade\Route;
 Route::post("user/login", "User/login");
 Route::post("user/register", "User/register");
 Route::post("user/forget", "User/forget");
-Route::post("user/sendCode", "User/sendCode");
 Route::get("user/info", "User/getInfo");
 Route::put("user/info", "User/updateInfo");
 Route::put("user/password", "User/changePassword");

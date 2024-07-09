@@ -81,7 +81,7 @@ function update() {
               <el-avatar size="large" :src="user['avatar']" />
             </el-form-item>
             <el-form-item label="用户ID" class="label">
-              <el-input v-if="edit" v-model="user.id" disabled />
+              <el-input v-if="edit" v-model="user['userId']" disabled />
               <el-text v-else>{{ user["userId"] }}</el-text>
             </el-form-item>
             <el-form-item label="用户名" class="label">

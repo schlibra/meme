@@ -72,7 +72,7 @@ class User {
         $auth = Authorization::emailAuth($request);
         if ($auth["status"]) {
             $data = $auth["data"];
-            if ($data["email"] === $email && $data["code"] === $code) {
+            if ($data["email"] === $email && (string)$data["code"] === $code) {
                 if (UserModel::where("username", $username)->whereOr("email", $email)->findOrEmpty()->isEmpty()) {
                     $user = new UserModel;
                     $user->username = $username;
@@ -276,16 +276,16 @@ class User {
             $user = $auth["data"];
             $pageSize = (int)$request->get("pageSize", 10);
             $pageNum = (int)$request->get("pageNum", 1);
-            $pic = PicsModel::where("userId", $user->id)
+            $pic = PicsModel::where("userId", $user->userId)
                 ->limit(($pageNum - 1) * $pageSize, $pageSize)
                 ->select();
             $picCount = PicsModel::where("userId", $user->id)->count();
-            $score = ScoreModel::select();
+            $score = ScoreModel::where("delete")->select();
             foreach ($pic as &$picsItem) {
                 $picsItem->score = 0;
                 $scoreSum = 0;
                 $scoreCount = 0;
-                $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->id;
+                $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->picId;
                 foreach ($score as $scoreItem) {
                     if ($scoreItem->picId === $picsItem->picId) {
                         $scoreSum += $scoreItem->score;
@@ -313,6 +313,8 @@ class User {
                     $pic = PicsModel::where("picId", $picId)
                         ->findOrEmpty();
                     if ($pic->isEmpty()) {
+                        return JsonBack::jsonBack(404, "找不到指定的图片");
+                    } else {
                         if ($pic->userId === $user->userId) {
                             $pic->delete = date("Y-m-d H:i:s");
                             $pic->save();
@@ -320,8 +322,6 @@ class User {
                         } else {
                             return JsonBack::jsonBack(403, "没有权限操作该图片");
                         }
-                    } else {
-                        return JsonBack::jsonBack(404, "找不到指定的图片");
                     }
                 } else {
                     return JsonBack::jsonBack(403, "没有删除权限");
@@ -335,7 +335,7 @@ class User {
     }
     function restorePic(Request $request): Json {
         $auth = Authorization::loginAuth($request);
-        $picId = $request->get("pic", "");
+        $picId = $request->post("pic", "");
         if ($auth["status"]) {
             $user = $auth["data"];
             $group = $user->group;
@@ -344,6 +344,8 @@ class User {
                     $pic = PicsModel::where("picId", $picId)
                         ->findOrEmpty();
                     if ($pic->isEmpty()) {
+                        return JsonBack::jsonBack(404, "找不到指定的图片");
+                    } else {
                         if ($pic->userId === $user->userId) {
                             $pic->delete = null;
                             $pic->save();
@@ -351,8 +353,6 @@ class User {
                         } else {
                             return JsonBack::jsonBack(403, "没有权限操作该图片");
                         }
-                    } else {
-                        return JsonBack::jsonBack(404, "找不到指定的图片");
                     }
                 } else {
                     return JsonBack::jsonBack(403, "没有还原权限");
@@ -416,7 +416,7 @@ class User {
             foreach ($score as &$scoreItem) {
                 $scoreItem->url = $request->domain()."/pics/image/".$scoreItem->picId;
                 $pic = $scoreItem->pic;
-                $scoreItem->name = $pic->name;
+                if ($pic) $scoreItem["name"] = $pic->name;
             }
             return JsonBack::jsonBack(200, "数据获取成功", $score, $scoreCount);
         } else {
@@ -456,7 +456,7 @@ class User {
     }
     function deleteScore(Request $request): Json{
         $auth = Authorization::loginAuth($request);
-        $id = $request->post("id");
+        $id = $request->get("id");
         if ($auth["status"]) {
             $user = $auth["data"];
             $group = $user->group;

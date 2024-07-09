@@ -72,15 +72,12 @@ function Patch(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:_
         if (action.final) action.final()
     })
 }
-function Post(url, params, action={ok:_=>_,bad:_=>_,error:_=>_,final:_=>_}) {
-    let config = {};
+function Post(url, params, action={ok:_=>_,bad:_=>_,error:_=>_,final:_=>_}, type= "") {
+    let headers = {};
     let token = getToken();
-    if (token) {
-        config["headers"] = {
-            Authorization: `Bearer ${token}`
-        }
-    }
-    axios.post(url, params, config).then(res=>{
+    if (token) headers["Authorization"] = `Bearer ${token}`
+    if (type) headers["Content-Type"] = type
+    axios.post(url, params, {headers}).then(res=>{
         if (axiosOk(res)) {
             if (action.ok) action.ok(res, res.data.data)
         } else {
