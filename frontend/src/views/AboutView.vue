@@ -16,15 +16,15 @@ interface user {
 const contrib = ref([
   {
     username: "schlibra",
-    work: "项目负责人、前端开发、后端开发、需求编写、数据库设计"
+    work: "项目负责人、前端开发、后端开发、需求文档编写、数据库设计、后端API接口文档编写"
   },
   {
     username: "yaoyangyaha",
-    work: "前端开发、程序测试、需求编写和完成需求、简介与文档主编<br />"
+    work: "前端开发、程序测试、需求编写和完成需求、简介与文档主编<br /><br />"
   },
   {
     username: "interuseration-IURT",
-    work: "<br /><br /><br />"
+    work: "团队创始人<br /><br /><br /><br />"
   }
 ])
 onMounted(()=> {
