@@ -102,6 +102,7 @@ class User {
                     $user->ban = "N";
                     $user->reason = "";
                     $user->save();
+                    Cache::delete($email);
                     return jb(200, "用户注册成功");
                 } else {
                     return jb(401, "用户名或邮箱已存在");
@@ -139,6 +140,8 @@ class User {
                 if ($user->isEmpty()) {
                     return jb(401, "账号不存在");
                 } else {
+                    Cache::delete($username);
+                    Cache::delete($email);
                     $user->password = $password;
                     $user->save();
                     return jb(200, "密码重置成功");
@@ -302,6 +305,7 @@ class User {
                     return jb(401, "用户不存在");
                 } else {
                     $user->verified = "Y";
+                    Cache::delete($_email);
                     return jb(200, "验证成功");
                 }
             } else {
