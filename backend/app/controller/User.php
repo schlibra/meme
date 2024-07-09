@@ -215,7 +215,35 @@ class User {
         }
     }
     #[ApiDoc\Title("获取用户信息接口")]
+    #[ApiDoc\Url("/user/info")]
     #[ApiDoc\Method("GET")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Returned("userId", type: "int", require: true, desc: "用户id")]
+    #[ApiDoc\Returned("username", type: "string", require: true, desc: "用户名")]
+    #[ApiDoc\Returned("nickname", type: "string", require: true, desc: "昵称")]
+    #[ApiDoc\Returned("email", type: "string", require: true, desc: "邮箱")]
+    #[ApiDoc\Returned("verified", type: "string", require: true, desc: "邮箱是否验证")]
+    #[ApiDoc\Returned("create", type: "datetime", require: true, desc: "创建时间")]
+    #[ApiDoc\Returned("groupId", type: "int", require: true, desc: "用户组id")]
+    #[ApiDoc\Returned("birth", type: "int", require: true, desc: "出生年份")]
+    #[ApiDoc\Returned("sex", type: "string", require: true, desc: "性别")]
+    #[ApiDoc\Returned("description", type: "string", require: true, desc: "个人简介")]
+    #[ApiDoc\Returned("avatar", type: "string", require: true, desc: "头像")]
+    #[ApiDoc\Returned("groupName", type: "string", require: true, desc: "用户组名")]
+    #[ApiDoc\Returned("admin", type: "string", require: true, desc: "是否管理员")]
+    #[ApiDoc\Returned("uploadPic", type: "string", require: true, desc: "允许上传图片")]
+    #[ApiDoc\Returned("updatePic", type: "string", require: true, desc: "允许更新图片")]
+    #[ApiDoc\Returned("deletePic", type: "string", require: true, desc: "允许删除图片")]
+    #[ApiDoc\Returned("restorePic", type: "string", require: true, desc: "允许还原图片")]
+    #[ApiDoc\Returned("sendComment", type: "string", require: true, desc: "允许发送评论")]
+    #[ApiDoc\Returned("updateComment", type: "string", require: true, desc: "允许更新评论")]
+    #[ApiDoc\Returned("deleteComment", type: "string", require: true, desc: "允许删除评论")]
+    #[ApiDoc\Returned("restoreComment", type: "string", require: true, desc: "允许还原评论")]
+    #[ApiDoc\Returned("sendScore", type: "string", require: true, desc: "允许评分")]
+    #[ApiDoc\Returned("updateScore", type: "string", require: true, desc: "允许修改评分")]
+    #[ApiDoc\Returned("deleteScore", type: "string", require: true, desc: "允许删除评分")]
+    #[ApiDoc\Returned("restoreScore", type: "string", require: true, desc: "运行还原评分")]
+    #[ApiDoc\Returned("update", type: "datetime", require: true, desc: "更新时间")]
     function getInfo(Request $request): Json {
         $auth = loginAuth($request);
         if ($auth["status"]) {
@@ -232,7 +260,14 @@ class User {
         }
     }
     #[ApiDoc\Title("更新用户信息接口")]
+    #[ApiDoc\Url("/user/info")]
     #[ApiDoc\Method("PUT")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("nickname", type: "string", require: true, desc: "昵称")]
+    #[ApiDoc\Param("birth", type: "int", require: true, desc: "出生年份")]
+    #[ApiDoc\Param("sex", type: "string", require: true, desc: "性别")]
+    #[ApiDoc\Param("description", type: "string", require: true, desc: "个人简介")]
+    #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
     function updateInfo(Request $request): Json {
         $nickname = $request->post("nickname");
         $birth = $request->post("birth");
@@ -262,7 +297,9 @@ class User {
         }
     }
     #[ApiDoc\Title("退出登录接口")]
+    #[ApiDoc\Url("/user/logout")]
     #[ApiDoc\Method("POST")]
+    #[ApiDoc\Header("Authorization", type: "string", require: false, desc: "Bearer Token")]
     function logout(Request $request):Json {
         $auth = loginAuth($request);
         if ($auth["status"]) {
@@ -271,7 +308,11 @@ class User {
         return jb(200, "已退出登录");
     }
     #[ApiDoc\Title("修改密码接口")]
+    #[ApiDoc\Url("/user/password")]
     #[ApiDoc\Method("PUT")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("newPassword", type: "string", require: true, desc: "新密码")]
+    #[ApiDoc\Param("oldPassword", type: "string", require: true, desc: "旧密码")]
     function changePassword(Request $request): Json {
         $newPassword = $request->post("newPassword");
         $oldPassword = $request->post("oldPassword");
@@ -291,7 +332,11 @@ class User {
         }
     }
     #[ApiDoc\Title("验证邮箱接口")]
+    #[ApiDoc\Url("/user/verify")]
     #[ApiDoc\Method("POST")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "邮箱认证Bearer Token")]
+    #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
+    #[ApiDoc\Param("code", type: "int", require: true, desc: "验证码")]
     function verify(Request $request): Json {
         $code = $request->post("code");
         $auth = emailAuth($request);
@@ -316,7 +361,24 @@ class User {
         }
     }
     #[ApiDoc\Title("获取当前用户图片列表接口")]
+    #[ApiDoc\Url("/user/pics")]
     #[ApiDoc\Method("GET")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("pageSize", type: "int", require: true, desc: "分页大小")]
+    #[ApiDoc\Param("pageNum", type: "int", require: true, desc: "分页页码")]
+    #[ApiDoc\Returned("picId", type: "int", require: true, default: 1, desc: "图片ID")]
+    #[ApiDoc\Returned("name", type: "string", require: true, default: "图片名称", desc: "图片名称")]
+    #[ApiDoc\Returned("description", type: "string", require: true, default: "图片描述", desc: "图片描述")]
+    #[ApiDoc\Returned("userId", type: "int", require: true, default: 1, desc: "上传者ID")]
+    #[ApiDoc\Returned("verified", type: "string", require: true, default: "Y", desc: "是否通过审核")]
+    #[ApiDoc\Returned("create", type: "datetime", require: true, default: "2024-07-01", desc: "上传时间")]
+    #[ApiDoc\Returned("update", type: "datetime", require: true, default: "2024-07-01", desc: "更新时间")]
+    #[ApiDoc\Returned("delete", type: "datetime", require: true, default: "2024-07-01", desc: "删除时间")]
+    #[ApiDoc\Returned("scored", type: "string", require: true, default: "Y", desc: "是否已打分")]
+    #[ApiDoc\Returned("score", type: "float", require: true, default: 5, desc: "评分")]
+    #[ApiDoc\Returned("myScore", type: "float", require: false, default: 5, desc: "我的评分")]
+    #[ApiDoc\Returned("nickname", type: "string", require: true, default: "用户1", desc: "上传者昵称")]
+    #[ApiDoc\Returned("url", type: "string", require: true, default: "http://127.0.0.1/pics/image/1", desc: "图片url")]
     function getPicList(Request $request): Json {
         $auth = loginAuth($request);
         if ($auth["status"]) {
@@ -350,7 +412,10 @@ class User {
         }
     }
     #[ApiDoc\Title("删除图片接口")]
+    #[ApiDoc\Url("/user/pics")]
     #[ApiDoc\Method("DELETE")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Query("pic", type: "int", require: true, desc: "图片id")]
     function deletePic(Request $request): Json {
         $auth = loginAuth($request);
         $picId = $request->get("pic", "");
@@ -383,7 +448,10 @@ class User {
         }
     }
     #[ApiDoc\Title("还原图片接口")]
+    #[ApiDoc\Url("/user/pics")]
     #[ApiDoc\Method("PATCH")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片id")]
     function restorePic(Request $request): Json {
         $auth = loginAuth($request);
         $picId = $request->post("pic", "");
@@ -416,7 +484,15 @@ class User {
         }
     }
     #[ApiDoc\Title("更新图片接口")]
+    #[ApiDoc\Url("/user/pics")]
     #[ApiDoc\Method("PUT")]
+    #[ApiDoc\ContentType("multipart/form-data")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Header("Content-Type", type: "string", require: true, desc: "multipart/form-data")]
+    #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片id")]
+    #[ApiDoc\Param("name", type: "string", require: true, desc: "图片id")]
+    #[ApiDoc\Param("description", type: "string", require: true, desc: "图片id")]
+    #[ApiDoc\Param("image", type: "file", require: true, desc: "图片id")]
     function updatePic(Request $request): Json {
         $auth = loginAuth($request);
         $picId = $request->post("pic");
@@ -456,7 +532,20 @@ class User {
         }
     }
     #[ApiDoc\Title("获取当前用户评分列表接口")]
+    #[ApiDoc\Url("/user/scores")]
     #[ApiDoc\Method("GET")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("pageSize", type: "int", require: true, desc: "分页大小")]
+    #[ApiDoc\Param("pageNum", type: "int", require: true, desc: "分页页码")]
+    #[ApiDoc\Returned("scoreId", type: "int", require: true, desc: "评分id")]
+    #[ApiDoc\Returned("picId", type: "int", require: true, desc: "图片id")]
+    #[ApiDoc\Returned("userId", type: "int", require: true, desc: "用户id")]
+    #[ApiDoc\Returned("score", type: "float", require: true, desc: "评分id")]
+    #[ApiDoc\Returned("create", type: "datetime", require: true, desc: "创建时间")]
+    #[ApiDoc\Returned("update", type: "datetime", require: true, desc: "更新时间")]
+    #[ApiDoc\Returned("delete", type: "datetime", require: true, desc: "删除时间")]
+    #[ApiDoc\Returned("url", type: "int", require: true, desc: "图片链接")]
+    #[ApiDoc\Returned("name", type: "int", require: false, desc: "图片名称")]
     function getScore(Request $request): Json {
         $auth = loginAuth($request);
         $pageSize = (int)$request->get("pageSize", 20);
@@ -478,7 +567,11 @@ class User {
         }
     }
     #[ApiDoc\Title("更新评分接口")]
+    #[ApiDoc\Url("/user/scores")]
     #[ApiDoc\Method("PUT")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("id", type: "int", require: true, desc: "评分id")]
+    #[ApiDoc\Param("score", type: "float", require: true, desc: "评分值")]
     function updateScore(Request $request): Json {
         $auth = loginAuth($request);
         $id = $request->post("id");
@@ -511,7 +604,10 @@ class User {
         }
     }
     #[ApiDoc\Title("删除评分接口")]
+    #[ApiDoc\Url("/user/scores")]
     #[ApiDoc\Method("DELETE")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Query("id", type: "int", require: true, desc: "评分id")]
     function deleteScore(Request $request): Json{
         $auth = loginAuth($request);
         $id = $request->get("id");
@@ -543,7 +639,10 @@ class User {
         }
     }
     #[ApiDoc\Title("还原评分接口")]
+    #[ApiDoc\Url("/user/scores")]
     #[ApiDoc\Method("PATCH")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("id", type: "int", require: true, desc: "评分id")]
     function restoreScore(Request $request): Json {
         $auth = loginAuth($request);
         $id = $request->post("id");
