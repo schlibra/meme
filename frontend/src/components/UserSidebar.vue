@@ -25,6 +25,9 @@ function gotoPicture() {
 function gotoScore() {
   router.push("/user/score")
 }
+function gotoComment() {
+  router.push("/user/comment")
+}
 </script>
 
 <template>
@@ -53,7 +56,7 @@ function gotoScore() {
       <el-icon><Star /></el-icon>
       <span>评分列表</span>
     </el-menu-item>
-    <el-menu-item index="6">
+    <el-menu-item index="6" @click="gotoComment">
       <el-icon><ChatLineRound /></el-icon>
       <span>评论列表</span>
     </el-menu-item>

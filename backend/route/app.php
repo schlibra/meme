@@ -31,6 +31,8 @@ Route::get("user/scores", "User/getScore");
 Route::put("user/scores", "User/updateScore");
 Route::delete("user/scores", "User/deleteScore");
 Route::patch("user/scores", "User/restoreScore");
+// 用户-评论
+Route::get("user/comment", "User/getComment");
 // 图片
 Route::post("pics/upload", "Pics/create");
 Route::get("pics/list", "Pics/index");

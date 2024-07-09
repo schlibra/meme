@@ -35,7 +35,7 @@ class CommentModel extends Model
         "delete"    => "datetime"
     ];
     public function pic(): HasOne {
-        return $this->hasOne(PicsModel::class, "picsId", "picsId");
+        return $this->hasOne(PicsModel::class, "picId", "picId");
     }
 
     public function user(): HasOne {

@@ -171,7 +171,7 @@ function deletePic(index) {
           </el-form-item>
           <el-form-item label="图片列表">
             <el-table :data="picList" v-loading="picLoading" max-height="50vh">
-              <el-table-column label="id" prop="id" width="50" />
+              <el-table-column label="id" prop="picId" width="50" />
               <el-table-column label="图片预览">
                 <template #default="scope">
                   <el-image :src="picList[scope.$index].url" />

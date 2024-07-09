@@ -16,7 +16,8 @@ const UserUrl = {
     passwordUrl: userUrl + "/password",
     logoutUrl: userUrl + "/logout",
     picsUrl: userUrl + "/pics",
-    scoreUrl: userUrl + "/scores"
+    scoreUrl: userUrl + "/scores",
+    commentUrl: userUrl + "/comment"
 }
 
 const PicsUrl = {

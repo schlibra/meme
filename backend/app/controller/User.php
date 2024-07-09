@@ -8,6 +8,7 @@ namespace app\controller;
 
 use app\lib\Authorization;
 use app\lib\JsonBack;
+use app\model\CommentModel;
 use app\model\GroupModel;
 use app\model\PicsModel;
 use app\model\ScoreModel;
@@ -511,6 +512,24 @@ class User {
                 return JsonBack::jsonBack(401, "没有权限");
             }
         } else {
+            return JsonBack::jsonBack(401, $auth["msg"]);
+        }
+    }
+    function getComment(Request$request): Json {
+        $auth = Authorization::loginAuth($request);
+        $pageSize = (int)$request->get("pageSize", 20);
+        $pageNum = (int)$request->get("pageNum", 1);
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $comment = CommentModel::where("userId", $user->userId)->limit(($pageNum - 1) * $pageSize, $pageSize)->select();
+            $count = CommentModel::where("userId", $user->userId)->count();
+            foreach ($comment as &$item) {
+                $pic = $item->pic;
+                if ($pic) $item->name = $pic->name;
+                $item->url = $request->domain()."/pics/image/".$pic->picId;
+            }
+            return JsonBack::jsonBack(200, "数据获取成功", $comment, $count);
+        }else{
             return JsonBack::jsonBack(401, $auth["msg"]);
         }
     }

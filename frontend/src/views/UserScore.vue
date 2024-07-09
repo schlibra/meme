@@ -156,7 +156,7 @@ function restoreScore(index) {
           </el-form-item>
           <el-form-item label="评分列表">
             <el-table v-loading="dataLoading" :data="scoreList" max-height="50vh">
-              <el-table-column label="id" prop="id" width="50" />
+              <el-table-column label="id" prop="scoreId" width="50" />
               <el-table-column label="图片预览" width="150">
                 <template #default="scope">
                   <el-image :src="scoreList[scope.$index].url" />
