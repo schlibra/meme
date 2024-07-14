@@ -759,7 +759,7 @@ class User {
             $group = $user->group;
             if ($group) {
                 if ($group->deleteComment === "Y") {
-                    $comment = CommentModel::where("commentId", $comment)->findOrEmpty();
+                    $comment = CommentModel::where("commentId", $commentId)->findOrEmpty();
                     if ($comment->isEmpty()) {
                         return jb(404, "找不到指定的评论");
                     } else {
@@ -788,13 +788,13 @@ class User {
     #[ApiDoc\Param("commentId", type: "int", require: true, desc: "评论id")]
     function restoreComment(Request$request): Json {
         $auth = loginAuth($request);
-        $commentId = $request->get("commentId");
+        $commentId = $request->post("commentId");
         if ($auth["status"]) {
             $user = $auth["data"];
             $group = $user->group;
             if ($group) {
                 if ($group->restoreComment === "Y") {
-                    $comment = CommentModel::where("commentId", $comment)->findOrEmpty();
+                    $comment = CommentModel::where("commentId", $commentId)->findOrEmpty();
                     if ($comment->isEmpty()) {
                         return jb(404, "找不到指定的评论");
                     } else {
