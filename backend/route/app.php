@@ -32,7 +32,10 @@ Route::put("user/scores", "User/updateScore");
 Route::delete("user/scores", "User/deleteScore");
 Route::patch("user/scores", "User/restoreScore");
 // 用户-评论
-Route::get("user/comment", "User/getComment");
+Route::get("user/comments", "User/getComment");
+Route::put("user/comments", "User/updateComment");
+Route::delete("user/comments", "User/deleteComment");
+Route::patch("user/comments", "User/restoreComment");
 // 图片
 Route::post("pics/pic", "Pics/create");
 Route::get("pics/pic", "Pics/index");
@@ -49,6 +52,7 @@ Route::get("user/basic", "Index");
 Route::get("user/permission", "Index");
 Route::get("user/security", "Index");
 Route::get("user/picture", "Index");
+Route::get("user/comment", "Index");
 Route::get("about", "Index");
 // assets资源加载
 Route::get("assets/:file", "Assets/index");

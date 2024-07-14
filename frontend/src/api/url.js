@@ -17,7 +17,7 @@ const UserUrl = {
     logoutUrl: userUrl + "/logout",
     picsUrl: userUrl + "/pics",
     scoreUrl: userUrl + "/scores",
-    commentUrl: userUrl + "/comment"
+    commentUrl: userUrl + "/comments"
 }
 
 const PicsUrl = {

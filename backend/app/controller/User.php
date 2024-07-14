@@ -674,7 +674,22 @@ class User {
         }
     }
     #[ApiDoc\Title("获取当前用户评论列表接口")]
+    #[ApiDoc\Url("/user/comment")]
     #[ApiDoc\Method("GET")]
+    #[ApiDoc\Param("pageSize", type: "int", require: false, desc: "分页大小")]
+    #[ApiDoc\Param("pageNum", type: "int", require: false, desc: "分页页码")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Returned("commentId", type: "int", require: true, desc: "评论ID")]
+    #[ApiDoc\Returned("picId", type: "int", require: true, desc: "图片ID")]
+    #[ApiDoc\Returned("userId", type: "int", require: true, desc: "用户ID")]
+    #[ApiDoc\Returned("replyId", type: "int", require: true, desc: "回复ID")]
+    #[ApiDoc\Returned("comment", type: "string", require: true, desc: "评论内容")]
+    #[ApiDoc\Returned("verified", type: "int", require: true, desc: "是否通过审核")]
+    #[ApiDoc\Returned("update", type: "datetime", require: true, desc: "更新时间")]
+    #[ApiDoc\Returned("create", type: "datetime", require: true, desc: "发送时间")]
+    #[ApiDoc\Returned("delete", type: "datetime", require: false, desc: "删除时间")]
+    #[ApiDoc\Returned("nickname", type: "string", require: true, desc: "昵称")]
+    #[ApiDoc\Returned("avatar", type: "string", require: true, desc: "用户头像地址")]
     function getComment(Request$request): Json {
         $auth = loginAuth($request);
         $pageSize = (int)$request->get("pageSize", 20);
@@ -690,6 +705,114 @@ class User {
             }
             return jb(200, "数据获取成功", $comment, $count);
         }else{
+            return jb(401, $auth["msg"]);
+        }
+    }
+    #[ApiDoc\Title("更新评论接口")]
+    #[ApiDoc\Url("/user/comment")]
+    #[ApiDoc\Method("PUT")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("commentId", type: "int", require: true, desc: "评论id")]
+    #[ApiDoc\Param("comment", type: "string", require: true, desc: "评论内容")]
+    function updateComment (Request$request): Json {
+        $auth = loginAuth($request);
+        $commentId = $request->post("commentId");
+        $comment = $request->post("comment");
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->updateComment === "Y") {
+                    $_comment = CommentModel::where("commentId", $commentId)->findOrEmpty();
+                    if ($_comment->isEmpty()) {
+                        return jb(404, "找不到指定的评论");
+                    } else {
+                        if ($_comment->userId === $user->userId) {
+                            $_comment->comment = $comment;
+                            $_comment->verified = "N";
+                            $_comment->save();
+                            return jb(200, "评论更新成功");
+                        } else {
+                            return jb(403, "没有权限操作这条评论");
+                        }
+                    }
+                } else {
+                    return jb(403, "没有更新评论权限");
+                }
+            } else {
+                return jb(401, "没有权限");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+    #[ApiDoc\Title("删除评论接口")]
+    #[ApiDoc\Url("/user/comment")]
+    #[ApiDoc\Method("DELETE")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Query("commentId", type: "int", require: true, desc: "评论id")]
+    function deleteComment(Request$request): Json {
+        $auth = loginAuth($request);
+        $commentId = $request->get("commentId");
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->deleteComment === "Y") {
+                    $comment = CommentModel::where("commentId", $comment)->findOrEmpty();
+                    if ($comment->isEmpty()) {
+                        return jb(404, "找不到指定的评论");
+                    } else {
+                        if ($comment->userId === $user->userId) {
+                            $comment->delete = date("Y-m-d H:i:s");
+                            $comment->save();
+                            return jb(200, "评论删除成功");
+                        } else {
+                            return jb(403, "没有权限操作这条评论");
+                        }
+                    }
+                } else {
+                    return jb(403, "没有删除评论权限");
+                }
+            } else {
+                return jb(401, "没有权限");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+    #[ApiDoc\Title("还原评论接口")]
+    #[ApiDoc\Url("/user/comment")]
+    #[ApiDoc\Method("PATCH")]
+    #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
+    #[ApiDoc\Param("commentId", type: "int", require: true, desc: "评论id")]
+    function restoreComment(Request$request): Json {
+        $auth = loginAuth($request);
+        $commentId = $request->get("commentId");
+        if ($auth["status"]) {
+            $user = $auth["data"];
+            $group = $user->group;
+            if ($group) {
+                if ($group->restoreComment === "Y") {
+                    $comment = CommentModel::where("commentId", $comment)->findOrEmpty();
+                    if ($comment->isEmpty()) {
+                        return jb(404, "找不到指定的评论");
+                    } else {
+                        if ($comment->userId === $user->userId) {
+                            $comment->delete = null;
+                            $comment->save();
+                            return jb(200, "评论还原成功");
+                        } else {
+                            return jb(403, "没有权限操作这条评论");
+                        }
+                    }
+                } else {
+                    return jb(403, "没有删除评论权限");
+                }
+            } else {
+                return jb(401, "没有权限");
+            }
+        } else {
             return jb(401, $auth["msg"]);
         }
     }

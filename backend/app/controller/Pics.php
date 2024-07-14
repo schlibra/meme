@@ -235,6 +235,7 @@ class Pics {
     #[ApiDoc\Returned("picId", type: "int", require: true, desc: "图片ID")]
     #[ApiDoc\Returned("userId", type: "int", require: true, desc: "用户ID")]
     #[ApiDoc\Returned("replyId", type: "int", require: true, desc: "回复ID")]
+    #[ApiDoc\Returned("comment", type: "string", require: true, desc: "评论内容")]
     #[ApiDoc\Returned("verified", type: "int", require: true, desc: "是否通过审核")]
     #[ApiDoc\Returned("update", type: "datetime", require: true, desc: "更新时间")]
     #[ApiDoc\Returned("create", type: "datetime", require: true, desc: "发送时间")]

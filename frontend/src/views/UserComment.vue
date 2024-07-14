@@ -53,6 +53,15 @@ function getList() {
     }
   })
 }
+function editComment(index) {
+
+}
+function deleteComment(index) {
+
+}
+function restoreComment(index) {
+
+}
 </script>
 
 <template>
@@ -85,7 +94,9 @@ function getList() {
               </el-table-column>
               <el-table-column label="操作">
                 <template #default="scope">
-                  <el-button type="primary">编辑</el-button>
+                  <el-button type="primary" @click="editComment(scope.$index)">编辑</el-button>
+                  <el-button type="danger" @click="deleteComment(scope.$index)">删除</el-button>
+                  <el-button type="warning" @click="restoreComment(scope.$index)">还原</el-button>
                 </template>
               </el-table-column>
             </el-table>
