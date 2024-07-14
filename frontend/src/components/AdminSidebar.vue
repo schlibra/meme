@@ -1,5 +1,5 @@
 <script setup>
-import {ChatLineRound, Expand, Fold, Key, Lock, Star, User} from "@element-plus/icons-vue";
+import {ChatLineRound, Coin, Expand, Fold, Key, Lock, Star, User} from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import displayUtil from "@/lib/displayUtil.js";
 import router from "@/router/index.js";
@@ -63,6 +63,10 @@ function gotoScore() {
     <el-menu-item index="7">
       <el-icon><ChatLineRound /></el-icon>
       <span>评论管理</span>
+    </el-menu-item>
+    <el-menu-item index="8">
+      <el-icon><Coin /></el-icon>
+      <span>备份与恢复</span>
     </el-menu-item>
     <el-menu-item @click="expand = !expand">
       <el-icon v-if="expand"><Expand /></el-icon>
