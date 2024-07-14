@@ -8,6 +8,8 @@ import {setToken} from "@/lib/tokenLib.js";
 
 const username = ref("");
 const password = ref("");
+const usernameRef = ref(null)
+const passwordRef = ref(null)
 const formLoading = ref(false)
 
 function loginHandler() {
@@ -30,6 +32,15 @@ function loginHandler() {
     alertError("账号密码不能为空", "登录失败")
   }
 }
+function enterHandler() {
+  if (username.value.length === 0) {
+    usernameRef.value.focus()
+  } else if (password.value.length === 0) {
+    passwordRef.value.focus()
+  } else {
+    loginHandler()
+  }
+}
 </script>
 
 <template>
@@ -43,10 +54,10 @@ function loginHandler() {
           <template #default>
             <el-form label-width="auto" label-position="top">
               <el-form-item label="用户名">
-                <el-input v-model="username" placeholder="输入账号或邮箱" />
+                <el-input autofocus ref="usernameRef" v-model="username" placeholder="输入账号或邮箱" @keydown.enter="enterHandler" />
               </el-form-item>
               <el-form-item label="密码">
-                <el-input type="password" v-model="password" placeholder="输入密码" />
+                <el-input ref="passwordRef" type="password" v-model="password" placeholder="输入密码" @keydown.enter="enterHandler" />
               </el-form-item>
               <el-row class="down-row">
                 <el-col :span="12">
