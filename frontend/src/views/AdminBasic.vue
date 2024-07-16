@@ -10,21 +10,15 @@ import {getToken} from "@/lib/tokenLib.js";
 import {Get} from "@/lib/axiosLib.js";
 
 const token = getToken()
-const edit = ref(false)
 const user = ref({sex: "", birth: 0})
-const nowYear = new Date().getFullYear()
-const mainLoading = ref(true)
-
-const birth = computed({
-  get() {
-    let date = new Date()
-    date.setFullYear(user.value.birth)
-    return date
-  },
-  set(date) {
-    user.value.birth = date.getFullYear()
-  }
+const setting = ref({
+  siteName: 'IURT meme',
+  enableGravatarCDN: true,
+  gravatarCDNAddress: 'https://cdn.tsinbei.com/gravatar',
+  enablePictureVerify: false,
+  enableCommentVerify: false
 })
+const mainLoading = ref(true)
 
 onMounted(()=>{
   if (token) {
@@ -47,25 +41,6 @@ onMounted(()=>{
   }
 })
 
-function update() {
-  edit.value = false
-  loading.value = true
-  axios.put(UserUrl.infoUrl, user.value, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  }).then(res=>{
-    if (res.data.code === 200) {
-      alertSuccess(res, "更新成功")
-    } else {
-      alertError(res, "更新失败")
-    }
-  }).catch(err=>{
-    axiosError(err, "更新失败");
-  }).finally(()=> loading.value = false)
-}
-
-
 </script>
 
 <template>
@@ -75,13 +50,29 @@ function update() {
     </el-aside>
     <el-container>
       <el-header height="30px">
-        <UserTop title="基本信息" />
+        <UserTop title="基本设置" />
       </el-header>
       <el-scrollbar height="calc(100vh - 30px)">
         <el-main>
-          <h2>基本信息</h2>
+          <h2>基本设置</h2>
           <el-form label-position="top">
-
+            <el-form-item label="站点名称">
+              <el-input v-model="setting.siteName" />
+            </el-form-item>
+            <el-form-item label="启用头像CDN">
+              <el-switch v-model="setting.enableGravatarCDN" active-text="开启" inactive-text="关闭" />
+            </el-form-item>
+            <el-form-item label="头像CDN地址">
+              <el-input :disabled="!setting.enableGravatarCDN" v-model="setting.gravatarCDNAddress" model-value="https://cdn.tsinbei.com/gravatar" />
+            </el-form-item>
+            <el-form-item label="开启图片审核">
+              <el-switch v-model="setting.enablePictureVerify" active-text="开启" inactive-text="关闭" />
+            </el-form-item>
+            <el-form-item label="开启评论审核">
+              <el-switch v-model="setting.enableCommentVerify" active-text="开启" inactive-text="关闭" />
+            </el-form-item>
+            <el-button>编辑</el-button>
+            <el-button>保存</el-button>
           </el-form>
         </el-main>
       </el-scrollbar>

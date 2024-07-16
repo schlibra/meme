@@ -38,7 +38,7 @@ function gotoScore() {
     </el-menu-item>
     <el-menu-item index="1" @click="gotoBasic">
       <el-icon><Menu /></el-icon>
-      <span>基本信息</span>
+      <span>基本设置</span>
     </el-menu-item>
     <el-menu-item index="2" @click="gotoBasic">
       <el-icon><Lock /></el-icon>

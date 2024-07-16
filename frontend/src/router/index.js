@@ -8,7 +8,6 @@ import UserPermission from "@/views/UserPermission.vue";
 import UserSecurity from "@/views/UserSecurity.vue";
 import AboutView from "@/views/AboutView.vue";
 import UserPicture from "@/views/UserPicture.vue";
-import DocView from "@/views/DocView.vue";
 import UserScore from "@/views/UserScore.vue";
 import AdminBasic from "@/views/AdminBasic.vue";
 import UserComment from "@/views/UserComment.vue";
@@ -86,7 +85,7 @@ const router = createRouter({
       path: "/admin/basic",
       name: "adminBasic",
       component: AdminBasic,
-      meta: { title: "后台管理页面 - 基本信息" }
+      meta: { title: "后台管理页面 - 基本设置" }
     }
   ]
 })
