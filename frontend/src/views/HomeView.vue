@@ -36,7 +36,7 @@ const showRandom = ref(false)
 const commentList = ref([])
 const comment = ref('')
 
-onMounted(()=>{
+onMounted(() => {
   Get(UserUrl.infoUrl, {}, {
     ok(_, data) {
       userInfo.value = data
@@ -54,21 +54,22 @@ onMounted(()=>{
       imgList.value = []
       picList.value = data
       totalCount.value = res.data.count
-      data.forEach(item=>{
+      data.forEach(item => {
         imgList.value.push(item.url)
       })
     },
     bad(res) {
-      alertError(res, "数据获取失败", ()=>location.reload())
+      alertError(res, "数据获取失败", () => location.reload())
     },
     error(err) {
-      axiosError(err, "数据获取失败", ()=>location.reload())
+      axiosError(err, "数据获取失败", () => location.reload())
     },
     final() {
       mainLoading.value = false
     }
   })
 })
+
 function reload() {
   mainLoading.value = true
   Get(PicsUrl.listUrl, {
@@ -80,21 +81,22 @@ function reload() {
       imgList.value = [];
       picList.value = data
       totalCount.value = res.data.count
-      data.forEach(item=>{
+      data.forEach(item => {
         imgList.value.push(item.url)
       })
     },
     bad(res) {
       alertError(res, "数据获取失败")
     },
-    error(err){
-      axiosError(err, "数据获取失败", ()=>location.reload())
+    error(err) {
+      axiosError(err, "数据获取失败", () => location.reload())
     },
     final() {
       mainLoading.value = false
     }
   })
 }
+
 function randomImg() {
   Get(PicsUrl.randomUrl, {}, {
     ok(_, data) {
@@ -103,27 +105,33 @@ function randomImg() {
     }
   })
 }
+
 function gotoLogin() {
   router.push("/login")
 }
+
 function gotoUser() {
   router.push("/user/basic")
 }
+
 function gotoAdmin() {
   router.push("/admin/basic")
 }
+
 function randomDetail() {
   imgDetail.value = randomPic.value
   imgDetailScore.value = 0
   getCommentList()
   showDrawer.value = true
 }
+
 function openDetail(index) {
   imgDetail.value = picList.value[index]
   imgDetailScore.value = 0
   getCommentList()
   showDrawer.value = true
 }
+
 function uploadSubmit() {
   uploadLoading.value = true
   Post(PicsUrl.uploadUrl, {
@@ -132,7 +140,7 @@ function uploadSubmit() {
     description: uploadDescription.value
   }, {
     ok(res) {
-      alertSuccess(res, "上传成功", ()=>{
+      alertSuccess(res, "上传成功", () => {
         reload()
         uploadDialog.value = false
         uploadFile.value["files"] = [];
@@ -151,6 +159,7 @@ function uploadSubmit() {
     }
   }, "multipart/form-data")
 }
+
 function logout() {
   confirm("是否退出当前账号", "退出账号", {
     confirm() {
@@ -172,6 +181,7 @@ function logout() {
     }
   })
 }
+
 function submitScore() {
   let score = imgDetailScore.value
   if (score) {
@@ -183,7 +193,7 @@ function submitScore() {
           pic: imgDetail.value["picId"]
         }, {
           ok(res) {
-            alertSuccess(res, "评分成功", ()=>{
+            alertSuccess(res, "评分成功", () => {
               reload()
               imgDetail.value["scored"] = "Y"
               imgDetail.value["myScore"] = score
@@ -205,6 +215,7 @@ function submitScore() {
     alertError("请先选择评分再点击提交", "评分失败")
   }
 }
+
 function getCommentList() {
   Get(PicsUrl.commentUrl, {
     pic: imgDetail.value["picId"]
@@ -217,7 +228,7 @@ function getCommentList() {
 }
 
 function submitComment() {
-  if(comment.value) {
+  if (comment.value) {
     confirm(`确定在图片“${imgDetail.value.name}”的评论区下评论吗？`, "评论确认", {
       confirm() {
         detailLoading.value = true
@@ -227,7 +238,7 @@ function submitComment() {
           reply: 0
         }, {
           ok(res) {
-            alertSuccess(res, "评论成功", ()=>{
+            alertSuccess(res, "评论成功", () => {
               comment.value = ""
               reload()
               getCommentList()
@@ -383,7 +394,7 @@ function submitComment() {
     </template>
     <template #footer>
       <el-space>
-        <el-input :rows="1" type="textarea" maxlength="500"
+        <el-input :rows="1" type="textarea" maxlength="500" v-if="token"
                   placeholder="输入评论内容" v-model="comment" show-word-limit/>
         <el-button v-if="token" type="primary" @click="submitComment">发送评论</el-button>
       </el-space>
