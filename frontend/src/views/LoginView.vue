@@ -1,5 +1,5 @@
 <script setup>
-import {UserUrl} from "@/api/url.js";
+import { UserUrl, CaptchaUrl } from "@/api/url.js";
 import {ref} from "vue";
 import axios from "axios";
 import router from "@/router/index.js";
@@ -8,8 +8,11 @@ import {setToken} from "@/lib/tokenLib.js";
 
 const username = ref("");
 const password = ref("");
+const captcha = ref("")
+const captchaUrl = ref(CaptchaUrl)
 const usernameRef = ref(null)
 const passwordRef = ref(null)
+const captchaRef = ref(null)
 const formLoading = ref(false)
 
 function loginHandler() {
@@ -17,7 +20,8 @@ function loginHandler() {
     formLoading.value = true
     axios.post(UserUrl.loginUrl, {
       username: username.value,
-      password: password.value
+      password: password.value,
+      captcha: captcha.value
     }).then(res=>{
       if (res.data.code===200) {
         setToken(res)
@@ -37,9 +41,14 @@ function enterHandler() {
     usernameRef.value.focus()
   } else if (password.value.length === 0) {
     passwordRef.value.focus()
-  } else {
+  } else if (captcha.value.length === 0) {
+    captchaRef.value.focus()
+  }else {
     loginHandler()
   }
+}
+function reloadCaptcha() {
+  captchaUrl.value = `${CaptchaUrl}?${Math.random()}`
 }
 </script>
 
@@ -58,6 +67,16 @@ function enterHandler() {
               </el-form-item>
               <el-form-item label="密码">
                 <el-input ref="passwordRef" type="password" v-model="password" placeholder="输入密码" @keydown.enter="enterHandler" />
+              </el-form-item>
+              <el-form-item label="图片验证码">
+                <el-row :gutter="8">
+                  <el-col :span="14">
+                    <el-input v-model="captcha" ref="captchaRef" @keydown.enter="enterHandler" />
+                  </el-col>
+                  <el-col :span="10">
+                    <el-image :src="captchaUrl" @click="reloadCaptcha" class="pointer" />
+                  </el-col>
+                </el-row>
               </el-form-item>
               <el-row class="down-row">
                 <el-col :span="12">
@@ -82,6 +101,9 @@ function enterHandler() {
 main {
   height: 100vh;
   background: url("@/assets/bg.jpg") round;
+  .pointer {
+    cursor: pointer;
+  }
   .row {
     height: 100vh;
   }

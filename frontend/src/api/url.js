@@ -4,7 +4,7 @@ const baseUrl = isDev ? "http://127.0.0.1:8000" : location.origin
 
 const userUrl = baseUrl + "/user"
 const picsUrl = baseUrl + "/pics"
-
+const CaptchaUrl = baseUrl + "/captcha"
 
 const UserUrl = {
     loginUrl: userUrl + "/login",
@@ -30,4 +30,4 @@ const PicsUrl = {
     randomUrl: picsUrl + "/random"
 }
 
-export { UserUrl, PicsUrl }
+export { UserUrl, PicsUrl, CaptchaUrl }

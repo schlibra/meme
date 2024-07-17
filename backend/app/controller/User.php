@@ -36,6 +36,11 @@ class User {
     function login(Request $request): Json {
         $username = $request->post("username", "");
         $password = $request->post("password", "");
+        $captcha = $request->post("captcha");
+        $captchaStatus = captchaCheck($captcha);
+        if (!$captchaStatus["status"]) {
+            return jb(401, $captchaStatus["msg"]);
+        }
         $user = UserModel::where("username", $username)
             ->whereOr("email", $username)
             ->findOrEmpty();

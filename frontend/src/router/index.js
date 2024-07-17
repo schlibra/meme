@@ -11,6 +11,7 @@ import UserPicture from "@/views/UserPicture.vue";
 import UserScore from "@/views/UserScore.vue";
 import AdminBasic from "@/views/AdminBasic.vue";
 import UserComment from "@/views/UserComment.vue";
+import AdminSecurity from "@/views/AdminSecurity.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,12 +81,18 @@ const router = createRouter({
       name: "about",
       component: AboutView,
       meta: { title: "关于页面" }
-    } ,
+    },
     {
       path: "/admin/basic",
       name: "adminBasic",
       component: AdminBasic,
-      meta: { title: "后台管理页面 - 基本设置" }
+      meta: { title: "后台管理中心 - 基本设置" }
+    },
+    {
+      path: "/admin/security",
+      name: "adminSecurity",
+      component: AdminSecurity,
+      meta: { title: "后台管理中心 - 安全设置" }
     }
   ]
 })

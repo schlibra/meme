@@ -8,6 +8,7 @@ import UserTop from "@/components/AdminTop.vue";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken} from "@/lib/tokenLib.js";
 import {Get} from "@/lib/axiosLib.js";
+import {InfoFilled} from "@element-plus/icons-vue";
 
 const token = getToken()
 const user = ref({sex: "", birth: 0})
@@ -16,7 +17,8 @@ const setting = ref({
   enableGravatarCDN: true,
   gravatarCDNAddress: 'https://cdn.tsinbei.com/gravatar',
   enablePictureVerify: false,
-  enableCommentVerify: false
+  enableCommentVerify: false,
+  enableCaptcha: true
 })
 const mainLoading = ref(true)
 
@@ -70,6 +72,12 @@ onMounted(()=>{
             </el-form-item>
             <el-form-item label="开启评论审核">
               <el-switch v-model="setting.enableCommentVerify" active-text="开启" inactive-text="关闭" />
+            </el-form-item>
+            <el-form-item label="开启图形验证码">
+              <el-space wrap direction="vertical" alignment="normal">
+                <el-switch v-model="setting.enableCaptcha" active-text="开启" inactive-text="关闭" />
+                <el-text type="info"><ElIcon><InfoFilled /></ElIcon>开启该功能需要开启扩展gd（或php_gd）</el-text>
+              </el-space>
             </el-form-item>
             <el-button>编辑</el-button>
             <el-button>保存</el-button>

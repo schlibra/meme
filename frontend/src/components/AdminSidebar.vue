@@ -13,9 +13,8 @@ onMounted(()=> expand.value = displayUtil.isXs)
 function gotoBasic() {
   router.push("/admin/basic")
 }
-/*
 function gotoSecurity() {
-  router.push("/user/security")
+  router.push("/admin/security")
 }
 function gotoPermission() {
   router.push("/user/permission")
@@ -26,8 +25,6 @@ function gotoPicture() {
 function gotoScore() {
   router.push("/user/score")
 }
-
-*/
 </script>
 
 <template>
@@ -40,7 +37,7 @@ function gotoScore() {
       <el-icon><Menu /></el-icon>
       <span>基本设置</span>
     </el-menu-item>
-    <el-menu-item index="2" @click="gotoBasic">
+    <el-menu-item index="2" @click="gotoSecurity">
       <el-icon><Lock /></el-icon>
       <span>安全设置</span>
     </el-menu-item>

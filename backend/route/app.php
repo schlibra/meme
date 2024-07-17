@@ -56,3 +56,5 @@ Route::get("user/comment", "Index");
 Route::get("about", "Index");
 // assets资源加载
 Route::get("assets/:file", "Assets/index");
+// 验证码
+Route::get("captcha/[:config]", "\\think\\captcha\\CaptchaController@index");

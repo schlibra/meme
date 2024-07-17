@@ -6,6 +6,7 @@ use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Firebase\JWT\SignatureInvalidException;
+use think\captcha\facade\Captcha;
 use think\facade\Cache;
 use think\Model;
 use think\Request;
@@ -40,6 +41,18 @@ function returnData(bool $status = true, string $msg = "", mixed $data = null): 
         "msg"       => $msg,
         "data"      => $data
     ];
+}
+
+function captchaCheck ($code): array {
+    if ($code) {
+        if (captcha_check($code)) {
+            return returnData();
+        } else {
+            return returnData(false, "验证码不正确");
+        }
+    } else {
+        return returnData(false, "未输入验证码");
+    }
 }
 
 /**
