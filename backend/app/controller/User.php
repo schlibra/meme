@@ -29,7 +29,7 @@ use hg\apidoc\annotation as ApiDoc;
 class User {
     #[ApiDoc\Title("用户登录接口")]
     #[ApiDoc\Desc("通过用户名和密码进行登录，返回Token认证信息")]
-    #[ApiDoc\Url("/user/login")]
+    #[ApiDoc\Url("/api/user/login")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Param("username", type: "string", require: true, desc: "用户名")]
     #[ApiDoc\Param("password", type: "string", require: true, desc: "密码")]
@@ -76,7 +76,7 @@ class User {
     }
 
     #[ApiDoc\Title("用户注册接口")]
-    #[ApiDoc\Url("/user/register")]
+    #[ApiDoc\Url("/api/user/register")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "邮箱验证信息Bearer Token")]
     #[ApiDoc\Param("username", type: "string", require: true, desc: "用户名")]
@@ -120,7 +120,7 @@ class User {
         }
     }
     #[ApiDoc\Title("重置密码接口")]
-    #[ApiDoc\Url("/user/register")]
+    #[ApiDoc\Url("/api/user/register")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "邮箱验证信息Bearer TOken")]
     #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
@@ -160,7 +160,7 @@ class User {
     }
     #[ApiDoc\Title("发送验证码接口")]
     #[ApiDoc\Desc("发送邮箱验证码，返回邮箱认证Token")]
-    #[ApiDoc\Url("/user/sendCode")]
+    #[ApiDoc\Url("/api/user/sendCode")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Param("action", type: "string", require: true, desc: "验证码操作类型：register/forget/verify")]
     #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
@@ -220,7 +220,7 @@ class User {
         }
     }
     #[ApiDoc\Title("获取用户信息接口")]
-    #[ApiDoc\Url("/user/info")]
+    #[ApiDoc\Url("/api/user/info")]
     #[ApiDoc\Method("GET")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Returned("userId", type: "int", require: true, desc: "用户id")]
@@ -265,7 +265,7 @@ class User {
         }
     }
     #[ApiDoc\Title("更新用户信息接口")]
-    #[ApiDoc\Url("/user/info")]
+    #[ApiDoc\Url("/api/user/info")]
     #[ApiDoc\Method("PUT")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("nickname", type: "string", require: true, desc: "昵称")]
@@ -302,7 +302,7 @@ class User {
         }
     }
     #[ApiDoc\Title("退出登录接口")]
-    #[ApiDoc\Url("/user/logout")]
+    #[ApiDoc\Url("/api/user/logout")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Header("Authorization", type: "string", require: false, desc: "Bearer Token")]
     function logout(Request $request):Json {
@@ -313,7 +313,7 @@ class User {
         return jb(200, "已退出登录");
     }
     #[ApiDoc\Title("修改密码接口")]
-    #[ApiDoc\Url("/user/password")]
+    #[ApiDoc\Url("/api/user/password")]
     #[ApiDoc\Method("PUT")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("newPassword", type: "string", require: true, desc: "新密码")]
@@ -337,7 +337,7 @@ class User {
         }
     }
     #[ApiDoc\Title("验证邮箱接口")]
-    #[ApiDoc\Url("/user/verify")]
+    #[ApiDoc\Url("/api/user/verify")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "邮箱认证Bearer Token")]
     #[ApiDoc\Param("email", type: "string", require: true, desc: "邮箱")]
@@ -366,7 +366,7 @@ class User {
         }
     }
     #[ApiDoc\Title("获取当前用户图片列表接口")]
-    #[ApiDoc\Url("/user/pics")]
+    #[ApiDoc\Url("/api/user/pics")]
     #[ApiDoc\Method("GET")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("pageSize", type: "int", require: true, desc: "分页大小")]
@@ -417,7 +417,7 @@ class User {
         }
     }
     #[ApiDoc\Title("删除图片接口")]
-    #[ApiDoc\Url("/user/pics")]
+    #[ApiDoc\Url("/api/user/pics")]
     #[ApiDoc\Method("DELETE")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Query("pic", type: "int", require: true, desc: "图片id")]
@@ -453,7 +453,7 @@ class User {
         }
     }
     #[ApiDoc\Title("还原图片接口")]
-    #[ApiDoc\Url("/user/pics")]
+    #[ApiDoc\Url("/api/user/pics")]
     #[ApiDoc\Method("PATCH")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片id")]
@@ -489,7 +489,7 @@ class User {
         }
     }
     #[ApiDoc\Title("更新图片接口")]
-    #[ApiDoc\Url("/user/pics")]
+    #[ApiDoc\Url("/api/user/pics")]
     #[ApiDoc\Method("PUT")]
     #[ApiDoc\ContentType("multipart/form-data")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
@@ -537,7 +537,7 @@ class User {
         }
     }
     #[ApiDoc\Title("获取当前用户评分列表接口")]
-    #[ApiDoc\Url("/user/scores")]
+    #[ApiDoc\Url("/api/user/scores")]
     #[ApiDoc\Method("GET")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("pageSize", type: "int", require: true, desc: "分页大小")]
@@ -572,7 +572,7 @@ class User {
         }
     }
     #[ApiDoc\Title("更新评分接口")]
-    #[ApiDoc\Url("/user/scores")]
+    #[ApiDoc\Url("/api/user/scores")]
     #[ApiDoc\Method("PUT")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("id", type: "int", require: true, desc: "评分id")]
@@ -609,7 +609,7 @@ class User {
         }
     }
     #[ApiDoc\Title("删除评分接口")]
-    #[ApiDoc\Url("/user/scores")]
+    #[ApiDoc\Url("/api/user/scores")]
     #[ApiDoc\Method("DELETE")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Query("id", type: "int", require: true, desc: "评分id")]
@@ -644,7 +644,7 @@ class User {
         }
     }
     #[ApiDoc\Title("还原评分接口")]
-    #[ApiDoc\Url("/user/scores")]
+    #[ApiDoc\Url("/api/user/scores")]
     #[ApiDoc\Method("PATCH")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("id", type: "int", require: true, desc: "评分id")]
@@ -679,7 +679,7 @@ class User {
         }
     }
     #[ApiDoc\Title("获取当前用户评论列表接口")]
-    #[ApiDoc\Url("/user/comment")]
+    #[ApiDoc\Url("/api/user/comment")]
     #[ApiDoc\Method("GET")]
     #[ApiDoc\Param("pageSize", type: "int", require: false, desc: "分页大小")]
     #[ApiDoc\Param("pageNum", type: "int", require: false, desc: "分页页码")]
@@ -714,7 +714,7 @@ class User {
         }
     }
     #[ApiDoc\Title("更新评论接口")]
-    #[ApiDoc\Url("/user/comment")]
+    #[ApiDoc\Url("/api/user/comment")]
     #[ApiDoc\Method("PUT")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("commentId", type: "int", require: true, desc: "评论id")]
@@ -752,7 +752,7 @@ class User {
         }
     }
     #[ApiDoc\Title("删除评论接口")]
-    #[ApiDoc\Url("/user/comment")]
+    #[ApiDoc\Url("/api/user/comment")]
     #[ApiDoc\Method("DELETE")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Query("commentId", type: "int", require: true, desc: "评论id")]
@@ -787,7 +787,7 @@ class User {
         }
     }
     #[ApiDoc\Title("还原评论接口")]
-    #[ApiDoc\Url("/user/comment")]
+    #[ApiDoc\Url("/api/user/comment")]
     #[ApiDoc\Method("PATCH")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("commentId", type: "int", require: true, desc: "评论id")]

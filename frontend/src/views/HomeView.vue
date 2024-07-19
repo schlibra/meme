@@ -49,7 +49,7 @@ onMounted(() => {
       axiosError(err, "信息获取失败")
     }
   })
-  Get(PicsUrl.listUrl, {}, {
+  Get(PicsUrl.picUrl, {}, {
     ok(res, data) {
       imgList.value = []
       picList.value = data
@@ -72,7 +72,7 @@ onMounted(() => {
 
 function reload() {
   mainLoading.value = true
-  Get(PicsUrl.listUrl, {
+  Get(PicsUrl.picUrl, {
     pageSize: pageSize.value,
     pageNum: currentPage.value,
     name: search.value
@@ -134,7 +134,7 @@ function openDetail(index) {
 
 function uploadSubmit() {
   uploadLoading.value = true
-  Post(PicsUrl.uploadUrl, {
+  Post(PicsUrl.picUrl, {
     image: uploadFile.value["files"][0],
     name: uploadName.value,
     description: uploadDescription.value

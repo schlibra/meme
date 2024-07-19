@@ -1,10 +1,10 @@
 const isDev = process.env.NODE_ENV === "development"
 const baseUrl = isDev ? "http://127.0.0.1:8000" : location.origin
 
-
-const userUrl = baseUrl + "/user"
-const picsUrl = baseUrl + "/pics"
-const CaptchaUrl = baseUrl + "/captcha"
+const apiUrl = baseUrl + "/api"
+const userUrl = apiUrl + "/user"
+const picsUrl = apiUrl + "/pics"
+const CaptchaUrl = apiUrl + "/captcha"
 
 const UserUrl = {
     loginUrl: userUrl + "/login",
@@ -15,15 +15,14 @@ const UserUrl = {
     verifyUrl: userUrl + "/verify",
     passwordUrl: userUrl + "/password",
     logoutUrl: userUrl + "/logout",
-    picsUrl: userUrl + "/pics",
-    scoreUrl: userUrl + "/scores",
-    commentUrl: userUrl + "/comments"
+    picsUrl: userUrl + "/pic",
+    scoreUrl: userUrl + "/score",
+    commentUrl: userUrl + "/comment"
 }
 
 const PicsUrl = {
     picsUrl: picsUrl,
-    uploadUrl: picsUrl + "/pic",
-    listUrl: picsUrl + "/pic",
+    picUrl: picsUrl + "/pic",
     scoreUrl: picsUrl + "/score",
     imageUrl: picsUrl + "/image",
     commentUrl: picsUrl + "/comment",

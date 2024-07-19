@@ -14,6 +14,8 @@ const token = getToken()
 const user = ref({sex: "", birth: 0})
 const setting = ref({
   siteName: 'IURT meme',
+  siteLogo: "",
+  enableHomeType: true,
   enableGravatarCDN: true,
   gravatarCDNAddress: 'https://cdn.tsinbei.com/gravatar',
   enablePictureVerify: false,
@@ -60,6 +62,12 @@ onMounted(()=>{
           <el-form label-position="top">
             <el-form-item label="站点名称">
               <el-input v-model="setting.siteName" />
+            </el-form-item>
+            <el-form-item label="站点logo">
+              <el-input v-model="setting.siteLogo" />
+            </el-form-item>
+            <el-form-item label="开启首页打字效果">
+              <el-switch v-model="setting.enableHomeType" active-text="开启" inactive-text="关闭" />
             </el-form-item>
             <el-form-item label="启用头像CDN">
               <el-switch v-model="setting.enableGravatarCDN" active-text="开启" inactive-text="关闭" />

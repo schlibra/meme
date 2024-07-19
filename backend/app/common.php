@@ -44,14 +44,19 @@ function returnData(bool $status = true, string $msg = "", mixed $data = null): 
 }
 
 function captchaCheck ($code): array {
-    if ($code) {
-        if (captcha_check($code)) {
-            return returnData();
+    $need_code = false;
+    if ($need_code) {
+        if ($code) {
+            if (captcha_check($code)) {
+                return returnData();
+            } else {
+                return returnData(false, "验证码不正确");
+            }
         } else {
-            return returnData(false, "验证码不正确");
+            return returnData(false, "未输入验证码");
         }
     } else {
-        return returnData(false, "未输入验证码");
+        return returnData();
     }
 }
 

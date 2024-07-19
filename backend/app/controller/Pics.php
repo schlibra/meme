@@ -14,7 +14,7 @@ use hg\apidoc\annotation as ApiDoc;
 #[ApiDoc\Title("图片接口")]
 class Pics {
     #[ApiDoc\Title("获取图片列表接口")]
-    #[ApiDoc\Url("/pics/pic")]
+    #[ApiDoc\Url("/api/pics/pic")]
     #[ApiDoc\Method("GET")]
     #[ApiDoc\Query("pageSize", type: "int", require: false, desc: "分页大小")]
     #[ApiDoc\Query("pageNum", type: "int", require: false, desc: "分页页码")]
@@ -31,7 +31,7 @@ class Pics {
     #[ApiDoc\Returned("score", type: "float", require: true, default: 5, desc: "评分")]
     #[ApiDoc\Returned("myScore", type: "float", require: false, default: 5, desc: "我的评分")]
     #[ApiDoc\Returned("nickname", type: "string", require: true, default: "用户1", desc: "上传者昵称")]
-    #[ApiDoc\Returned("url", type: "string", require: true, default: "http://127.0.0.1/pics/image/1", desc: "图片url")]
+    #[ApiDoc\Returned("url", type: "string", require: true, default: "http://127.0.0.1/api/pics/image/1", desc: "图片url")]
     public function index(Request$request): Json {
         $pageSize = (int)$request->get("pageSize", 20);
         $pageNum = (int)$request->get("pageNum", 1);
@@ -68,12 +68,12 @@ class Pics {
             }
             $picsItem->nickname = $picsItem->user->nickname;
             unset($picsItem["data"], $picsItem["type"]);
-            $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->picId;
+            $picsItem->url = $request->domain() . "/api/pics/image/" . $picsItem->picId;
         }
         return jb(200, "数据获取成功", $pics, $picsCount);
     }
     #[ApiDoc\Title("获取随机图片接口")]
-    #[ApiDoc\Url("/pics/random")]
+    #[ApiDoc\Url("/api/pics/random")]
     #[ApiDoc\Method("GET")]
     #[ApiDoc\Header(name: "Authorization", type: "string", require: false, desc: "Bearer Token")]
     #[ApiDoc\Returned("picId", type: "int", require: true, default: 1, desc: "图片ID")]
@@ -130,7 +130,7 @@ class Pics {
         }
     }
     #[ApiDoc\Title("上传图片接口")]
-    #[ApiDoc\Url("/pics/pic")]
+    #[ApiDoc\Url("/api/pics/pic")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\ContentType("multipart/form-data")]
     #[ApiDoc\Header("Content-Type", type: "string", require: true, desc: "请求类型，使用multipart/form-data")]
@@ -179,7 +179,7 @@ class Pics {
         }
     }
     #[ApiDoc\Title("加载图片数据接口")]
-    #[ApiDoc\Url("/pics/image/<id>")]
+    #[ApiDoc\Url("/api/pics/image/<id>")]
     #[ApiDoc\RouteParam("id", type: "int", require: true, desc: "图片ID")]
     #[ApiDoc\Method("GET")]
     public function read($id): Json|Response {
@@ -195,7 +195,7 @@ class Pics {
         }
     }
     #[ApiDoc\Title("图片评分接口")]
-    #[ApiDoc\Url("/pics/score")]
+    #[ApiDoc\Url("/api/pics/score")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片id")]
@@ -228,7 +228,7 @@ class Pics {
         }
     }
     #[ApiDoc\Title("获取指定图片评论列表接口")]
-    #[ApiDoc\Url("/pics/comment")]
+    #[ApiDoc\Url("/api/pics/comment")]
     #[ApiDoc\Method("GET")]
     #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片ID")]
     #[ApiDoc\Returned("commentId", type: "int", require: true, desc: "评论ID")]
@@ -262,7 +262,7 @@ class Pics {
         return jb(200, "数据获取成功", $comments);
     }
     #[ApiDoc\Title("发送评论接口")]
-    #[ApiDoc\Url("/pics/comment")]
+    #[ApiDoc\Url("/api/pics/comment")]
     #[ApiDoc\Method("POST")]
     #[ApiDoc\Header("Authorization", type: "string", require: true, desc: "Bearer Token")]
     #[ApiDoc\Param("pic", type: "int", require: true, desc: "图片id")]
