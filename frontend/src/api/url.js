@@ -4,6 +4,7 @@ const baseUrl = isDev ? "http://127.0.0.1:8000" : location.origin
 const apiUrl = baseUrl + "/api"
 const userUrl = apiUrl + "/user"
 const picsUrl = apiUrl + "/pics"
+const adminUrl = apiUrl + "/admin"
 const CaptchaUrl = apiUrl + "/captcha"
 
 const UserUrl = {
@@ -29,4 +30,8 @@ const PicsUrl = {
     randomUrl: picsUrl + "/random"
 }
 
-export { UserUrl, PicsUrl, CaptchaUrl }
+const AdminUrl = {
+    groupUrl: adminUrl + "/group"
+}
+
+export { UserUrl, PicsUrl, AdminUrl, CaptchaUrl }

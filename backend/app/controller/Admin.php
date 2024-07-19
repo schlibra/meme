@@ -21,6 +21,10 @@ class Admin
             $user = $auth["data"];
             if ($user->group->admin === "Y") {
                 $group = GroupModel::select();
+                foreach ($group as &$item) {
+                    $userCount = UserModel::where("groupId", $item->groupId)->count();
+                    $item->userCount = $userCount;
+                }
                 if ($group->isEmpty()) {
                     return jb(400, "数据异常");
                 } else {

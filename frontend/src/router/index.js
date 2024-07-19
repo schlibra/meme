@@ -12,6 +12,7 @@ import UserScore from "@/views/UserScore.vue";
 import AdminBasic from "@/views/AdminBasic.vue";
 import UserComment from "@/views/UserComment.vue";
 import AdminSecurity from "@/views/AdminSecurity.vue";
+import AdminGroup from "@/views/AdminGroup.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -93,6 +94,12 @@ const router = createRouter({
       name: "adminSecurity",
       component: AdminSecurity,
       meta: { title: "后台管理中心 - 安全设置" }
+    },
+    {
+      path: "/admin/group",
+      name: "adminGroup",
+      component: AdminGroup,
+      meta: { title: "后台管理中心 - 用户组管理" }
     }
   ]
 })

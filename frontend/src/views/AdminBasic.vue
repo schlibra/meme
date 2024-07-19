@@ -67,7 +67,7 @@ onMounted(()=>{
               <el-input v-model="setting.siteLogo" />
             </el-form-item>
             <el-form-item label="开启首页打字效果">
-              <el-switch v-model="setting.enableHomeType" active-text="开启" inactive-text="关闭" />
+              <el-switch disabled v-model="setting.enableHomeType" active-text="开启" inactive-text="关闭" />
             </el-form-item>
             <el-form-item label="启用头像CDN">
               <el-switch v-model="setting.enableGravatarCDN" active-text="开启" inactive-text="关闭" />

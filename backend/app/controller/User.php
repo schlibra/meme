@@ -399,7 +399,7 @@ class User {
                 $picsItem->score = 0;
                 $scoreSum = 0;
                 $scoreCount = 0;
-                $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->picId;
+                $picsItem->url = $request->domain() . "/api/pics/image/" . $picsItem->picId;
                 foreach ($score as $scoreItem) {
                     if ($scoreItem->picId === $picsItem->picId) {
                         $scoreSum += $scoreItem->score;
@@ -562,7 +562,7 @@ class User {
                 ->select();
             $scoreCount = ScoreModel::where("userId", $user->userId)->count();
             foreach ($score as &$scoreItem) {
-                $scoreItem->url = $request->domain()."/pics/image/".$scoreItem->picId;
+                $scoreItem->url = $request->domain()."/api/pics/image/".$scoreItem->picId;
                 $pic = $scoreItem->pic;
                 if ($pic) $scoreItem["name"] = $pic->name;
             }
@@ -706,7 +706,7 @@ class User {
             foreach ($comment as &$item) {
                 $pic = $item->pic;
                 if ($pic) $item->name = $pic->name;
-                $item->url = $request->domain()."/pics/image/".$pic->picId;
+                $item->url = $request->domain()."/api/pics/image/".$pic->picId;
             }
             return jb(200, "数据获取成功", $comment, $count);
         }else{
