@@ -46,6 +46,9 @@ Route::post("api/pics/comment", "Pics/addComment");
 Route::get("api/pics/random", "Pics/randomPic");
 // 管理员
 Route::get("api/admin/group", "Admin/getGroup");
+Route::put("api/admin/group", "Admin/updateGroup");
+Route::post("api/admin/group", "Admin/createGroup");
+Route::delete("api/admin/group", "Admin/deleteGroup");
 Route::get("api/admin/user", "Admin/getUser");
 // 访问前端
 Route::get("/", "Index");

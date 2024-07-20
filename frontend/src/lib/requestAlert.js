@@ -24,6 +24,7 @@ function alertError(res, title="操作失败", callback=_=>_) {
     }).then(callback)
 }
 function axiosError(err, title="请求失败", callback=_=>_) {
+    console.log(err)
     let message;
     if (err.request.status > 0) {
         message = JSON.parse(err.request.responseText)["message"]

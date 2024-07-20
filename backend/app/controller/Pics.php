@@ -158,8 +158,8 @@ class Pics {
                             $pic->data = $image;
                             $pic->type = $type;
                             $pic->verified = "N";
-                            $pic->create = date("Y-m-d H:i:s");
-                            $pic->update = date("Y-m-d H:i:s");
+                            $pic->create = now();
+                            $pic->update = now();
                             $pic->save();
                             return jb(200, "上传成功");
                         } else {
@@ -213,8 +213,8 @@ class Pics {
                     $_score->picId = $pic;
                     $_score->userId = $user->userId;
                     $_score->score = $score;
-                    $_score->create = date("Y-m-d H:i:s");
-                    $_score->update = date("Y-m-d H:i:s");
+                    $_score->create = now();
+                    $_score->update = now();
                     $_score->save();
                     return jb(200, "评分成功");
                 } else {
@@ -284,8 +284,8 @@ class Pics {
                     $_comment->comment = $comment;
                     $_comment->reply = $reply;
                     $_comment->verified = "N";
-                    $_comment->create = date("Y-m-d H:i:s");
-                    $_comment->update = date("Y-m-d H:i:s");
+                    $_comment->create = now();
+                    $_comment->update = now();
                     $_comment->save();
                     return jb(200, "评论发送成功");
                 } else {

@@ -20,7 +20,9 @@ const setting = ref({
   gravatarCDNAddress: 'https://cdn.tsinbei.com/gravatar',
   enablePictureVerify: false,
   enableCommentVerify: false,
-  enableCaptcha: true
+  enableCaptcha: true,
+  enableUserLog: true,
+  enableAdminLog: true
 })
 const mainLoading = ref(true)
 
@@ -86,6 +88,12 @@ onMounted(()=>{
                 <el-switch v-model="setting.enableCaptcha" active-text="开启" inactive-text="关闭" />
                 <el-text type="info"><ElIcon><InfoFilled /></ElIcon>开启该功能需要开启扩展gd（或php_gd）</el-text>
               </el-space>
+            </el-form-item>
+            <el-form-item label="记录用户日志">
+              <el-switch v-model="setting.enableUserLog" active-text="开启" inactive-text="关闭" />
+            </el-form-item>
+            <el-form-item label="记录管理员日志">
+              <el-switch v-model="setting.enableAdminLog" active-text="开启" inactive-text="关闭" />
             </el-form-item>
             <el-button>编辑</el-button>
             <el-button>保存</el-button>

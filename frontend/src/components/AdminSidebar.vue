@@ -2,12 +2,12 @@
 import {
   ChatLineRound,
   Checked,
-  Coin,
+  Coin, Document,
   DocumentChecked,
   Expand,
   Fold,
   Key,
-  Lock,
+  Lock, Memo,
   Star,
   User
 } from "@element-plus/icons-vue";
@@ -82,6 +82,14 @@ function gotoScore() {
         <span>评论审核</span>
       </el-menu-item>
       <el-menu-item index="10">
+        <el-icon><Document /></el-icon>
+        <span>用户日志</span>
+      </el-menu-item>
+      <el-menu-item index="11">
+        <el-icon><Memo /></el-icon>
+        <span>管理员日志</span>
+      </el-menu-item>
+      <el-menu-item index="12">
         <el-icon><Coin /></el-icon>
         <span>备份与恢复</span>
       </el-menu-item>

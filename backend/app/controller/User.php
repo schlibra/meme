@@ -96,19 +96,24 @@ class User {
             $data = $auth["data"];
             if ($data["email"] === $email && (string)$data["code"] === $code) {
                 if (UserModel::where("username", $username)->whereOr("email", $email)->findOrEmpty()->isEmpty()) {
-                    $user = new UserModel;
-                    $user->username = $username;
-                    $user->nickname = $nickname;
-                    $user->password = $password;
-                    $user->email = $email;
-                    $user->verified = "Y";
-                    $user->create = date("Y-m-d H:i:s");
-                    $user->groupId = 1;
-                    $user->ban = "N";
-                    $user->reason = "";
-                    $user->save();
-                    Cache::delete($email);
-                    return jb(200, "用户注册成功");
+                    $defaultGroup = GroupModel::where("default", "Y")->findOrEmpty();
+                    if ($defaultGroup->isEmpty()) {
+                        return jb(400, "没有默认用户组");
+                    } else {
+                        $user = new UserModel;
+                        $user->username = $username;
+                        $user->nickname = $nickname;
+                        $user->password = $password;
+                        $user->email = $email;
+                        $user->verified = "Y";
+                        $user->create = now();
+                        $user->groupId = $defaultGroup->groupId;
+                        $user->ban = "N";
+                        $user->reason = "";
+                        $user->save();
+                        Cache::delete($email);
+                        return jb(200, "用户注册成功");
+                    }
                 } else {
                     return jb(401, "用户名或邮箱已存在");
                 }
@@ -435,7 +440,7 @@ class User {
                         return jb(404, "找不到指定的图片");
                     } else {
                         if ($pic->userId === $user->userId) {
-                            $pic->delete = date("Y-m-d H:i:s");
+                            $pic->delete = now();
                             $pic->save();
                             return jb(200, "图片删除成功");
                         } else {
@@ -626,7 +631,7 @@ class User {
                         return jb(404, "找不到指定的评分");
                     } else {
                         if ($scoreItem->userId === $user->userId) {
-                            $scoreItem->delete = date("Y-m-d H:i:s");
+                            $scoreItem->delete = now();
                             $scoreItem->save();
                             return jb(200, "评分删除成功");
                         } else {
@@ -769,7 +774,7 @@ class User {
                         return jb(404, "找不到指定的评论");
                     } else {
                         if ($comment->userId === $user->userId) {
-                            $comment->delete = date("Y-m-d H:i:s");
+                            $comment->delete = now();
                             $comment->save();
                             return jb(200, "评论删除成功");
                         } else {

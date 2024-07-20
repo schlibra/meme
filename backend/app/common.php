@@ -65,7 +65,7 @@ function captchaCheck ($code): array {
  * @param Request $request 登录请求的请求对象
  * @return array 返回认证状态数组
  */
-function loginAuth(Request$request): array {
+function loginAuth(Request$request, $checkAdmin = false): array {
     $token = $request->header("Authorization", "");
     if (str_starts_with($token, "Bearer")) {
         $token = str_replace("Bearer ", "", $token);
@@ -82,7 +82,20 @@ function loginAuth(Request$request): array {
             if ($user->isEmpty()) {
                 return returnData(false, "用户不存在");
             } else {
-                return returnData(true, "获取成功", $user);
+                if ($checkAdmin) {
+                    $group = $user->group;
+                    if ($group) {
+                        if ($group->admin === "Y") {
+                            return returnData(true, "获取成功", $user);
+                        } else {
+                            return returnData(false, "没有管理员权限");
+                        }
+                    } else {
+                        return returnData(false, "没有权限");
+                    }
+                } else {
+                    return returnData(true, "获取成功", $user);
+                }
             }
         } catch (SignatureInvalidException|DomainException|BeforeValidException|ExpiredException) {
             return returnData(false, "登录状态过期");
@@ -116,4 +129,12 @@ function emailAuth(Request$request): array
     } else {
         return returnData(false, "验证码信息无效");
     }
+}
+
+/**
+ * 获取时间数据
+ * @return string 时间数据
+ */
+function now():string {
+    return date("Y-m-d H:i:s");
 }
