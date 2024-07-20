@@ -169,4 +169,89 @@ class Admin
             return jb(401, $auth["msg"]);
         }
     }
+    function updateUser(Request$request): Json {
+        $auth = loginAuth($request, true);
+        $userId = $request->post("userId");
+        $username = $request->post("username");
+        $password = $request->post("password");
+        $nickname = $request->post("nickname");
+        $email = $request->post("email");
+        $verified = $request->post("verified");
+        $groupId = $request->post("groupId");
+        $ban = $request->post("ban");
+        $reason = $request->post("reason");
+        $birth = $request->post("birth");
+        $sex = $request->post("sex");
+        $description = $request->post("description");
+        if ($auth["status"]) {
+            $user = UserModel::where(["userId" => $userId, "username" => $username])->findOrEmpty();
+            if ($user->isEmpty()) {
+                return jb(404, "指定用户不存在");
+            } else {
+                if ($password) $user->password = password_hash($password, PASSWORD_BCRYPT);
+                if ($nickname) $user->nickname = $nickname;
+                if ($email) $user->email = $email;
+                if ($verified) $user->verified = $verified;
+                if ($groupId) $user->groupId = $groupId;
+                if ($ban) $user->ban = $ban;
+                if ($reason) $user->reason = $reason;
+                if ($birth) $user->birth = $birth;
+                if ($sex) $user->sex = $sex;
+                if ($description) $user->description = $description;
+                $user->save();
+                return jb(msg: "用户更新成功");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+
+    function createUser(Request$request): Json {
+        $auth = loginAuth($request, true);
+        $username = $request->post("username");
+        $password = $request->post("password");
+        $nickname = $request->post("nickname");
+        $email = $request->post("email");
+        $verified = $request->post("verified");
+        $groupId = $request->post("groupId");
+        $ban = $request->post("ban");
+        $reason = $request->post("reason");
+        $birth = $request->post("birth");
+        $sex = $request->post("sex");
+        $description = $request->post("description");
+        if ($auth["status"]) {
+            $user = new UserModel;
+            $user->username = $username;
+            $user->password = $password;
+            $user->nickname = $nickname;
+            $user->email = $email;
+            $user->verified = $verified;
+            $user->groupId = $groupId;
+            $user->ban = $ban;
+            $user->reason = $reason;
+            $user->birth = $birth;
+            $user->sex = $sex;
+            $user->description = $description;
+            $user->create = now();
+            $user->save();
+            return jb(msg: "用户创建成功");
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+    function deleteUser(Request$request): Json {
+        $auth = loginAuth($request, true);
+        $userId = $request->get("userId");
+        if ($auth["status"]) {
+            $user = UserModel::where("userId", $userId)->findOrEmpty();
+            if ($user->isEmpty()) {
+                return jb(404, "找不到指定的用户");
+            } else {
+                $user->delete();
+                return jb(msg: "用户删除成功");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
 }

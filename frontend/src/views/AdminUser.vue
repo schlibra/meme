@@ -2,18 +2,63 @@
 import AdminSidebar from "@/components/AdminSidebar.vue";
 import AdminTop from "@/components/AdminTop.vue";
 import {onMounted, ref} from "vue";
-import {Get} from "@/lib/axiosLib.js";
+import {Delete, Get, Post, Put} from "@/lib/axiosLib.js";
 import {AdminUrl} from "@/api/url.js";
-import {alertError, axiosError} from "@/lib/requestAlert.js";
+import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {CircleCheckFilled, CircleCloseFilled} from "@element-plus/icons-vue";
+import router from "@/router/index.js";
+import confirm from "@/lib/confirmLib.js";
 
 const user = ref([])
+const group = ref([])
+const mainLoading = ref(true)
 const dataLoading = ref(true)
+
+const updateDialog = ref(false)
+const updateUserId = ref("")
+const updateUsername = ref("")
+const updatePassword = ref("")
+const updateNickname = ref("")
+const updateEmail = ref("")
+const updateVerified = ref(false)
+const updateGroupId = ref("")
+const updateBan = ref(false)
+const updateReason = ref("")
+const updateBirth = ref(new Date())
+const updateSex = ref("")
+const updateDescription = ref("")
+
+const createDialog = ref(false)
+const createUsername = ref("")
+const createPassword = ref("")
+const createNickname = ref("")
+const createEmail = ref("")
+const createVerified = ref(false)
+const createGroupId = ref("")
+const createBan = ref(false)
+const createReason = ref("")
+const createBirth = ref(new Date())
+const createSex = ref("")
+const createDescription = ref("")
 
 onMounted(()=>{
   loadList()
 })
 function loadList() {
+  Get(AdminUrl.groupUrl, {}, {
+    ok(_, data) {
+      group.value = data
+    },
+    bad(res) {
+      alertError(res, "数据获取失败", ()=>router.push("/"))
+    },
+    error(err) {
+      axiosError(err, "数据获取失败", ()=>location.reload())
+    },
+    final() {
+      mainLoading.value = false
+    }
+  })
   Get(AdminUrl.userUrl, {}, {
     ok(_, data) {
       user.value = data
@@ -23,6 +68,110 @@ function loadList() {
     },
     error(err) {
       axiosError(err, "数据获取失败", ()=>location.reload())
+    },
+    final() {
+      dataLoading.value = false
+    }
+  })
+}
+function editUser(index) {
+  updateDialog.value = true
+  updateUserId.value = user.value[index]["userId"]
+  updateUsername.value = user.value[index]["username"]
+  updatePassword.value = ""
+  updateNickname.value = user.value[index]["nickname"]
+  updateEmail.value = user.value[index]["email"]
+  updateVerified.value = user.value[index]["verified"] === "Y"
+  updateGroupId.value = user.value[index]["groupId"]
+  updateBan.value = user.value[index]["ban"] === "Y"
+  updateReason.value = user.value[index]["reason"]
+  let birthDate = new Date()
+  birthDate.setFullYear(user.value[index]["birth"])
+  updateBirth.value = birthDate
+  updateSex.value = user.value[index]["sex"]
+  updateDescription.value = user.value[index]["description"]
+}
+function deleteUser(index) {
+  let username = user.value[index].username
+  let nickname = user.value[index].nickname
+  let userId = user.value[index].userId
+  dataLoading.value = true
+  confirm(`是否删除用户“${nickname}(${username})”？`, "删除用户", {
+    confirm() {
+      Delete(AdminUrl.userUrl, {
+        userId
+      }, {
+        ok(res) {
+          alertSuccess(res, "删除成功", loadList)
+        },
+        bad(res) {
+          alertError(res, "删除失败", loadList)
+        },
+        error(err) {
+          axiosError(err, "删除失败", ()=>location.reload())
+        },
+        final() {
+          dataLoading.value = false
+        }
+      })
+    }
+  })
+}
+function updateSubmit() {
+  updateDialog.value = false
+  dataLoading.value = true
+  Put(AdminUrl.userUrl, {
+    userId: updateUserId.value,
+    username: updateUsername.value,
+    password: updatePassword.value,
+    nickname: updateNickname.value,
+    email: updateEmail.value,
+    verified: updateVerified.value ? "Y" : "N",
+    groupId: updateGroupId.value,
+    ban: updateBan.value ? "Y" : "N",
+    reason: updateReason.value,
+    birth: updateBirth.value.getFullYear(),
+    sex: updateSex.value,
+    description: updateDescription.value,
+  }, {
+    ok(res) {
+      alertSuccess(res, "更新成功", loadList)
+    },
+    bad(res) {
+      alertError(res, "更新失败", loadList)
+    },
+    error(err) {
+      axiosError(err, "更新失败", ()=>location.reload())
+    },
+    final() {
+      dataLoading.value = false
+    }
+  })
+}
+function createSubmit() {
+  createDialog.value = false
+  dataLoading.value = true
+  Post(AdminUrl.userUrl, {
+    username: createUsername.value,
+    password: createPassword.value,
+    nickname: createNickname.value,
+    email: createEmail.value,
+    verified: createVerified.value ? "Y" : "N",
+    groupId: createGroupId.value,
+    ban: createBan.value ? "Y" : "N",
+    reason: createReason.value,
+    birth: createBirth.value.getFullYear(),
+    sex: createSex.value,
+    description: createDescription.value,
+  }, {
+    ok(res) {
+      alertSuccess(res, "创建成功", loadList)
+    },
+    bad(res) {
+      alertError(res, "创建失败", loadList)
+    },
+    error(err) {
+      axiosError(err, "创建失败", ()=>location.reload())
     },
     final() {
       dataLoading.value = false
@@ -41,11 +190,11 @@ function loadList() {
         <AdminTop title="用户管理" />
       </el-header>
       <el-scrollbar height="calc(100vh - 30px)">
-        <el-main>
+        <el-main v-loading="mainLoading">
           <h2>用户管理</h2>
-          <el-form label-position="top">
+          <el-form label-position="top" v-loading="dataLoading">
             <el-form-item label="">
-              <el-button type="primary">新增用户</el-button>
+              <el-button type="primary" @click="createDialog = true">新增用户</el-button>
             </el-form-item>
             <el-form-item label="用户列表">
               <el-table :data="user">
@@ -65,7 +214,7 @@ function loadList() {
                 </el-table-column>
                 <el-table-column label="用户状态">
                   <template #default="scope">
-                    <el-tag v-if="user[scope.$index]['ban'] === 'Y'" type="danger">已封禁</el-tag>
+                    <el-tag v-if="user[scope.$index]['ban'] === 'Y'" type="danger">已封禁：{{ user[scope.$index]["reason"] }}</el-tag>
                     <el-tag v-else-if="user[scope.$index]['verified'] !== 'Y'" type="warning">邮箱未验证</el-tag>
                     <el-tag v-else type="success">正常</el-tag>
                   </template>
@@ -73,8 +222,8 @@ function loadList() {
                 <el-table-column label="注册时间" prop="create" />
                 <el-table-column label="操作">
                   <template #default="scope">
-                    <el-button type="primary">编辑</el-button>
-                    <el-button type="danger">删除</el-button>
+                    <el-button type="primary" @click="editUser(scope.$index)">编辑</el-button>
+                    <el-button type="danger" @click="deleteUser(scope.$index)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -84,6 +233,107 @@ function loadList() {
       </el-scrollbar>
     </el-container>
   </el-container>
+  <el-dialog v-model="updateDialog">
+    <template #header>
+      <span>编辑用户</span>
+    </template>
+    <template #default>
+      <el-form label-position="top">
+        <el-form-item label="用户id">
+          <el-input v-model="updateUserId" disabled />
+        </el-form-item>
+        <el-form-item label="用户名">
+          <el-input v-model="updateUsername" disabled />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="updatePassword" type="password" />
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input v-model="updateNickname" />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="updateEmail" />
+        </el-form-item>
+        <el-form-item label="邮箱通过验证">
+          <el-switch v-model="updateVerified" active-text="通过" inactive-text="未通过" />
+        </el-form-item>
+        <el-form-item label="用户组">
+          <el-select v-model="updateGroupId">
+            <el-option label="选择用户组" value="-1" disabled />
+            <el-option v-for="item in group" :label="item.groupName" :value="item.groupId" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户是否封禁">
+          <el-switch v-model="updateBan" active-text="封禁" inactive-text="正常" />
+        </el-form-item>
+        <el-form-item label="用户封禁原因">
+          <el-input v-model="updateReason" :disabled="!updateBan" />
+        </el-form-item>
+        <el-form-item label="出生年份">
+          <el-date-picker type="year" v-model="updateBirth" />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-input v-model="updateSex" />
+        </el-form-item>
+        <el-form-item label="用户简介">
+          <el-input v-model="updateDescription" />
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <el-button @click="updateDialog = false">取消</el-button>
+      <el-button type="primary" @click="updateSubmit">确定</el-button>
+    </template>
+  </el-dialog>
+  <el-dialog v-model="createDialog">
+    <template #header>
+      <span>新增用户</span>
+    </template>
+    <template #default>
+      <el-form label-position="top">
+        <el-form-item label="用户名">
+          <el-input v-model="createUsername" />
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="createPassword" type="password" />
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input v-model="createNickname" />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="createEmail" />
+        </el-form-item>
+        <el-form-item label="邮箱通过验证">
+          <el-switch v-model="createVerified" active-text="通过" inactive-text="未通过" />
+        </el-form-item>
+        <el-form-item label="用户组">
+          <el-select v-model="createGroupId">
+            <el-option label="选择用户组" value="-1" disabled />
+            <el-option v-for="item in group" :label="item.groupName" :value="item.groupId" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用户是否封禁">
+          <el-switch v-model="createBan" active-text="封禁" inactive-text="正常" />
+        </el-form-item>
+        <el-form-item label="用户封禁原因">
+          <el-input v-model="createReason" :disabled="!createBan" />
+        </el-form-item>
+        <el-form-item label="出生年份">
+          <el-date-picker type="year" v-model="createBirth" />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-input v-model="createSex" />
+        </el-form-item>
+        <el-form-item label="用户简介">
+          <el-input v-model="createDescription" />
+        </el-form-item>
+      </el-form>
+    </template>
+    <template #footer>
+      <el-button @click="createDialog = false">取消</el-button>
+      <el-button type="primary" @click="createSubmit">确定</el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped lang="scss">

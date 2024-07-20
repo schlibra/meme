@@ -50,6 +50,9 @@ Route::put("api/admin/group", "Admin/updateGroup");
 Route::post("api/admin/group", "Admin/createGroup");
 Route::delete("api/admin/group", "Admin/deleteGroup");
 Route::get("api/admin/user", "Admin/getUser");
+Route::put("api/admin/user", "Admin/updateUser");
+Route::post("api/admin/user", "Admin/createUser");
+Route::delete("api/admin/user", "Admin/deleteUser");
 // 访问前端
 Route::get("/", "Index");
 Route::get("login", "Index");
