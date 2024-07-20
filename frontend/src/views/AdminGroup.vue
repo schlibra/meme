@@ -208,7 +208,7 @@ function updateSubmit() {
 <template>
   <el-container>
     <el-aside style="width: unset;">
-      <AdminSidebar default-active="3" />
+      <AdminSidebar default-active="4" />
     </el-aside>
     <el-container>
       <el-header style="height: 30px;">

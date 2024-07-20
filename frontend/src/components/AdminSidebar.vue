@@ -2,7 +2,7 @@
 import {
   ChatLineRound,
   Checked,
-  Coin, Document,
+  Coin, Connection, Document,
   DocumentChecked,
   Expand,
   Fold,
@@ -26,6 +26,9 @@ function gotoBasic() {
 }
 function gotoSecurity() {
   router.push("/admin/security")
+}
+function gotoThirdParty() {
+  router.push("/admin/thirdParty")
 }
 function gotoGroup() {
   router.push("/admin/group")
@@ -56,43 +59,47 @@ function gotoScore() {
         <el-icon><Lock /></el-icon>
         <span>安全设置</span>
       </el-menu-item>
-      <el-menu-item index="3" @click="gotoGroup">
+      <el-menu-item index="3" @click="gotoThirdParty">
+        <el-icon><Connection /></el-icon>
+        <span>第三方平台</span>
+      </el-menu-item>
+      <el-menu-item index="4" @click="gotoGroup">
         <el-icon><Key /></el-icon>
         <span>用户组管理</span>
       </el-menu-item>
-      <el-menu-item index="4" @click="gotoUser">
+      <el-menu-item index="5" @click="gotoUser">
         <el-icon><User /></el-icon>
         <span>用户管理</span>
       </el-menu-item>
-      <el-menu-item index="5" @click="gotoBasic">
+      <el-menu-item index="6" @click="gotoBasic">
         <el-icon><Picture /></el-icon>
         <span>图片管理</span>
       </el-menu-item>
-      <el-menu-item index="6">
+      <el-menu-item index="7">
         <el-icon><DocumentChecked /></el-icon>
         <span>图片审核</span>
       </el-menu-item>
-      <el-menu-item index="7" @click="gotoBasic">
+      <el-menu-item index="8" @click="gotoBasic">
         <el-icon><Star /></el-icon>
         <span>评分管理</span>
       </el-menu-item>
-      <el-menu-item index="8">
+      <el-menu-item index="9">
         <el-icon><ChatLineRound /></el-icon>
         <span>评论管理</span>
       </el-menu-item>
-      <el-menu-item index="9">
+      <el-menu-item index="10">
         <el-icon><Checked /></el-icon>
         <span>评论审核</span>
       </el-menu-item>
-      <el-menu-item index="10">
+      <el-menu-item index="11">
         <el-icon><Document /></el-icon>
         <span>用户日志</span>
       </el-menu-item>
-      <el-menu-item index="11">
+      <el-menu-item index="12">
         <el-icon><Memo /></el-icon>
         <span>管理员日志</span>
       </el-menu-item>
-      <el-menu-item index="12">
+      <el-menu-item index="13">
         <el-icon><Coin /></el-icon>
         <span>备份与恢复</span>
       </el-menu-item>

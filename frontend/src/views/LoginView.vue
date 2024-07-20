@@ -5,6 +5,7 @@ import axios from "axios";
 import router from "@/router/index.js";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {setToken} from "@/lib/tokenLib.js";
+import {GoogleSignInButton} from "vue3-google-signin";
 
 const username = ref("");
 const password = ref("");
@@ -50,7 +51,11 @@ function enterHandler() {
 function reloadCaptcha() {
   captchaUrl.value = `${CaptchaUrl}?${Math.random()}`
 }
+function googleLoginSuccess(response) {
+  console.log(response)
+}
 </script>
+
 
 <template>
   <main>
@@ -78,6 +83,11 @@ function reloadCaptcha() {
                   </el-col>
                 </el-row>
               </el-form-item>
+<!--              <el-row>-->
+<!--                <el-col :span="24">-->
+<!--                  <GoogleSignInButton @success="googleLoginSuccess" />-->
+<!--                </el-col>-->
+<!--              </el-row>-->
               <el-row class="down-row">
                 <el-col :span="12">
                   <el-link href="/forget">忘记密码</el-link>
