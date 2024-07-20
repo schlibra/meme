@@ -19,9 +19,10 @@ class Admin
         $auth = loginAuth($request, true);
         if ($auth["status"]) {
             $group = GroupModel::select();
-            foreach ($group as &$item) {
+            foreach ($group as $item) {
                 $userCount = UserModel::where("groupId", $item->groupId)->count();
                 $item->userCount = $userCount;
+                $item->create = explode(" ", $item->create)[0];
             }
             if ($group->isEmpty()) {
                 return jb(400, "数据异常");
@@ -155,10 +156,14 @@ class Admin
             if ($users->isEmpty()){
                 return jb(400, "数据异常");
             } else {
-                foreach ($users as &$_user) {
-                    $_user->groupName = $_user->group->groupName;
+                $userList = [];
+                foreach ($users as $_user) {
+                    $item = array_merge($_user->toArray(), $_user->group->toArray());
+                    $item["create"] = explode(" ", $_user->create)[0];
+                    unset($item["password"]);
+                    $userList[] = $item;
                 }
-                return jb(200, "数据获取成功", $users->toArray());
+                return jb(200, "数据获取成功", $userList);
             }
         } else {
             return jb(401, $auth["msg"]);

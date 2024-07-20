@@ -13,6 +13,7 @@ import AdminBasic from "@/views/AdminBasic.vue";
 import UserComment from "@/views/UserComment.vue";
 import AdminSecurity from "@/views/AdminSecurity.vue";
 import AdminGroup from "@/views/AdminGroup.vue";
+import AdminUser from "@/views/AdminUser.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -100,6 +101,12 @@ const router = createRouter({
       name: "adminGroup",
       component: AdminGroup,
       meta: { title: "后台管理中心 - 用户组管理" }
+    },
+    {
+      path: "/admin/user",
+      name: "adminUser",
+      component: AdminUser,
+      meta: { title: "后台管理中心 - 用户管理" }
     }
   ]
 })

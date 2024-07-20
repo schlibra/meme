@@ -30,6 +30,9 @@ function gotoSecurity() {
 function gotoGroup() {
   router.push("/admin/group")
 }
+function gotoUser() {
+  router.push("/admin/user")
+}
 function gotoPicture() {
   router.push("/user/picture")
 }
@@ -57,7 +60,7 @@ function gotoScore() {
         <el-icon><Key /></el-icon>
         <span>用户组管理</span>
       </el-menu-item>
-      <el-menu-item index="4" >
+      <el-menu-item index="4" @click="gotoUser">
         <el-icon><User /></el-icon>
         <span>用户管理</span>
       </el-menu-item>
