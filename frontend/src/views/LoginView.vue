@@ -5,7 +5,6 @@ import axios from "axios";
 import router from "@/router/index.js";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {setToken} from "@/lib/tokenLib.js";
-import {GoogleSignInButton} from "vue3-google-signin";
 
 const username = ref("");
 const password = ref("");
