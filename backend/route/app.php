@@ -56,6 +56,8 @@ Route::delete("api/admin/user", "Admin/deleteUser");
 Route::get("api/admin/backup", "Admin/getBackup");
 Route::post("api/admin/backup", "Admin/restoreBackup");
 Route::delete("api/admin/backup", "Admin/resetData");
+// 登录回调
+Route::post("api/login/callback/sckur", "Callback/sckurCallback");
 // 访问前端
 Route::get("/", "Index");
 Route::get("login", "Index");

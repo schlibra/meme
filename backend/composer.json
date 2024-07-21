@@ -32,7 +32,8 @@
         "hg/apidoc": "^5.2",
         "topthink/think-captcha": "^3.0",
       "ext-zlib": "*",
-      "ext-bz2": "*"
+      "ext-bz2": "*",
+        "rmccue/requests": "^2.0"
     },
     "require-dev": {
         "symfony/var-dumper": ">=4.2",

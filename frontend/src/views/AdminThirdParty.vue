@@ -6,9 +6,11 @@ import {ref} from "vue";
 
 const setting = ref({
   enableSckur: false,
+  sckurApiKey: "",
   enableGitee: false,
   enableGithub: false,
-  enableGitlab: false
+  enableGitlab: false,
+  enableSoftware: false
 })
 </script>
 
@@ -28,6 +30,9 @@ const setting = ref({
             <el-form-item label="开启思刻通行证">
               <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enableSckur" />
             </el-form-item>
+            <el-form-item label="思刻通行证ApiKey" v-if="setting.enableSckur">
+              <el-input v-model="setting.sckurApiKey" />
+            </el-form-item>
             <el-form-item label="开启Gitee">
               <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enableGitee" />
             </el-form-item>
@@ -36,6 +41,9 @@ const setting = ref({
             </el-form-item>
             <el-form-item label="开启Gitlab">
               <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enableGitlab" />
+            </el-form-item>
+            <el-form-item label="开启微软账号">
+              <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enableSoftware" />
             </el-form-item>
           </el-form>
         </el-main>
