@@ -9,7 +9,7 @@ import {
   Key,
   Lock, Memo,
   Star,
-  User
+  Setting, User
 } from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import displayUtil from "@/lib/displayUtil.js";
@@ -48,7 +48,7 @@ function gotoScore() {
   <el-scrollbar>
     <el-menu :default-active="defaultActive" class="menu" :collapse="expand">
       <el-menu-item disabled>
-        <h3 v-if="expand"><el-icon><User /></el-icon></h3>
+        <h3 v-if="expand"><el-icon><Setting /></el-icon></h3>
         <h3 v-else>后台管理中心</h3>
       </el-menu-item>
       <el-menu-item index="1" @click="gotoBasic">

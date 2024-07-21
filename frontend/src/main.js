@@ -9,8 +9,6 @@ import App from './App.vue'
 import router from './router'
 import { useDark } from "@vueuse/core"
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-import {GoogleSignInButton} from "vue3-google-signin";
-
 const app = createApp(App)
 const isDark = useDark()
 if (isDark.value) {
@@ -21,9 +19,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 
 app.use(router)
-app.use(GoogleSignInButton, {
-    clientId: "823887142829-4ibck04paihd5ronpogc2stpib969em9.apps.googleusercontent.com"
-})
 app.use(ElementPlus, {
     locale: zhCn
 })

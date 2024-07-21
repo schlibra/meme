@@ -83,11 +83,6 @@ function googleLoginSuccess(response) {
                   </el-col>
                 </el-row>
               </el-form-item>
-<!--              <el-row>-->
-<!--                <el-col :span="24">-->
-<!--                  <GoogleSignInButton @success="googleLoginSuccess" />-->
-<!--                </el-col>-->
-<!--              </el-row>-->
               <el-row class="down-row">
                 <el-col :span="12">
                   <el-link href="/forget">忘记密码</el-link>
