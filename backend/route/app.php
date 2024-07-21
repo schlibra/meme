@@ -65,7 +65,14 @@ Route::get("user/permission", "Index");
 Route::get("user/security", "Index");
 Route::get("user/picture", "Index");
 Route::get("user/comment", "Index");
+Route::get("user/score", "Index");
 Route::get("about", "Index");
+Route::get("admin/basic", "Index");
+Route::get("admin/security", "Index");
+Route::get("admin/group", "Index");
+Route::get("admin/user", "Index");
+Route::get("admin/thirdParty", "Index");
+Route::get("admin/backup", "Index");
 // assets资源加载
 Route::get("assets/:file", "Assets/index");
 // 验证码

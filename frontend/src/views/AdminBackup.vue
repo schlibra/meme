@@ -2,11 +2,11 @@
 import AdminSidebar from "@/components/AdminSidebar.vue";
 import AdminTop from "@/components/AdminTop.vue";
 import { ref } from "vue"
-import {alertError, axiosError} from "@/lib/requestAlert.js";
+import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {AdminUrl} from "@/api/url.js";
 import {InfoFilled} from "@element-plus/icons-vue";
 import confirm from "@/lib/confirmLib.js";
-import {Post} from "@/lib/axiosLib.js";
+import {Get, Post} from "@/lib/axiosLib.js";
 
 const dataLoading = ref(false)
 const upload = ref(null)
