@@ -53,6 +53,9 @@ Route::get("api/admin/user", "Admin/getUser");
 Route::put("api/admin/user", "Admin/updateUser");
 Route::post("api/admin/user", "Admin/createUser");
 Route::delete("api/admin/user", "Admin/deleteUser");
+Route::get("api/admin/backup", "Admin/getBackup");
+Route::post("api/admin/backup", "Admin/restoreBackup");
+Route::delete("api/admin/backup", "Admin/resetData");
 // 访问前端
 Route::get("/", "Index");
 Route::get("login", "Index");

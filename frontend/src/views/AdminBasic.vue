@@ -18,6 +18,8 @@ const setting = ref({
   enableHomeType: true,
   enableGravatarCDN: true,
   gravatarCDNAddress: 'https://cdn.tsinbei.com/gravatar',
+  enablePicCompress: false,
+  picCompressType: "no",
   enablePictureVerify: false,
   enableCommentVerify: false,
   enableCaptcha: true,
@@ -76,6 +78,16 @@ onMounted(()=>{
             </el-form-item>
             <el-form-item label="头像CDN地址">
               <el-input :disabled="!setting.enableGravatarCDN" v-model="setting.gravatarCDNAddress" model-value="https://cdn.tsinbei.com/gravatar" />
+            </el-form-item>
+            <el-form-item label="开启图片压缩">
+              <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enablePicCompress" />
+            </el-form-item>
+            <el-form-item label="图片压缩方式">
+              <el-select v-model="setting.picCompressType">
+                <el-option label="选择压缩方式" value="no" disabled />
+                <el-option label="Gzip压缩" value="gzip" />
+                <el-option label="Bzip2压缩" value="bz2" />
+              </el-select>
             </el-form-item>
             <el-form-item label="开启图片审核">
               <el-switch v-model="setting.enablePictureVerify" active-text="开启" inactive-text="关闭" />

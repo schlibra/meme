@@ -13,6 +13,8 @@ use think\model\relation\HasOne;
  * @property mixed userId
  * @property array|mixed user
  * @property mixed data
+ * @property mixed compressed
+ * @property mixed compressType
  * @property mixed type
  * @property mixed verified
  * @property mixed create
@@ -29,6 +31,8 @@ class PicsModel extends Model
         "description"   => "string",
         "userId"        => "int",
         "data"          => "string",
+        "compressed"    => "string",
+        "compressType"  => "string",
         "type"          => "string",
         "verified"      => "string",
         "create"        => "datetime",

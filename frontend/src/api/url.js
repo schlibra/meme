@@ -32,7 +32,8 @@ const PicsUrl = {
 
 const AdminUrl = {
     groupUrl: adminUrl + "/group",
-    userUrl: adminUrl + "/user"
+    userUrl: adminUrl + "/user",
+    backupUrl: adminUrl + "/backup"
 }
 
 export { UserUrl, PicsUrl, AdminUrl, CaptchaUrl }

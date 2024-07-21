@@ -2,9 +2,16 @@
 
 namespace app\controller;
 
+use app\model\CommentModel;
 use app\model\GroupModel;
+use app\model\PicsModel;
+use app\model\ScoreModel;
+use app\model\TableInfoModel;
 use app\model\UserModel;
 use app\Request;
+use think\facade\Db;
+use think\Model;
+use think\Response;
 use think\response\Json;
 
 class Admin
@@ -250,6 +257,97 @@ class Admin
                 $user->delete();
                 return jb(msg: "用户删除成功");
             }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+    function getBackup(Request$request):Json {
+        $auth = loginAuth($request, true);
+        if ($auth["status"]) {
+            $data = [
+                "group" => GroupModel::select()->toArray(),
+                "user" => UserModel::select()->toArray(),
+                "pics" => PicsModel::select()->toArray(),
+                "score" => ScoreModel::select()->toArray(),
+                "comment" => CommentModel::select()->toArray()
+            ];
+            $data = json_encode($data);
+            $data = gzcompress($data, 9);
+            $data = base64_encode($data);
+            $data = memeBackupHeader . chunk_split($data) . memeBackupFooter;
+            return jb(200, "备份数据获取成功", $data);
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+    public function restoreBackup(Request$request): Json {
+        $result = [
+            "success" => 0,
+            "failed" => 0,
+            "skipped" => 0,
+        ];
+        $auth = loginAuth($request, true);
+        $file = $request->file("file");
+        if ($auth["status"]) {
+            if ($file) {
+                $data = file_get_contents($file->getPathname());
+                if (str_starts_with($data, memeBackupHeader) && str_ends_with($data, memeBackupFooter)) {
+                    $data = gzuncompress($data);
+                    $data = str_replace([memeBackupHeader, memeBackupFooter], ["", ""], $data);
+                    $data = base64_decode($data);
+                    $data = json_decode($data, true);
+                    if ($data) {
+                        $reset = $this->resetData($request)->getData();
+                        if ($reset["code"] !== 200) {
+                            return jb($reset["msg"]);
+                        }
+                        foreach (["group", "user", "pics", "score", "comment"] as $name) {
+                            if ($data[$name]) {
+                                foreach ($data[$name] as $item) {
+                                    $model = match ($name) {
+                                        "pics" => new PicsModel,
+                                        "user" => new UserModel,
+                                        "group" => new GroupModel,
+                                        "score" => new ScoreModel,
+                                        "comment" => new CommentModel,
+                                        default => null,
+                                    };
+                                    foreach (array_keys($item) as $key) {
+                                        $model[$key] = $item[$key];
+                                    }
+                                    $result[$model->save()?"success":"failed"]++;
+                                }
+                            } else {
+                                $result["skipped"]++;
+                            }
+                        }
+                        return jb(200, "数据恢复完成", $result);
+                    } else {
+                        return jb(400, "数据不完整");
+                    }
+                } else {
+                    return jb(400, "备份文件格式不正确");
+                }
+            } else {
+                return jb(400, "没有选择文件");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+
+    function resetData(Request$request): Json {
+        $auth = loginAuth($request, true);
+        if ($auth["status"]) {
+            ScoreModel::select()->delete();
+            CommentModel::select()->delete();
+            PicsModel::select()->delete();
+            UserModel::select()->delete();
+            GroupModel::select()->delete();
+            foreach (["group", "user", "pics", "score", "comment"] as $name) {
+                Db::query("alter table `$name` auto_increment=1;");
+            }
+            return jb(200, "数据重置成功");
         } else {
             return jb(401, $auth["msg"]);
         }

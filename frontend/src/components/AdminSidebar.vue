@@ -37,10 +37,13 @@ function gotoUser() {
   router.push("/admin/user")
 }
 function gotoPicture() {
-  router.push("/user/picture")
+  router.push("/admin/picture")
 }
 function gotoScore() {
-  router.push("/user/score")
+  router.push("/admin/score")
+}
+function gotoBackup() {
+  router.push("/admin/backup")
 }
 </script>
 
@@ -99,7 +102,7 @@ function gotoScore() {
         <el-icon><Memo /></el-icon>
         <span>管理员日志</span>
       </el-menu-item>
-      <el-menu-item index="13">
+      <el-menu-item index="13" @click="gotoBackup">
         <el-icon><Coin /></el-icon>
         <span>备份与恢复</span>
       </el-menu-item>

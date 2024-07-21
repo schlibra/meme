@@ -15,6 +15,7 @@ import AdminSecurity from "@/views/AdminSecurity.vue";
 import AdminGroup from "@/views/AdminGroup.vue";
 import AdminUser from "@/views/AdminUser.vue"
 import AdminThirdParty from "@/views/AdminThirdParty.vue";
+import AdminBackup from "@/views/AdminBackup.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -114,6 +115,12 @@ const router = createRouter({
       name: "adminThirdParty",
       component: AdminThirdParty,
       meta: { title: "后台管理中心 - 第三方平台" }
+    },
+    {
+      path: "/admin/backup",
+      name: "adminBackup",
+      component: AdminBackup,
+      meta: { title: "后台管理中心 - 备份与恢复" }
     }
   ]
 })

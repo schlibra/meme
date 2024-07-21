@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS `pics`  (
     `userId` int NOT NULL COMMENT '上传者id',
     CONSTRAINT `pics_user` FOREIGN KEY (`userId`) REFERENCES `user`(`userId`) ON DELETE NO ACTION ON UPDATE NO ACTION,
     `data` longtext NOT NULL COMMENT '图片数据(base64)',
+    `compressed` VARCHAR(1) NULL COMMENT  '图片已压缩',
+    `compressType` varchar(50) NULL COMMENT '图片压缩算法',
     `type` varchar(50) NOT NULL COMMENT '文件类型',
     `verified` varchar(1) NOT NULL COMMENT '图片是否审核',
     `create` datetime NOT NULL COMMENT '创建时间',

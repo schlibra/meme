@@ -15,6 +15,8 @@ use think\response\Json;
 // 应用公共文件
 const loginSecret = "meme_login_token_key";
 const emailSecret = "meme_email_token_key";
+define("memeBackupHeader", str_repeat("-", 28) . " Meme Backup Start " . str_repeat("-", 29) . "\r\n");
+define("memeBackupFooter", str_repeat("-", 29) . " Meme Backup End " . str_repeat("-", 30));
 /**
  * JsonBack，返回JSON格式助手
  * @param int $code 返回状态码
