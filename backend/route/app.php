@@ -77,5 +77,10 @@ Route::get("admin/thirdParty", "Index");
 Route::get("admin/backup", "Index");
 // assets资源加载
 Route::get("assets/:file", "Assets/index");
+Route::get("src", "Index/js");
+Route::get("node_modules", "Index/js");
+Route::get("@id", "Index/js");
+Route::get("@vite", "Index/js");
+Route::get("__devtools__", "Index/js");
 // 验证码
 Route::get("api/captcha/[:config]", "\\think\\captcha\\CaptchaController@index");

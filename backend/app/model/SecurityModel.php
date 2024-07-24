@@ -9,7 +9,6 @@ class SecurityModel extends Model
     protected $table = "security";
     protected $pk = "settingId";
     protected $schema = [
-        "settingId" => "int",
         "enableEmail" => "string",
         "smtpHost" => "string",
         "smtpPort" => "string",

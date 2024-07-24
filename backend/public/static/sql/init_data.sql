@@ -127,13 +127,28 @@ CREATE TABLE IF NOT EXISTS `basic`  (
     `enableUserLog` varchar(1) NULL COMMENT '开启用户日志',
     `enableAdminLog` varchar(1) NULL COMMENT '开启管理员日志',
     PRIMARY KEY (`settingId`)
-);
+) MAX_ROWS = 1;
 -- 基本设置数据
 INSERT INTO `basic` (
     `settingId`, `siteName`, `siteLogo`, `enableHomeTyping`, `enableGravatarCDN`, `gravatarCDNAddress`, `enablePicCompress`, `picCompressType`, `enablePictureVerify`, `enableCommentVerify`, `enableCaptcha`, `enableUserLog`, `enableAdminLog`
 ) VALUES (
     '1', 'IURT meme 2.0', '', 'Y', 'Y', '', 'Y', 'gzip', 'N', 'N', 'N', 'Y', 'Y'
 );
+
+CREATE TRIGGER `basicNotInsert`
+BEFORE INSERT
+ON `basic`
+FOR EACH ROW
+BEGIN
+    CALL nothing();
+end;
+CREATE TRIGGER `basicNotDelete`
+BEFORE DELETE
+ON `basic`
+FOR EACH ROW
+BEGIN
+    CALL nothing();
+end;
 
 -- 安全设置表
 DROP TABLE IF EXISTS `security`;
@@ -146,13 +161,70 @@ CREATE TABLE IF NOT EXISTS `security` (
     `smtpPassword` varchar(500) NULL COMMENT 'SMTP密码',
     `smtpEncrypt` varchar(50) NULL COMMENT 'SMTP加密方式',
     PRIMARY KEY (`settingId`)
-);
+) MAX_ROWS = 1;
 -- 安全设置数据
 INSERT INTO `security` (
     `settingId`, `enableEmail`
 ) VALUES (
     1, 'N'
  );
+
+CREATE TRIGGER `securityNotInsert`
+    BEFORE INSERT
+    ON `security`
+    FOR EACH ROW
+BEGIN
+    CALL nothing();
+end;
+CREATE TRIGGER `securityNotDelete`
+    BEFORE DELETE
+    ON `security`
+    FOR EACH ROW
+BEGIN
+    CALL nothing();
+end;
+
+-- 第三方平台表
+DROP TABLE IF EXISTS `thirdParty`;
+CREATE TABLE IF NOT EXISTS `thirdParty` (
+    `settingId` int NOT NULL COMMENT '设置ID',
+    `enableSckur` varchar(1) NULL COMMENT '开启思刻通行证',
+    `sckurApiKey` varchar(300) NULL COMMENT '思刻通行证api key',
+    `enableGitee` varchar(1) NULL COMMENT '开启gitee',
+    `giteeClientId` varchar(300) NULL COMMENT 'gitee client id',
+    `giteeClientSecret` varchar(300) NULL COMMENT 'gitee client secret',
+    `enableGithub` varchar(1) NULL COMMENT '开启github',
+    `githubClientId` varchar(300) NULL COMMENT 'github client id',
+    `githubClientSecret` varchar(300) NULL COMMENT 'github client secret',
+    `enableGitlab` varchar(1) NULL COMMENT '开启gitlab',
+    `gitlabClientId` varchar(300) NULL COMMENT 'gitlab client id',
+    `gitlabClientSecret` varchar(300) NULL COMMENT 'gitlab client secret',
+    `enableMicrosoft` varchar(1) NULL COMMENT '开启微软登录',
+    `microsoftClientId` varchar(300) NULL COMMENT '微软client id',
+    `microsoftClientSecret` varchar(300) NULL COMMENT '微软client secret',
+    PRIMARY KEY (`settingId`)
+) MAX_ROWS = 1;
+-- 第三方平台数据
+INSERT INTO `thirdParty` (
+    `settingId`
+) VALUES (
+    '1'
+ );
+
+CREATE TRIGGER `thirdPartyNotInsert`
+    BEFORE INSERT
+    ON `thirdParty`
+    FOR EACH ROW
+BEGIN
+    CALL nothing();
+end;
+CREATE TRIGGER `thirdPartyNotDelete`
+    BEFORE DELETE
+    ON `thirdParty`
+    FOR EACH ROW
+BEGIN
+    CALL nothing();
+end;
 
 # 开启外键约束
 SET FOREIGN_KEY_CHECKS=1;

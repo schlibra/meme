@@ -41,7 +41,6 @@ const setting = ref({})
 
 onMounted(() => {
   setting.value = VARS
-  console.log(setting.value)
   Get(UserUrl.infoUrl, {}, {
     ok(_, data) {
       userInfo.value = data

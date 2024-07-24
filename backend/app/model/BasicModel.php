@@ -9,7 +9,6 @@ class BasicModel extends Model
     protected $table = "basic";
     protected $pk = "settingId";
     protected $schema = [
-        "settingId" => "int",
         "siteName" => "string",
         "siteLogo" => "string",
         "enableHomeTyping" => "string",
