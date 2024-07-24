@@ -5,7 +5,7 @@ import { ref } from "vue";
 import {InfoFilled} from "@element-plus/icons-vue";
 
 const setting = ref({
-  enableEmail: true,
+  enableEmail: "Y",
   smtpHost: "",
   smtpPort: "",
   smtpUsername: "",
@@ -29,7 +29,7 @@ const setting = ref({
           <el-form label-position="top">
             <el-form-item label="开启邮箱验证">
               <el-space wrap direction="vertical" alignment="normal">
-                <el-switch v-model="setting.enableEmail" active-text="开启" inactive-text="关闭" />
+                <el-switch v-model="setting.enableEmail" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="Y" />
                 <el-text type="info"><el-icon><InfoFilled /></el-icon>关闭后在注册时将不需要邮箱验证码，可能有刷注册的风险</el-text>
               </el-space>
             </el-form-item>

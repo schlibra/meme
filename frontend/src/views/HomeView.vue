@@ -11,7 +11,8 @@ import {Get, Post} from "@/lib/axiosLib.js";
 
 const token = ref(getToken())
 const userInfo = ref({})
-const strings = ref(["IURT meme 2.0"])
+const strings = ref(["IURT meme 2.0"])  // 这里不要直接修改，部署后通过这里修改打字内容
+const enableTyping = ref([false, "enableHomeType"])
 const currentPage = ref(1)
 const pageSize = ref(20)
 const search = ref("")
@@ -36,7 +37,11 @@ const showRandom = ref(false)
 const commentList = ref([])
 const comment = ref('')
 
+const setting = ref({})
+
 onMounted(() => {
+  setting.value = VARS
+  console.log(setting.value)
   Get(UserUrl.infoUrl, {}, {
     ok(_, data) {
       userInfo.value = data
@@ -265,7 +270,7 @@ function submitComment() {
 
 <template>
   <div class="typed">
-    <vuetyped :strings="strings" :fade-out="true" :loop="true" cursor-char="_">
+    <vuetyped :strings="strings" :fade-out="true" :loop="enableTyping[0]" :cursor-char="enableTyping[0] ? '_' : ''">
       <h1 class="typing"></h1>
     </vuetyped>
     <h3 class="center" v-if="token">欢迎用户：{{ userInfo["nickname"] }}（{{ userInfo["username"] }} - {{ userInfo["groupName"] }}<el-tag type="danger" v-if="!userInfo['groupName']">用户组错误</el-tag>）</h3>

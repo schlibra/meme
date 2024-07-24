@@ -109,5 +109,50 @@ CREATE TABLE IF NOT EXISTS `comment`  (
     `delete` datetime NULL COMMENT '评论删除时间',
     PRIMARY KEY (`commentId`)
 ) CHARACTER SET = utf8;
+
+-- 基本设置表
+DROP TABLE IF EXISTS `basic`;
+CREATE TABLE IF NOT EXISTS `basic`  (
+    `settingId` int NOT NULL COMMENT '设置ID',
+    `siteName` varchar(255) NULL COMMENT '站点名称',
+    `siteLogo` varchar(255) NULL COMMENT '站点logo',
+    `enableHomeTyping` varchar(1) NULL COMMENT '开启首页打字效果',
+    `enableGravatarCDN` varchar(1) NULL COMMENT '开启gravatar头像CDN',
+    `gravatarCDNAddress` varchar(500) NULL COMMENT 'gravatar头像CDN地址',
+    `enablePicCompress` varchar(1) NULL COMMENT '开启图片压缩',
+    `picCompressType` varchar(10) NULL COMMENT '图片压缩方式',
+    `enablePictureVerify` varchar(1) NULL COMMENT '开启图片审核',
+    `enableCommentVerify` varchar(1) NULL COMMENT '开启评论审核',
+    `enableCaptcha` varchar(1) NULL COMMENT '开启登录验证码',
+    `enableUserLog` varchar(1) NULL COMMENT '开启用户日志',
+    `enableAdminLog` varchar(1) NULL COMMENT '开启管理员日志',
+    PRIMARY KEY (`settingId`)
+);
+-- 基本设置数据
+INSERT INTO `basic` (
+    `settingId`, `siteName`, `siteLogo`, `enableHomeTyping`, `enableGravatarCDN`, `gravatarCDNAddress`, `enablePicCompress`, `picCompressType`, `enablePictureVerify`, `enableCommentVerify`, `enableCaptcha`, `enableUserLog`, `enableAdminLog`
+) VALUES (
+    '1', 'IURT meme 2.0', '', 'Y', 'Y', '', 'Y', 'gzip', 'N', 'N', 'N', 'Y', 'Y'
+);
+
+-- 安全设置表
+DROP TABLE IF EXISTS `security`;
+CREATE TABLE IF NOT EXISTS `security` (
+    `settingId` int NOT NULL COMMENT '设置ID',
+    `enableEmail` varchar(1) NULL COMMENT '启用邮箱验证',
+    `smtpHost` varchar(100) NULL COMMENT 'SMTP服务器',
+    `smtpPort` varchar(10) NULL COMMENT 'SMTP端口',
+    `smtpUsername` varchar(300) NULL COMMENT 'SMTP用户名',
+    `smtpPassword` varchar(500) NULL COMMENT 'SMTP密码',
+    `smtpEncrypt` varchar(50) NULL COMMENT 'SMTP加密方式',
+    PRIMARY KEY (`settingId`)
+);
+-- 安全设置数据
+INSERT INTO `security` (
+    `settingId`, `enableEmail`
+) VALUES (
+    1, 'N'
+ );
+
 # 开启外键约束
 SET FOREIGN_KEY_CHECKS=1;

@@ -1,6 +1,6 @@
 <script setup>
 import { UserUrl, CaptchaUrl } from "@/api/url.js";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import axios from "axios";
 import router from "@/router/index.js";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
@@ -14,6 +14,11 @@ const usernameRef = ref(null)
 const passwordRef = ref(null)
 const captchaRef = ref(null)
 const formLoading = ref(false)
+const setting = ref({})
+
+onMounted(()=>{
+  setting.value = VARS
+})
 
 function loginHandler() {
   if (username.value.length && password.value.length) {
@@ -72,7 +77,7 @@ function googleLoginSuccess(response) {
               <el-form-item label="密码">
                 <el-input ref="passwordRef" type="password" v-model="password" placeholder="输入密码" @keydown.enter="enterHandler" />
               </el-form-item>
-              <el-form-item label="图片验证码">
+              <el-form-item label="图片验证码" v-if="setting.enableCaptcha === 'Y'">
                 <el-row :gutter="8">
                   <el-col :span="14">
                     <el-input v-model="captcha" ref="captchaRef" @keydown.enter="enterHandler" />
