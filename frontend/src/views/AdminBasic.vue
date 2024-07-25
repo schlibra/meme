@@ -12,18 +12,18 @@ import {InfoFilled} from "@element-plus/icons-vue";
 
 const token = getToken()
 const setting = ref({
-  siteName: 'IURT meme',
+  siteName: "",
   siteLogo: "",
-  enableHomeTyping: "Y",
-  enableGravatarCDN: "Y",
-  gravatarCDNAddress: 'https://cdn.tsinbei.com/gravatar',
-  enablePicCompress: "N",
-  picCompressType: "no",
-  enablePictureVerify: "N",
-  enableCommentVerify: "N",
-  enableCaptcha: "Y",
-  enableUserLog: "Y",
-  enableAdminLog: "Y",
+  enableHomeTyping: "",
+  enableGravatarCDN: "",
+  gravatarCDNAddress: "",
+  enablePicCompress: "",
+  picCompressType: "",
+  enablePictureVerify: "",
+  enableCommentVerify: "",
+  enableCaptcha: "",
+  enableUserLog: "",
+  enableAdminLog: "",
 })
 const mainLoading = ref(true)
 
@@ -71,7 +71,7 @@ function saveSetting() {
               <el-switch v-model="setting.enableGravatarCDN" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="N" />
             </el-form-item>
             <el-form-item label="头像CDN地址" v-if="setting.enableGravatarCDN === 'Y'">
-              <el-input :disabled="!setting.enableGravatarCDN" v-model="setting.gravatarCDNAddress" />
+              <el-input :disabled="!setting.enableGravatarCDN" v-model="setting.gravatarCDNAddress" placeholder="https://gravatar.com/avatar/" />
             </el-form-item>
             <el-form-item label="开启图片压缩">
               <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enablePicCompress" active-value="Y" inactive-value="N" />

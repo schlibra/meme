@@ -243,6 +243,7 @@ class Pics {
     #[ApiDoc\Returned("nickname", type: "string", require: true, desc: "昵称")]
     #[ApiDoc\Returned("avatar", type: "string", require: true, desc: "用户头像地址")]
     function getComment(Request$request): Json {
+        $setting = getSetting();
         $pic = $request->get("pic");
         $comments = CommentModel::where("delete")
             ->where("picId", $pic)
@@ -250,7 +251,7 @@ class Pics {
         foreach ($comments as &$comment) {
             $user = $comment->user;
             $comment->nickname = $user->nickname;
-            $comment->avatar = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("md5", $user->email);
+            $user->avatar = ($setting["enableGravatarCDN"] === "Y" ? $setting["gravatarCDNAddress"] : "https://gravatar.com/avatar/") . hash("md5", $user->email);
             if ($comment->reply > 0) {
                 $reply = CommentModel::where("commentId", $comment->reply)->findOrEmpty();
                 if (!$reply->isEmpty()) {

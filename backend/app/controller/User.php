@@ -255,11 +255,12 @@ class User {
     #[ApiDoc\Returned("restoreScore", type: "string", require: true, desc: "运行还原评分")]
     #[ApiDoc\Returned("update", type: "datetime", require: true, desc: "更新时间")]
     function getInfo(Request $request): Json {
+        $setting = getSetting();
         $auth = loginAuth($request);
         if ($auth["status"]) {
             $user = $auth["data"];
             unset($user["password"], $user["ban"], $user["reason"]);
-            $user->avatar = "https://cdn.tsinbei.com/gravatar/avatar/" . hash("md5", $user->email);
+            $user->avatar = ($setting["enableGravatarCDN"] === "Y" ? $setting["gravatarCDNAddress"] : "https://gravatar.com/avatar/") . hash("md5", $user->email);
             $group = $user->group;
             if ($group) {
                 $user = array_merge($user->toArray(), $group->toArray());

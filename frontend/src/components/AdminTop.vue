@@ -13,7 +13,11 @@ const user = ref({})
 onMounted(()=>{
   Get(UserUrl.infoUrl, {}, {
     ok(_, data) {
-      user.value = data
+      if (data.admin === "Y") {
+        user.value = data
+      } else {
+        router.push("/")
+      }
     },
     bad(res) {
       alertError(res, "没有权限访问", gotoHome)

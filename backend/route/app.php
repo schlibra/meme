@@ -60,6 +60,7 @@ Route::delete("api/admin/backup", "Admin/resetData");
 // 登录回调
 Route::post("api/login/callback/sckur", "Callback/sckurCallback");
 // 访问前端
+Route::miss("Index");
 Route::get("/", "Index");
 Route::get("login", "Index");
 Route::get("register", "Index");

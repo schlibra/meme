@@ -16,6 +16,7 @@ import AdminGroup from "@/views/AdminGroup.vue";
 import AdminUser from "@/views/AdminUser.vue"
 import AdminThirdParty from "@/views/AdminThirdParty.vue";
 import AdminBackup from "@/views/AdminBackup.vue";
+import NotFoundPage from "@/views/NotFoundPage.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -121,6 +122,16 @@ const router = createRouter({
       name: "adminBackup",
       component: AdminBackup,
       meta: { title: "后台管理中心 - 备份与恢复" }
+    },
+    {
+      path: "/404",
+      name: "404 Not Found",
+      component: NotFoundPage,
+      meta: { title: "找不到页面" }
+    },
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: "/404"
     }
   ]
 })
