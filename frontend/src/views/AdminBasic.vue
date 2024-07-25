@@ -70,7 +70,7 @@ function saveSetting() {
             <el-form-item label="启用头像CDN">
               <el-switch v-model="setting.enableGravatarCDN" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="N" />
             </el-form-item>
-            <el-form-item label="头像CDN地址">
+            <el-form-item label="头像CDN地址" v-if="setting.enableGravatarCDN === 'Y'">
               <el-input :disabled="!setting.enableGravatarCDN" v-model="setting.gravatarCDNAddress" />
             </el-form-item>
             <el-form-item label="开启图片压缩">
@@ -92,7 +92,7 @@ function saveSetting() {
             <el-form-item label="开启图形验证码">
               <el-space wrap direction="vertical" alignment="normal">
                 <el-switch v-model="setting.enableCaptcha" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="N" />
-                <el-text type="info"><ElIcon><InfoFilled /></ElIcon>开启该功能需要开启扩展gd（或php_gd）</el-text>
+                <el-text type="info" v-if="setting.enableCaptcha === 'Y'"><ElIcon><InfoFilled /></ElIcon>开启该功能需要开启扩展gd（或php_gd）</el-text>
               </el-space>
             </el-form-item>
             <el-form-item label="记录用户日志">

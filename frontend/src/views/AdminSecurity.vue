@@ -1,7 +1,7 @@
 <script setup>
 import AdminSidebar from "@/components/AdminSidebar.vue";
 import AdminTop from "@/components/AdminTop.vue";
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import {InfoFilled} from "@element-plus/icons-vue";
 
 const setting = ref({
@@ -11,6 +11,10 @@ const setting = ref({
   smtpUsername: "",
   smtpPassword: "",
   smtpEncrypt: ""
+})
+
+onMounted(()=>{
+  setting.value = VARS
 })
 </script>
 
