@@ -125,7 +125,7 @@ class Pics {
                 $picsItem->score = 0;
             }
             $picsItem->nickname = $picsItem->user->nickname;
-            $picsItem->url = $request->domain() . "/pics/image/" . $picsItem->picId;
+            $picsItem->url = $request->domain() . "/api/pics/image/" . $picsItem->picId;
             return jb(200, "数据获取成功", $picsItem, $picsCount, $picsIndex);
         }
     }
