@@ -135,21 +135,6 @@ INSERT INTO `basic` (
     '1', 'IURT meme 2.0', '', 'Y', 'Y', '', 'Y', 'gzip', 'N', 'N', 'N', 'Y', 'Y'
 );
 
-CREATE TRIGGER `basicNotInsert`
-BEFORE INSERT
-ON `basic`
-FOR EACH ROW
-BEGIN
-    CALL nothing();
-end;
-CREATE TRIGGER `basicNotDelete`
-BEFORE DELETE
-ON `basic`
-FOR EACH ROW
-BEGIN
-    CALL nothing();
-end;
-
 -- 安全设置表
 DROP TABLE IF EXISTS `security`;
 CREATE TABLE IF NOT EXISTS `security` (
@@ -167,22 +152,7 @@ INSERT INTO `security` (
     `settingId`, `enableEmail`
 ) VALUES (
     1, 'N'
- );
-
-CREATE TRIGGER `securityNotInsert`
-    BEFORE INSERT
-    ON `security`
-    FOR EACH ROW
-BEGIN
-    CALL nothing();
-end;
-CREATE TRIGGER `securityNotDelete`
-    BEFORE DELETE
-    ON `security`
-    FOR EACH ROW
-BEGIN
-    CALL nothing();
-end;
+);
 
 -- 第三方平台表
 DROP TABLE IF EXISTS `thirdParty`;
@@ -209,22 +179,49 @@ INSERT INTO `thirdParty` (
     `settingId`
 ) VALUES (
     '1'
- );
-
+);
+CREATE TRIGGER `basicNotInsert`
+    BEFORE INSERT
+    ON `basic`
+    FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE 'HY000' SET MESSAGE_TEXT = '禁止插入';
+end;
+CREATE TRIGGER `basicNotDelete`
+    BEFORE DELETE
+    ON `basic`
+    FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE 'HY000' SET MESSAGE_TEXT = '禁止删除';
+end;
+CREATE TRIGGER `securityNotInsert`
+    BEFORE INSERT
+    ON `security`
+    FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE 'HY000' SET MESSAGE_TEXT = '禁止插入';
+end;
+CREATE TRIGGER `securityNotDelete`
+    BEFORE DELETE
+    ON `security`
+    FOR EACH ROW
+BEGIN
+    SIGNAL SQLSTATE 'HY000' SET MESSAGE_TEXT = '禁止删除';
+end;
 CREATE TRIGGER `thirdPartyNotInsert`
     BEFORE INSERT
     ON `thirdParty`
     FOR EACH ROW
 BEGIN
-    CALL nothing();
+    SIGNAL SQLSTATE 'HY000' SET MESSAGE_TEXT = '禁止插入';
 end;
 CREATE TRIGGER `thirdPartyNotDelete`
     BEFORE DELETE
     ON `thirdParty`
     FOR EACH ROW
 BEGIN
-    CALL nothing();
-end;
+    SIGNAL SQLSTATE 'HY000' SET MESSAGE_TEXT = '禁止删除';
+END;
 
 # 开启外键约束
 SET FOREIGN_KEY_CHECKS=1;

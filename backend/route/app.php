@@ -45,6 +45,7 @@ Route::get("api/pics/comment", "Pics/getComment");
 Route::post("api/pics/comment", "Pics/addComment");
 Route::get("api/pics/random", "Pics/randomPic");
 // 管理员
+Route::post("api/admin/basic", "Admin/setBasic");
 Route::get("api/admin/group", "Admin/getGroup");
 Route::put("api/admin/group", "Admin/updateGroup");
 Route::post("api/admin/group", "Admin/createGroup");
@@ -76,7 +77,7 @@ Route::get("admin/user", "Index");
 Route::get("admin/thirdParty", "Index");
 Route::get("admin/backup", "Index");
 // assets资源加载
-Route::get("assets/:file", "Assets/index");
+Route::get("assets/:file", "Index/assets");
 Route::get("src", "Index/js");
 Route::get("node_modules", "Index/js");
 Route::get("@id", "Index/js");

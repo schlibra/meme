@@ -1,5 +1,8 @@
 <?php
 
+use app\model\BasicModel;
+use app\model\SecurityModel;
+use app\model\ThirdPartyModel;
 use app\model\UserModel;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
@@ -45,9 +48,20 @@ function returnData(bool $status = true, string $msg = "", mixed $data = null): 
     ];
 }
 
+function getSetting(): array {
+    $basic = BasicModel::find(1);
+    $security = SecurityModel::find(1);
+    $thirdParty = ThirdPartyModel::find(1);
+    return array_merge(
+        $basic->toArray(),
+        $security->toArray(),
+        $thirdParty->toArray(),
+    );
+}
+
 function captchaCheck ($code): array {
-    $need_code = false;
-    if ($need_code) {
+    $setting = getSetting();
+    if ($setting["enableCaptcha"] === "Y") {
         if ($code) {
             if (captcha_check($code)) {
                 return returnData();

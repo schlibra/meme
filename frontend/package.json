@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -24,6 +24,7 @@
     "vue-kinesis": "^2.0.5",
     "vue-rough-notation": "^1.0.4",
     "vue-router": "^4.3.3",
+    "vue3-cookies": "^1.0.6",
     "vue3typed": "^0.1.5"
   },
   "devDependencies": {

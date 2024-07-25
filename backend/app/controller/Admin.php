@@ -2,25 +2,60 @@
 
 namespace app\controller;
 
+use app\model\BasicModel;
 use app\model\CommentModel;
 use app\model\GroupModel;
 use app\model\PicsModel;
 use app\model\ScoreModel;
-use app\model\TableInfoModel;
+use app\model\SecurityModel;
+use app\model\ThirdPartyModel;
 use app\model\UserModel;
 use app\Request;
 use think\facade\Db;
 use think\Model;
 use think\Response;
 use think\response\Json;
+use WpOrg\Requests\Auth\Basic;
 
 class Admin
 {
-    function getBasic(): Json {
-        return jb();
-    }
-    function getSecurity(): Json{
-        return jb();
+    function setBasic(Request$request): Json {
+        $siteName = $request->post("siteName");
+        $siteLogo = $request->post("siteLogo");
+        $enableHomeTyping = $request->post("enableHomeTyping");
+        $enableGravatarCDN = $request->post("enableGravatarCDN");
+        $gravatarCDNAddress = $request->post("gravatarCDNAddress");
+        $enablePicCompress = $request->post("enablePicCompress");
+        $picCompressType = $request->post("picCompressType");
+        $enablePictureVerify = $request->post("enablePictureVerify");
+        $enableCommentVerify = $request->post("enableCommentVerify");
+        $enableCaptcha = $request->post("enableCaptcha");
+        $enableUserLog = $request->post("enableUserLog");
+        $enableAdminLog = $request->post("enableAdminLog");
+        $auth = loginAuth($request, true);
+        if ($auth["status"]) {
+            $basic = BasicModel::findOrEmpty(1);
+            if ($basic->isEmpty()) {
+                return jb(400, "数据不存在");
+            } else {
+                if ($siteName) $basic->siteName = $siteName;
+                if ($siteLogo) $basic->siteLogo = $siteLogo;
+                if ($enableHomeTyping) $basic->enableHomeTyping = $enableHomeTyping;
+                if ($enableGravatarCDN) $basic->enableGravatarCDN = $enableGravatarCDN;
+                if ($gravatarCDNAddress) $basic->gravatarCDNAddress = $gravatarCDNAddress;
+                if ($enablePicCompress) $basic->enablePicCompress = $enablePicCompress;
+                if ($picCompressType) $basic->picCompressType = $picCompressType;
+                if ($enablePictureVerify) $basic->enablePictureVerify = $enablePictureVerify;
+                if ($enableCommentVerify) $basic->enableCommentVerify = $enableCommentVerify;
+                if ($enableCaptcha) $basic->enableCaptcha = $enableCaptcha;
+                if ($enableUserLog) $basic->enableUserLog = $enableUserLog;
+                if ($enableAdminLog) $basic->enableAdminLog = $enableAdminLog;
+                $basic->save();
+                return jb(200, "设置更新成功");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
     }
     function getGroup(Request$request): Json {
         $auth = loginAuth($request, true);
@@ -269,7 +304,10 @@ class Admin
                 "user" => UserModel::select()->toArray(),
                 "pics" => PicsModel::select()->toArray(),
                 "score" => ScoreModel::select()->toArray(),
-                "comment" => CommentModel::select()->toArray()
+                "comment" => CommentModel::select()->toArray(),
+                "basic" => BasicModel::select()->toArray(),
+                "security" => SecurityModel::select()->toArray(),
+                "thirdParty" => ThirdPartyModel::select()->toArray(),
             ];
             $data = json_encode($data);
             $data = gzcompress($data, 9);
@@ -292,9 +330,9 @@ class Admin
             if ($file) {
                 $data = file_get_contents($file->getPathname());
                 if (str_starts_with($data, memeBackupHeader) && str_ends_with($data, memeBackupFooter)) {
-                    $data = gzuncompress($data);
                     $data = str_replace([memeBackupHeader, memeBackupFooter], ["", ""], $data);
                     $data = base64_decode($data);
+                    $data = gzuncompress($data);
                     $data = json_decode($data, true);
                     if ($data) {
                         $reset = $this->resetData($request)->getData();
@@ -319,6 +357,22 @@ class Admin
                                 }
                             } else {
                                 $result["skipped"]++;
+                            }
+                        }
+                        foreach (["basic", "security", "thirdParty"] as $name) {
+                            if ($data[$name]) {
+                                foreach ($data[$name] as $item) {
+                                    $model = match ($name) {
+                                        "basic" => BasicModel::find(1),
+                                        "security" => SecurityModel::find(1),
+                                        "thirdParty" => ThirdPartyModel::find(1),
+                                        default => null
+                                    };
+                                    foreach (array_keys($item) as $key) {
+                                        $model[$key] = $item[$key];
+                                    }
+                                    $result[$model->save()?"success":"failed"]++;
+                                }
                             }
                         }
                         return jb(200, "数据恢复完成", $result);

@@ -9,6 +9,7 @@ import App from './App.vue'
 import router from './router'
 import { useDark } from "@vueuse/core"
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import vue3Cookies from 'vue3-cookies'
 const app = createApp(App)
 const isDark = useDark()
 if (isDark.value) {
@@ -22,6 +23,7 @@ app.use(router)
 app.use(ElementPlus, {
     locale: zhCn
 })
+app.use(vue3Cookies)
 app.use(vuetyped)
 
 app.mount('#app')

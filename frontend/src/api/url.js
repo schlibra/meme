@@ -1,4 +1,6 @@
-const isDev = process.env.NODE_ENV === "development"
+import { useCookies } from 'vue3-cookies'
+const { cookies } = useCookies()
+const isDev = process.env.NODE_ENV === "development" && cookies.get("dev") !== "Y"
 const baseUrl = isDev ? "http://127.0.0.1:8000" : location.origin
 
 const apiUrl = baseUrl + "/api"
@@ -33,7 +35,10 @@ const PicsUrl = {
 const AdminUrl = {
     groupUrl: adminUrl + "/group",
     userUrl: adminUrl + "/user",
-    backupUrl: adminUrl + "/backup"
+    backupUrl: adminUrl + "/backup",
+    basicUrl: adminUrl + "/basic",
+    securityUrl: adminUrl + "/security",
+    thirdPartyUrl: adminUrl + "/thirdParty"
 }
 
 export { UserUrl, PicsUrl, AdminUrl, CaptchaUrl }

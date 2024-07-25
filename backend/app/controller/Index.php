@@ -14,7 +14,7 @@ use WpOrg\Requests\Requests;
 class Index extends BaseController
 {
     function index(Request$request): string {
-        if ($request->get("dev") === "Y") {
+        if ($request->cookie("dev") === "Y") {
             $view = file_get_contents("http://localhost:5173/");
             $view = str_replace("<script type=\"module\" src=\"/@id/virtual:vue-devtools-path:overlay.js\"></script>", "", $view);
         } else {
@@ -32,9 +32,46 @@ class Index extends BaseController
         }
         return $view;
     }
+    function assets(Request$request): Response {
+        $setting = getSetting();
+        $bool = [
+            "Y" => "!0",
+            "N" => "!1",
+        ];
+        $enableHomeType = true;
+        $REPLACE = [
+            "[\"IURT meme 2.0\"]" => "[\"{$setting["siteName"]}\"]",
+            "!0,\"enableHomeType\"" => $bool[$setting["enableHomeTyping"]],
+            "!1,\"enableHomeType\"" => $bool[$setting["enableHomeTyping"]],
+        ];
+        $filename = $request->url();
+        $filepath = root_path() . "view/dist/$filename";
+        if (file_exists($filepath)) {
+            $ext = explode(".", $filename);
+            $ext = end($ext);
+            $type = match ($ext) {
+                "js" => "application/javascript",
+                "css" => "text/css",
+                default => "text/plain",
+            };
+            header("Content-Type: $type");
+            $data = file_get_contents($filepath);
+            foreach ($REPLACE as $key => $value) {
+                $data = str_replace($key, $value, $data);
+            }
+            return response($data)->header([
+                "Content-Type" => $type
+            ]);
+        } else {
+            return jb(404, "文件不存在", [
+                "filename" => $filename,
+                "realPath" => $filepath
+            ]);
+        }
+    }
     function js(Request$request): Response {
         $js = file_get_contents("http://localhost:5173/{$request->pathinfo()}");
-        $js = str_replace("WebSocket(`\${protocol}://\${hostAndPath}`, \"vite-hmr\");", "WebSocket(`\${protocol}://localhost:5173/`, \"vite-hmr\");", $js);
+        $js = str_replace("WebSocket(`\${protocol}://\${hostAndPath}`, \"vite-hmr\");", "WebSocket(`\${protocol}://{$request->host(true)}:5173/`, \"vite-hmr\");", $js);
         return response($js)->header([
             "Content-Type" => "application/javascript"
         ]);

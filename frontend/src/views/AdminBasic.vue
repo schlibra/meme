@@ -3,15 +3,14 @@ import UserSidebar from "@/components/AdminSidebar.vue";
 import {computed, onMounted, ref} from "vue";
 import router from "@/router/index.js";
 import axios from "axios";
-import {UserUrl} from "@/api/url.js";
+import {AdminUrl, UserUrl} from "@/api/url.js";
 import UserTop from "@/components/AdminTop.vue";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken} from "@/lib/tokenLib.js";
-import {Get} from "@/lib/axiosLib.js";
+import {Get, Post} from "@/lib/axiosLib.js";
 import {InfoFilled} from "@element-plus/icons-vue";
 
 const token = getToken()
-const user = ref({sex: "", birth: 0})
 const setting = ref({
   siteName: 'IURT meme',
   siteLogo: "",
@@ -29,26 +28,21 @@ const setting = ref({
 const mainLoading = ref(true)
 
 onMounted(()=>{
-  if (token) {
-    Get(UserUrl.infoUrl, {}, {
-      ok(res) {
-        
-      },
-      bad(res) {
-        alertError(res, "数据获取失败", () => router.push("/login"))
-      },
-      error(err) {
-        axiosError(err, "数据获取失败", () => location.reload())
-      },
-      final() {
-        mainLoading.value = false
-      }
-    })
-  } else {
-    router.push("/login")
-  }
+  setting.value = VARS
 })
-
+function saveSetting() {
+  Post(AdminUrl.basicUrl, setting.value, {
+    ok(res) {
+      alertSuccess(res, "保存成功", ()=>location.reload())
+    },
+    bad(res) {
+      alertError(res, "保存失败")
+    },
+    error(err) {
+      axiosError(err, "保存失败")
+    }
+  })
+}
 </script>
 
 <template>
@@ -71,13 +65,13 @@ onMounted(()=>{
               <el-input v-model="setting.siteLogo" />
             </el-form-item>
             <el-form-item label="开启首页打字效果">
-              <el-switch disabled v-model="setting.enableHomeTyping" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="N" />
+              <el-switch v-model="setting.enableHomeTyping" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="N" />
             </el-form-item>
             <el-form-item label="启用头像CDN">
               <el-switch v-model="setting.enableGravatarCDN" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="N" />
             </el-form-item>
             <el-form-item label="头像CDN地址">
-              <el-input :disabled="!setting.enableGravatarCDN" v-model="setting.gravatarCDNAddress" model-value="https://cdn.tsinbei.com/gravatar" />
+              <el-input :disabled="!setting.enableGravatarCDN" v-model="setting.gravatarCDNAddress" />
             </el-form-item>
             <el-form-item label="开启图片压缩">
               <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enablePicCompress" active-value="Y" inactive-value="N" />
@@ -107,8 +101,7 @@ onMounted(()=>{
             <el-form-item label="记录管理员日志">
               <el-switch v-model="setting.enableAdminLog" active-text="开启" inactive-text="关闭" active-value="Y" inactive-value="N" />
             </el-form-item>
-            <el-button>编辑</el-button>
-            <el-button>保存</el-button>
+            <el-button @click="saveSetting">保存</el-button>
           </el-form>
         </el-main>
       </el-scrollbar>
