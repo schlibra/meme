@@ -8,6 +8,7 @@ import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {CircleCheckFilled, CircleCloseFilled} from "@element-plus/icons-vue";
 import router from "@/router/index.js";
 import confirm from "@/lib/confirmLib.js";
+import {setToken} from "@/lib/tokenLib.js";
 
 const user = ref([])
 const group = ref([])
@@ -178,6 +179,32 @@ function createSubmit() {
     }
   })
 }
+function switchUser(index) {
+  let userId = user.value[index].userId
+  let username = user.value[index].username
+  let nickname = user.value[index].nickname
+  confirm(`将要切换到用户${nickname}（${username}），切换成功后该用户原登录设备将会退出登录状态，是否继续？`, "是否切换用户", {
+    confirm() {
+      Post(AdminUrl.switchUser, {
+        userId,
+        username
+      }, {
+        ok(res) {
+          alertSuccess(res, "切换成功", ()=>{
+            setToken(res.data.token)
+            location.reload()
+          })
+        },
+        bad(res) {
+          alertError(res, "切换失败")
+        },
+        error(err) {
+          axiosError(err, "切换失败")
+        }
+      })
+    }
+  })
+}
 </script>
 
 <template>
@@ -220,9 +247,10 @@ function createSubmit() {
                   </template>
                 </el-table-column>
                 <el-table-column label="注册时间" prop="create" />
-                <el-table-column label="操作">
+                <el-table-column label="操作" width="300">
                   <template #default="scope">
                     <el-button type="primary" @click="editUser(scope.$index)">编辑</el-button>
+                    <el-button type="warning" @click="switchUser(scope.$index)">登录该账号</el-button>
                     <el-button type="danger" @click="deleteUser(scope.$index)">删除</el-button>
                   </template>
                 </el-table-column>

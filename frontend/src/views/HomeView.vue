@@ -12,7 +12,7 @@ import {Get, Post} from "@/lib/axiosLib.js";
 const token = ref(getToken())
 const userInfo = ref({})
 const strings = ref(["IURT meme 2.0"])  // 这里不要直接修改，部署后通过这里修改打字内容
-const enableTyping = ref([false, "enableHomeType"])
+const enableTyping = ref([true, "enableHomeType"])
 const currentPage = ref(1)
 const pageSize = ref(20)
 const search = ref("")
@@ -292,7 +292,7 @@ function submitComment() {
   </div>
   <el-input class="search" v-model="search" placeholder="搜索图片" @change="reload" />
   <el-divider />
-  <el-scrollbar :height="displayUtil.isXs ? token ? 'calc(100vh - 460px)' : 'calc(100vh - 400px)' : token ? 'calc(100vh - 380px)' : 'calc(100vh - 320px)'">
+  <el-scrollbar :height="displayUtil.isXs ? token ? 'calc(100vh - 470px)' : 'calc(100vh - 410px)' : token ? 'calc(100vh - 390px)' : 'calc(100vh - 330px)'">
     <el-row :gutter="8" class="main" v-loading="mainLoading">
       <el-col  :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">

@@ -11,6 +11,8 @@ use app\model\SecurityModel;
 use app\model\ThirdPartyModel;
 use app\model\UserModel;
 use app\Request;
+use Firebase\JWT\JWT;
+use think\facade\Cache;
 use think\facade\Db;
 use think\Model;
 use think\Response;
@@ -51,6 +53,32 @@ class Admin
                 if ($enableUserLog) $basic->enableUserLog = $enableUserLog;
                 if ($enableAdminLog) $basic->enableAdminLog = $enableAdminLog;
                 $basic->save();
+                return jb(200, "设置更新成功");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+    function setSecurity(Request$request): Json {
+        $enableEmail = $request->post("enableEmail");
+        $smtpHost = $request->post("smtpHost");
+        $smtpPort = $request->post("smtpPort");
+        $smtpUsername = $request->post("smtpUsername");
+        $smtpPassword = $request->post("smtpPassword");
+        $smtpEncrypt = $request->post("smtpEncrypt");
+        $auth = loginAuth($request, true);
+        if ($auth["status"]) {
+            $security = SecurityModel::findOrEmpty(1);
+            if ($security->isEmpty()) {
+                return jb(400, "数据不存在");
+            } else {
+                if ($enableEmail) $security->enableEmail = $enableEmail;
+                if ($smtpHost) $security->smtpHost = $smtpHost;
+                if ($smtpPort) $security->smtpPort = $smtpPort;
+                if ($smtpUsername) $security->smtpUsername = $smtpUsername;
+                if ($smtpPassword) $security->smtpPassword = $smtpPassword;
+                if ($smtpEncrypt) $security->smtpEncrypt = $smtpEncrypt;
+                $security->save();
                 return jb(200, "设置更新成功");
             }
         } else {
@@ -291,6 +319,41 @@ class Admin
             } else {
                 $user->delete();
                 return jb(msg: "用户删除成功");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
+    function switchUser(Request$request): Json {
+        $auth = loginAuth($request, true);
+        $userId = $request->post("userId");
+        $username = $request->post("username");
+        if ($auth["status"]) {
+            $user = UserModel::where("userId", $userId)->findOrEmpty();
+            if ($user->isEmpty()) {
+                return jb(404, "指定用户不存在");
+            } else {
+                if ($user->username === $username) {
+                    if ($user->ban === "Y") {
+                        return jb(403, "目标用户已封禁，请解封后重试");
+                    } else {
+                        $url = $request->domain();
+                        $payload = [
+                            "iss" => $url,
+                            "aud" => $url,
+                            "kid" => $url,
+                            "iat" => time(),
+                            "exp" => time() + 36000,
+                            "username" => $user->username,
+                            "email" => $user->email
+                        ];
+                        $token = JWT::encode($payload, "meme_login_token_key", "HS256");
+                        Cache::set($username, $token);
+                        return jb(200, "登录成功", null, null, $token);
+                    }
+                } else {
+                    return jb(403, "目标用户名不匹配");
+                }
             }
         } else {
             return jb(401, $auth["msg"]);

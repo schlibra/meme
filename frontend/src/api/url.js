@@ -1,5 +1,6 @@
 import { useCookies } from 'vue3-cookies'
 const { cookies } = useCookies()
+globalThis.cookie = cookies
 const isDev = process.env.NODE_ENV === "development" && cookies.get("dev") !== "Y"
 const baseUrl = isDev ? "http://127.0.0.1:8000" : location.origin
 
@@ -35,6 +36,7 @@ const PicsUrl = {
 const AdminUrl = {
     groupUrl: adminUrl + "/group",
     userUrl: adminUrl + "/user",
+    switchUser: adminUrl + "/switchUser",
     backupUrl: adminUrl + "/backup",
     basicUrl: adminUrl + "/basic",
     securityUrl: adminUrl + "/security",

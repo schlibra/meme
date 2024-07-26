@@ -9,7 +9,6 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 use think\facade\Route;
-use think\Request;
 
 // 用户
 Route::post("api/user/login", "User/login");
@@ -46,6 +45,7 @@ Route::post("api/pics/comment", "Pics/addComment");
 Route::get("api/pics/random", "Pics/randomPic");
 // 管理员
 Route::post("api/admin/basic", "Admin/setBasic");
+Route::post("api/admin/security", "Admin/setSecurity");
 Route::get("api/admin/group", "Admin/getGroup");
 Route::put("api/admin/group", "Admin/updateGroup");
 Route::post("api/admin/group", "Admin/createGroup");
@@ -54,6 +54,7 @@ Route::get("api/admin/user", "Admin/getUser");
 Route::put("api/admin/user", "Admin/updateUser");
 Route::post("api/admin/user", "Admin/createUser");
 Route::delete("api/admin/user", "Admin/deleteUser");
+Route::post("api/admin/switchUser", "Admin/switchUser");
 Route::get("api/admin/backup", "Admin/getBackup");
 Route::post("api/admin/backup", "Admin/restoreBackup");
 Route::delete("api/admin/backup", "Admin/resetData");
@@ -79,10 +80,5 @@ Route::get("admin/thirdParty", "Index");
 Route::get("admin/backup", "Index");
 // assets资源加载
 Route::get("assets/:file", "Index/assets");
-Route::get("src", "Index/js");
-Route::get("node_modules", "Index/js");
-Route::get("@id", "Index/js");
-Route::get("@vite", "Index/js");
-Route::get("__devtools__", "Index/js");
 // 验证码
 Route::get("api/captcha/[:config]", "\\think\\captcha\\CaptchaController@index");
