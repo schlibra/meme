@@ -85,6 +85,48 @@ class Admin
             return jb(401, $auth["msg"]);
         }
     }
+    function setThirdParty(Request$request): Json {
+        $enableSckur = $request->post("enableSckur");
+        $sckurApiKey = $request->post("sckurApiKey");
+        $enableGitee = $request->post("enableGitee");
+        $giteeClientId = $request->post("giteeClientId");
+        $giteeClientSecret = $request->post("giteeClientSecret");
+        $enableGithub = $request->post("enableGithub");
+        $githubClientId = $request->post("githubClientId");
+        $githubClientSecret = $request->post("githubClientSecret");
+        $enableGitlab = $request->post("enableGitlab");
+        $gitlabClientId = $request->post("gitlabClientId");
+        $gitlabClientSecret = $request->post("gitlabClientSecret");
+        $enableMicrosoft = $request->post("enableMicrosoft");
+        $microsoftClientId = $request->post("microsoftClientId");
+        $microsoftClientSecret = $request->post("microsoftClientSecret");
+        $auth = loginAuth($request, true);
+        if ($auth["status"]) {
+            $thirdParty = ThirdPartyModel::findOrEmpty(1);
+            if ($thirdParty->isEmpty()) {
+                return jb(400, "数据不存在");
+            } else {
+                if ($enableSckur) $thirdParty->enableSckur = $enableSckur;
+                if ($sckurApiKey) $thirdParty->sckurApiKey = $sckurApiKey;
+                if ($enableGitee) $thirdParty->enableGitee = $enableGitee;
+                if ($giteeClientId) $thirdParty->giteeClientId = $giteeClientId;
+                if ($giteeClientSecret) $thirdParty->giteeClientSecret = $giteeClientSecret;
+                if ($enableGithub) $thirdParty->enableGithub = $enableGithub;
+                if ($githubClientId) $thirdParty->githubClientId = $githubClientId;
+                if ($githubClientSecret) $thirdParty->githubClientSecret = $githubClientSecret;
+                if ($enableGitlab) $thirdParty->enableGitlab = $enableGitlab;
+                if ($gitlabClientId) $thirdParty->gitlabClientId = $gitlabClientId;
+                if ($gitlabClientSecret) $thirdParty->gitlabClientSecret = $gitlabClientSecret;
+                if ($enableMicrosoft) $thirdParty->enableMicrosoft = $enableMicrosoft;
+                if ($microsoftClientId) $thirdParty->microsoftClientId = $microsoftClientId;
+                if ($microsoftClientSecret) $thirdParty->microsoftClientSecret = $microsoftClientSecret;
+                $thirdParty->save();
+                return jb(200, "设置更新成功");
+            }
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
     function getGroup(Request$request): Json {
         $auth = loginAuth($request, true);
         if ($auth["status"]) {

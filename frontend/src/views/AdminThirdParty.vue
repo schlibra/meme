@@ -2,7 +2,10 @@
 
 import AdminSidebar from "@/components/AdminSidebar.vue";
 import AdminTop from "@/components/AdminTop.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
+import {Post} from "@/lib/axiosLib.js";
+import {AdminUrl} from "@/api/url.js";
+import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 
 const setting = ref({
   enableSckur: "N",
@@ -20,6 +23,22 @@ const setting = ref({
   microsoftClientId: "",
   microsoftClientSecret: "",
 })
+onMounted(()=>{
+  setting.value = VARS
+})
+function saveSetting() {
+  Post(AdminUrl.thirdPartyUrl, setting.value, {
+    ok(res) {
+      alertSuccess(res, "保存成功", ()=>location.reload())
+    },
+    bad(res) {
+      alertError(res, "保存失败")
+    },
+    error(err) {
+      axiosError(err, "保存失败")
+    }
+  })
+}
 </script>
 
 <template>
@@ -77,6 +96,7 @@ const setting = ref({
             <el-form-item label="Microsoft Client Secret" v-if="setting.enableMicrosoft === 'Y'">
               <el-input v-model="setting.microsoftClientSecret" />
             </el-form-item>
+            <el-button @click="saveSetting">保存</el-button>
           </el-form>
         </el-main>
       </el-scrollbar>

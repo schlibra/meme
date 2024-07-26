@@ -46,6 +46,7 @@ Route::get("api/pics/random", "Pics/randomPic");
 // 管理员
 Route::post("api/admin/basic", "Admin/setBasic");
 Route::post("api/admin/security", "Admin/setSecurity");
+Route::post("api/admin/thirdParty", "Admin/setThirdParty");
 Route::get("api/admin/group", "Admin/getGroup");
 Route::put("api/admin/group", "Admin/updateGroup");
 Route::post("api/admin/group", "Admin/createGroup");
@@ -60,6 +61,7 @@ Route::post("api/admin/backup", "Admin/restoreBackup");
 Route::delete("api/admin/backup", "Admin/resetData");
 // 登录回调
 Route::post("api/login/callback/sckur", "Callback/sckurCallback");
+Route::get("api/login/callback/gitee", "Callback/giteeCallback");
 // 访问前端
 Route::miss("Index");
 Route::get("/", "Index");
