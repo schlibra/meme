@@ -1,10 +1,17 @@
 <script setup>
-import { UserUrl, CaptchaUrl } from "@/api/url.js";
+import {UserUrl, CaptchaUrl, ThirdPartyUrl} from "@/api/url.js";
 import {onMounted, ref} from "vue";
 import axios from "axios";
 import router from "@/router/index.js";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {setToken} from "@/lib/tokenLib.js";
+import sckur from '@/assets/sckur.png'
+import {useDark} from "@vueuse/core";
+import githubDark from '@/assets/github-dark.png'
+import githubLight from '@/assets/github-light.png'
+import gitee from '@/assets/gitee.png'
+import gitlab from '@/assets/gitlab.svg'
+import microsoft from '@/assets/microsoft.ico'
 
 const username = ref("");
 const password = ref("");
@@ -15,6 +22,7 @@ const passwordRef = ref(null)
 const captchaRef = ref(null)
 const formLoading = ref(false)
 const setting = ref({})
+const isDark = ref(useDark())
 
 onMounted(()=>{
   setting.value = VARS
@@ -58,6 +66,10 @@ function reloadCaptcha() {
 function googleLoginSuccess(response) {
   console.log(response)
 }
+function gotoThirdPartyLogin(path) {
+  localStorage.setItem("thirdPartyLoginAction", path)
+  location.href = ThirdPartyUrl.beforeUrl + path
+}
 </script>
 
 
@@ -71,30 +83,83 @@ function googleLoginSuccess(response) {
           </template>
           <template #default>
             <el-form label-width="auto" label-position="top">
-              <el-form-item label="用户名">
-                <el-input autofocus ref="usernameRef" v-model="username" placeholder="输入账号或邮箱" @keydown.enter="enterHandler" />
-              </el-form-item>
-              <el-form-item label="密码">
-                <el-input ref="passwordRef" type="password" v-model="password" placeholder="输入密码" @keydown.enter="enterHandler" />
-              </el-form-item>
-              <el-form-item label="图片验证码" v-if="setting.enableCaptcha === 'Y'">
-                <el-row :gutter="8">
-                  <el-col :span="14">
-                    <el-input v-model="captcha" ref="captchaRef" @keydown.enter="enterHandler" />
+              <el-scrollbar height="40vh">
+                <el-form-item label="用户名">
+                  <el-input autofocus ref="usernameRef" v-model="username" placeholder="输入账号或邮箱" @keydown.enter="enterHandler" />
+                </el-form-item>
+                <el-form-item label="密码">
+                  <el-input ref="passwordRef" type="password" v-model="password" placeholder="输入密码" @keydown.enter="enterHandler" />
+                </el-form-item>
+                <el-form-item label="图片验证码" v-if="setting.enableCaptcha === 'Y'">
+                  <el-row :gutter="8">
+                    <el-col :span="14">
+                      <el-input v-model="captcha" ref="captchaRef" @keydown.enter="enterHandler" />
+                    </el-col>
+                    <el-col :span="10">
+                      <el-image :src="captchaUrl" @click="reloadCaptcha" class="pointer" />
+                    </el-col>
+                  </el-row>
+                </el-form-item>
+                <el-row class="down-row">
+                  <el-col :span="12">
+                    <el-link href="/forget">忘记密码</el-link>
                   </el-col>
-                  <el-col :span="10">
-                    <el-image :src="captchaUrl" @click="reloadCaptcha" class="pointer" />
+                  <el-col :span="12" class="right">
+                    <el-link href="/register">注册账号</el-link>
                   </el-col>
                 </el-row>
-              </el-form-item>
-              <el-row class="down-row">
-                <el-col :span="12">
-                  <el-link href="/forget">忘记密码</el-link>
-                </el-col>
-                <el-col :span="12" class="right">
-                  <el-link href="/register">注册账号</el-link>
-                </el-col>
-              </el-row>
+                <el-divider>使用第三方平台登录</el-divider>
+                <el-row style="width: 100%;">
+                  <el-col :span="24" v-if="setting.enableSckur">
+                    <el-button style="height: 50px;width: 100%;" size="large" @click="gotoThirdPartyLogin('sckur')">
+                      <el-space direction="horizontal">
+                        <el-image style="height: 30px;" :src="sckur" />
+                        <span>使用思刻通行证登录</span>
+                      </el-space>
+                    </el-button>
+                  </el-col>
+                  <el-col :span="24" v-if="isDark && setting.enableGithub">
+                    <el-button style="height: 50px;width: 100%;" size="large" @click="gotoThirdPartyLogin('github')">
+                      <el-space direction="horizontal">
+                        <el-image style="height: 30px;" :src="githubDark" />
+                        <span>使用Github账号登录</span>
+                      </el-space>
+                    </el-button>
+                  </el-col>
+                  <el-col :span="24" v-if="!isDark && setting.enableGithub">
+                    <el-button style="height: 50px;width: 100%;" size="large" @click="gotoThirdPartyLogin('github')">
+                      <el-space direction="horizontal">
+                        <el-image style="height: 30px;" :src="githubLight" />
+                        <span>使用Github账号登录</span>
+                      </el-space>
+                    </el-button>
+                  </el-col>
+                  <el-col :span="24" v-if="setting.enableGitee">
+                    <el-button style="height: 50px;width: 100%;" size="large" @click="gotoThirdPartyLogin('gitee')">
+                      <el-space direction="horizontal">
+                        <el-image style="height: 30px;" :src="gitee" />
+                        <span>使用Gitee账号登录</span>
+                      </el-space>
+                    </el-button>
+                  </el-col>
+                  <el-col :span="24" v-if="setting.enableGitlab">
+                    <el-button style="height: 50px;width: 100%;" size="large" @click="gotoThirdPartyLogin('gitlab')">
+                      <el-space direction="horizontal">
+                        <el-image style="height: 30px;" :src="gitlab" />
+                        <span>使用Gitlab账号登录</span>
+                      </el-space>
+                    </el-button>
+                  </el-col>
+                  <el-col :span="24" v-if="setting.enableMicrosoft">
+                    <el-button style="height: 50px;width: 100%;" size="large" @click="gotoThirdPartyLogin('microsoft')">
+                      <el-space direction="horizontal">
+                        <el-image style="height: 30px;" :src="microsoft" />
+                        <span>使用微软账号登录</span>
+                      </el-space>
+                    </el-button>
+                  </el-col>
+                </el-row>
+              </el-scrollbar>
             </el-form>
           </template>
           <template #footer>

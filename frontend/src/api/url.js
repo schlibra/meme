@@ -43,4 +43,8 @@ const AdminUrl = {
     thirdPartyUrl: adminUrl + "/thirdParty"
 }
 
-export { UserUrl, PicsUrl, AdminUrl, CaptchaUrl }
+const ThirdPartyUrl = {
+    beforeUrl: apiUrl + "/login/before/"
+}
+
+export { UserUrl, PicsUrl, AdminUrl, CaptchaUrl, ThirdPartyUrl }
