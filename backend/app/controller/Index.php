@@ -7,10 +7,8 @@ use app\model\BasicModel;
 use app\model\SecurityModel;
 use app\model\ThirdPartyModel;
 use app\Request;
-use think\facade\View;
 use think\Response;
 use think\response\Json;
-use WpOrg\Requests\Requests;
 
 class Index extends BaseController
 {

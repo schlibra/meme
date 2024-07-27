@@ -59,9 +59,18 @@ Route::post("api/admin/switchUser", "Admin/switchUser");
 Route::get("api/admin/backup", "Admin/getBackup");
 Route::post("api/admin/backup", "Admin/restoreBackup");
 Route::delete("api/admin/backup", "Admin/resetData");
+// 第三方登录前操作
+Route::get("api/login/before/sckur", "Before/sckurBefore");
+Route::get("api/login/before/gitee", "Before/giteeBefore");
+Route::get("api/login/before/github", "Before/githubBefore");
+Route::get("api/login/before/gitlab", "Before/gitlabBefore");
+Route::get("api/login/before/microsoft", "Before/microsoftBefore");
 // 登录回调
 Route::post("api/login/callback/sckur", "Callback/sckurCallback");
 Route::get("api/login/callback/gitee", "Callback/giteeCallback");
+Route::get("api/login/callback/github", "Callback/githubCallback");
+Route::get("api/login/callback/gitlab", "Callback/gitlabCallback");
+Route::get("api/login/callback/microsoft", "Callback/microsoftCallback");
 // 访问前端
 Route::miss("Index");
 Route::get("/", "Index");

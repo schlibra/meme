@@ -2,6 +2,7 @@
 
 namespace app\controller;
 
+use app\BaseController;
 use app\model\BasicModel;
 use app\model\CommentModel;
 use app\model\GroupModel;
@@ -14,12 +15,9 @@ use app\Request;
 use Firebase\JWT\JWT;
 use think\facade\Cache;
 use think\facade\Db;
-use think\Model;
-use think\Response;
 use think\response\Json;
-use WpOrg\Requests\Auth\Basic;
 
-class Admin
+class Admin extends BaseController
 {
     function setBasic(Request$request): Json {
         $siteName = $request->post("siteName");

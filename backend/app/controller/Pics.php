@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app\controller;
 
+use app\BaseController;
 use app\model\CommentModel;
 use app\model\PicsModel;
 use app\model\ScoreModel;
@@ -12,7 +13,7 @@ use think\response\Json;
 use hg\apidoc\annotation as ApiDoc;
 
 #[ApiDoc\Title("图片接口")]
-class Pics {
+class Pics extends BaseController {
     #[ApiDoc\Title("获取图片列表接口")]
     #[ApiDoc\Url("/api/pics/pic")]
     #[ApiDoc\Method("GET")]

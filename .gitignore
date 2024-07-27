@@ -6,3 +6,5 @@ frontend/.idea
 deployer/.idea
 deployer/package.zip
 deployer/package
+*.7z
+*.zip

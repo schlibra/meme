@@ -6,6 +6,7 @@ declare (strict_types=1);
 
 namespace app\controller;
 
+use app\BaseController;
 use app\model\CommentModel;
 use app\model\GroupModel;
 use app\model\PicsModel;
@@ -26,7 +27,7 @@ use think\response\Json;
 use hg\apidoc\annotation as ApiDoc;
 
 #[ApiDoc\Title("用户接口")]
-class User {
+class User extends BaseController {
     #[ApiDoc\Title("用户登录接口")]
     #[ApiDoc\Desc("通过用户名和密码进行登录，返回Token认证信息")]
     #[ApiDoc\Url("/api/user/login")]
