@@ -65,7 +65,7 @@ class User extends BaseController {
                             "username" => $user->username,
                             "email" => $user->email
                         ];
-                        $token = JWT::encode($payload, "meme_login_token_key", "HS256");
+                        $token = JWT::encode($payload, loginSecret, "HS256");
                         Cache::set($username, $token);
                         return jb(200, "登录成功", null, null, $token);
                     }

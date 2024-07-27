@@ -4,17 +4,44 @@ namespace app\controller;
 
 use app\BaseController;
 use app\Request;
+use Firebase\JWT\JWT;
+use think\facade\Cache;
+use think\Response;
 use WpOrg\Requests\Requests;
 
 class Callback extends BaseController {
-    function sckurCallback(Request$request) {
+    function sckurCallback(Request$request): Response {
         $setting = getSetting();
         $apiKey = $setting["sckurApiKey"];
         $accessToken = $request->post("access_token");
-        $res = Requests::get("https://api.sckur.com/passport/get?api_key=$apiKey&action=get_userinfo&params=[\"all\"]", [
+        $userinfo = Requests::get("https://api.sckur.com/passport/get?api_key=$apiKey&action=get_userinfo&params=[\"all\"]", [
             "Authorization" => "Bearer $accessToken"
-        ]);
-        return json(json_decode($res->body, true));
+        ])->body;
+        $userinfo = json_decode($userinfo, true);
+        $username = $userinfo["data"]["all"]["username"];
+        $nickname = $userinfo["data"]["all"]["nickname"];
+        $url = $request->domain();
+        $payload = [
+            "iss" => $url,
+            "aud" => $url,
+            "kid" => $url,
+            "iat" => time(),
+            "exp" => time() + 36000,
+            "username" => $username,
+            "nickname" => $nickname,
+        ];
+        $token = JWT::encode($payload, thirdPartySecret, "HS256");
+        Cache::set("sckur_" . $username, $token);
+        $view = file_get_contents(root_path() . "view/dist/index.html");
+        $view = str_replace([
+            "{\$thirdPartyLoginUsername}",
+            "{\$thirdPartyLoginToken}",
+            "{\$thirdPartyLoginError}"
+        ], [
+            $username,
+            $token
+        ], $view);
+        return response($view);
     }
     function giteeCallback(Request$request) {
         $redirect_uri = explode("?", $request->url(true))[0];

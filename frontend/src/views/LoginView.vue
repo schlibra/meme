@@ -67,7 +67,8 @@ function googleLoginSuccess(response) {
   console.log(response)
 }
 function gotoThirdPartyLogin(path) {
-  localStorage.setItem("thirdPartyLoginAction", path)
+  localStorage.setItem("thirdPartyLoginAction", "login")
+  localStorage.setItem("thirdPartyLoginName", path)
   location.href = ThirdPartyUrl.beforeUrl + path
 }
 </script>
