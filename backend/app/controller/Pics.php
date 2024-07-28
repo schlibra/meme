@@ -252,7 +252,7 @@ class Pics extends BaseController {
         foreach ($comments as &$comment) {
             $user = $comment->user;
             $comment->nickname = $user->nickname;
-            $user->avatar = ($setting["enableGravatarCDN"] === "Y" ? $setting["gravatarCDNAddress"] : "https://gravatar.com/avatar/") . hash("md5", $user->email);
+            $user->avatar = gravatar($user->email);
             if ($comment->reply > 0) {
                 $reply = CommentModel::where("commentId", $comment->reply)->findOrEmpty();
                 if (!$reply->isEmpty()) {

@@ -17,6 +17,8 @@ import AdminUser from "@/views/AdminUser.vue"
 import AdminThirdParty from "@/views/AdminThirdParty.vue";
 import AdminBackup from "@/views/AdminBackup.vue";
 import NotFoundPage from "@/views/NotFoundPage.vue";
+import CallbackView from "@/views/CallbackView.vue";
+import UserBind from "@/views/UserBind.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -82,6 +84,12 @@ const router = createRouter({
       meta: { title: "用户中心 - 评论列表" }
     },
     {
+      path: "/user/bind",
+      name: "userBind",
+      component: UserBind,
+      meta: { title: "用户中心 - 账号绑定" }
+    },
+    {
       path: "/about",
       name: "about",
       component: AboutView,
@@ -124,15 +132,45 @@ const router = createRouter({
       meta: { title: "后台管理中心 - 备份与恢复" }
     },
     {
+      path: "/api/login/callback/sckur",
+      name: "sckurCallback",
+      component: CallbackView,
+      meta: { title: "登录回调" }
+    },
+    {
+      path: "/api/login/callback/gitee",
+      name: "giteeCallback",
+      component: CallbackView,
+      meta: { title: "登录回调" }
+    },
+    {
+      path: "/api/login/callback/github",
+      name: "githubCallback",
+      component: CallbackView,
+      meta: { title: "登录回调" }
+    },
+    {
+      path: "/api/login/callback/gitlab",
+      name: "gitlabCallback",
+      component: CallbackView,
+      meta: { title: "登录回调" }
+    },
+    {
+      path: "/api/login/callback/microsoft",
+      name: "microsoftCallback",
+      component: CallbackView,
+      meta: { title: "登录回调" }
+    },
+    {
       path: "/404",
       name: "404 Not Found",
       component: NotFoundPage,
       meta: { title: "找不到页面" }
     },
-    {
-      path: "/:pathMatch(.*)*",
-      redirect: "/404"
-    }
+    // {
+    //   path: "/:pathMatch(.*)*",
+    //   redirect: "/404"
+    // }
   ]
 })
 router.beforeEach((to, from, next) => {

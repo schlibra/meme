@@ -71,6 +71,12 @@ Route::get("api/login/callback/gitee", "Callback/giteeCallback");
 Route::get("api/login/callback/github", "Callback/githubCallback");
 Route::get("api/login/callback/gitlab", "Callback/gitlabCallback");
 Route::get("api/login/callback/microsoft", "Callback/microsoftCallback");
+// 第三方登录后操作
+Route::post("api/login/after/sckur", "After/sckurAfter");
+Route::post("api/login/after/gitee", "After/giteeAfter");
+Route::post("api/login/after/github", "After/githubAfter");
+Route::post("api/login/after/gitlab", "After/gitlabAfter");
+Route::post("api/login/after/microsoft", "After/microsoftAfter");
 // 访问前端
 Route::miss("Index");
 Route::get("/", "Index");

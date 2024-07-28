@@ -60,6 +60,11 @@ function getSetting(): array {
     );
 }
 
+function gravatar($email): string {
+    $setting = getSetting();
+    return ($setting["enableGravatarCDN"] === "Y" ? $setting["gravatarCDNAddress"] : "https://gravatar.com/avatar/") . hash("md5", $email);
+}
+
 function captchaCheck ($code): array {
     $setting = getSetting();
     if ($setting["enableCaptcha"] === "Y") {

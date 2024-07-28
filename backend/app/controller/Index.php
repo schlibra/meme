@@ -33,7 +33,7 @@ class Index extends BaseController
             }
             return $view;
         } else {
-            return json(["status" => 403, "msg" => "Method not allowed"]);
+            return json(["code" => 403, "msg" => "Method not allowed"]);
         }
     }
     function assets(Request$request): Response {

@@ -23,7 +23,7 @@ function alertError(res, title="操作失败", callback=_=>_) {
         }
     }).then(callback)
 }
-function axiosError(err, title="请求失败", callback=_=>_) {
+function axiosError(err, title="请求失败", callback=_=>_,_return=false) {
     console.log(err)
     let message;
     if (err.request.status > 0) {
@@ -31,6 +31,7 @@ function axiosError(err, title="请求失败", callback=_=>_) {
     } else {
         message = err.message
     }
+    if (_return) return message
     ElMessageBox.alert(message, title, {
         type: "error",
         customStyle: {

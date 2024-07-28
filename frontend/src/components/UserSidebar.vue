@@ -1,5 +1,5 @@
 <script setup>
-import {ChatLineRound, Expand, Fold, Key, Lock, Star, User} from "@element-plus/icons-vue";
+import {ChatLineRound, Expand, Fold, Key, Link, Lock, Star, User} from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import displayUtil from "@/lib/displayUtil.js";
 import router from "@/router/index.js";
@@ -27,6 +27,9 @@ function gotoScore() {
 }
 function gotoComment() {
   router.push("/user/comment")
+}
+function gotoBind() {
+  router.push("/user/bind")
 }
 </script>
 
@@ -59,6 +62,10 @@ function gotoComment() {
     <el-menu-item index="6" @click="gotoComment">
       <el-icon><ChatLineRound /></el-icon>
       <span>评论列表</span>
+    </el-menu-item>
+    <el-menu-item index="7" @click="gotoBind">
+      <el-icon><Link /></el-icon>
+      <span>账号绑定</span>
     </el-menu-item>
     <el-menu-item @click="expand = !expand">
       <el-icon v-if="expand"><Expand /></el-icon>

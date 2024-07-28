@@ -69,7 +69,7 @@ function googleLoginSuccess(response) {
 function gotoThirdPartyLogin(path) {
   localStorage.setItem("thirdPartyLoginAction", "login")
   localStorage.setItem("thirdPartyLoginName", path)
-  location.href = ThirdPartyUrl.beforeUrl + path
+  setTimeout(()=>location.href = ThirdPartyUrl.beforeUrl + path, 200)
 }
 </script>
 

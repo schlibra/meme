@@ -7,6 +7,7 @@ declare (strict_types=1);
 namespace app\controller;
 
 use app\BaseController;
+use app\model\BindModel;
 use app\model\CommentModel;
 use app\model\GroupModel;
 use app\model\PicsModel;
@@ -261,11 +262,18 @@ class User extends BaseController {
         if ($auth["status"]) {
             $user = $auth["data"];
             unset($user["password"], $user["ban"], $user["reason"]);
-            $user->avatar = ($setting["enableGravatarCDN"] === "Y" ? $setting["gravatarCDNAddress"] : "https://gravatar.com/avatar/") . hash("md5", $user->email);
+            $user->avatar = gravatar($user->email);
             $group = $user->group;
             if ($group) {
                 $user = array_merge($user->toArray(), $group->toArray());
             }
+            $bind = BindModel::where("userId", $user["userId"])->findOrEmpty();
+            if ($bind->isEmpty()) {
+                $bind = new BindModel;
+                $bind->userId = $user["userId"];
+                $bind->save();
+            }
+            $user = array_merge($user, $bind->toArray());
             return jb(200, "数据获取成功", $user);
         } else {
             return jb(401, $auth["msg"]);

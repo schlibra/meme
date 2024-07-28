@@ -180,6 +180,35 @@ INSERT INTO `thirdParty` (
 ) VALUES (
     '1'
 );
+
+-- 用户绑定表
+DROP TABLE IF EXISTS `bind`;
+CREATE TABLE IF NOT EXISTS `bind` (
+    `userId` int NOT NULL COMMENT '用户id',
+    CONSTRAINT `bind_user` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON UPDATE NO ACTION ON DELETE NO ACTION ,
+    `sckurBind` varchar(1) NULL COMMENT 'sckur绑定',
+    `sckurUsername` varchar(200) NULL COMMENT 'sckur用户名',
+    `sckurNickname` varchar(200) NULL COMMENT 'sckur昵称',
+    `sckurAvatar` longtext NULL COMMENT '思刻通行证头像',
+    `giteeBind` varchar(1) NULL COMMENT 'gitee绑定',
+    `giteeUsername` varchar(200) NULL COMMENT 'gitee用户名',
+    `giteeNickname` varchar(200) NULL COMMENT 'gitee昵称',
+    `giteeAvatar` longtext NULL COMMENT 'gitee 头像',
+    `githubBind` varchar(1) NULL COMMENT 'github绑定',
+    `githubUsername` varchar(200) NULL COMMENT 'github用户名',
+    `githubNickname` varchar(200) NULL COMMENT 'github昵称',
+    `githubAvatar` longtext NULL COMMENT 'github 头像',
+    `gitlabBind` varchar(1) NULL COMMENT 'gitlab绑定',
+    `gitlabUsername` varchar(200) NULL COMMENT 'gitlab用户名',
+    `gitlabNickname` varchar(200) NULL COMMENT 'gitlab昵称',
+    `gitlabAvatar` longtext NULL COMMENT 'gitlab 头像',
+    `microsoftBind` varchar(1) NULL COMMENT 'microsoft绑定',
+    `microsoftUsername` varchar(200) NULL COMMENT 'microsoft用户名',
+    `microsoftNickname` varchar(200) NULL COMMENT 'microsoft昵称',
+    `microsoftAvatar` longtext NULL COMMENT '微软头像',
+    PRIMARY KEY (`userId`)
+);
+
 CREATE TRIGGER `basicNotInsert`
     BEFORE INSERT
     ON `basic`

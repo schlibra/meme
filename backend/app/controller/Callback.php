@@ -10,6 +10,37 @@ use think\Response;
 use WpOrg\Requests\Requests;
 
 class Callback extends BaseController {
+    private function returnView(Request$request, $username, $nickname, $error, $avatar = ""): Response {
+        $view = file_get_contents(root_path() . "view/dist/index.html");
+        $platform = str_replace("api/login/callback/", "", $request->pathinfo());
+        $token = "";
+        if (!empty($username)) {
+            $url = $request->domain();
+            $payload = [
+                "iss" => $url,
+                "aud" => $url,
+                "kid" => $url,
+                "iat" => time(),
+                "exp" => time() + 36000,
+                "username" => $username,
+                "nickname" => $nickname,
+                "avatar" => $avatar,
+            ];
+            $token = JWT::encode($payload, thirdPartySecret, "HS256");
+            Cache::set("{$platform}_$username", $token);
+        }
+        return response(str_replace([
+            "{\$thirdPartyLoginUsername}",
+            "{\$thirdPartyLoginNickname}",
+            "{\$thirdPartyLoginToken}",
+            "{\$thirdPartyLoginError}"
+        ], [
+            $username,
+            $nickname,
+            $token,
+            $error
+        ], $view));
+    }
     function sckurCallback(Request$request): Response {
         $setting = getSetting();
         $apiKey = $setting["sckurApiKey"];
@@ -20,50 +51,36 @@ class Callback extends BaseController {
         $userinfo = json_decode($userinfo, true);
         $username = $userinfo["data"]["all"]["username"];
         $nickname = $userinfo["data"]["all"]["nickname"];
-        $url = $request->domain();
-        $payload = [
-            "iss" => $url,
-            "aud" => $url,
-            "kid" => $url,
-            "iat" => time(),
-            "exp" => time() + 36000,
-            "username" => $username,
-            "nickname" => $nickname,
-        ];
-        $token = JWT::encode($payload, thirdPartySecret, "HS256");
-        Cache::set("sckur_" . $username, $token);
-        $view = file_get_contents(root_path() . "view/dist/index.html");
-        $view = str_replace([
-            "{\$thirdPartyLoginUsername}",
-            "{\$thirdPartyLoginToken}",
-            "{\$thirdPartyLoginError}"
-        ], [
-            $username,
-            $token
-        ], $view);
-        return response($view);
+        $avatar = Requests::get($userinfo["data"]["all"]["avatar"])->body;
+        $avatar = base64_encode($avatar);
+        return $this->returnView($request, $username, $nickname, "", $avatar);
     }
-    function giteeCallback(Request$request) {
+    function giteeCallback(Request$request): Response {
         $redirect_uri = explode("?", $request->url(true))[0];
         $setting = getSetting();
         $client_id = $setting["giteeClientId"];
         $client_secret = $setting["giteeClientSecret"];
         $code = $request->get("code");
         if ($code) {
-            $token = Requests::post("https://gitee.com/oauth/token?grant_type=authorization_code&code={$code}&client_id={$client_id}&redirect_uri={$redirect_uri}&client_secret={$client_secret}")->body;
+            $token = Requests::post("https://gitee.com/oauth/token?grant_type=authorization_code&code=$code&client_id=$client_id&redirect_uri=$redirect_uri&client_secret=$client_secret")->body;
             $token = json_decode($token, true);
             if (isset($token["error"])) {
-                return json(["code" => 401, "msg" => $token["error_description"]]);
+                return $this->returnView($request, "", "", $token["error_description"]);
             } else {
                 $access_token = $token["access_token"];
                 $userInfo = Requests::get("https://gitee.com/api/v5/user?access_token=$access_token")->body;
-                return json(json_decode($userInfo, true));
+                $userInfo = json_decode($userInfo);
+                $username = $userInfo->login;
+                $nickname = $userInfo->name;
+                $avatar = Requests::get($userInfo->avatar_url)->body;
+                $avatar = base64_encode($avatar);
+                return $this->returnView($request, $username, $nickname, "", $avatar);
             }
         } else {
-            return json(["code" => 401, "msg" => "no code"]);
+            return $this->returnView($request, "", "", "没有获取到返回码");
         }
     }
-    function githubCallback(Request$request) {
+    function githubCallback(Request$request): Response {
         $setting = getSetting();
         $client_id = $setting["githubClientId"];
         $client_secret = $setting["githubClientSecret"];
@@ -82,15 +99,20 @@ class Callback extends BaseController {
             }
         }
         if (isset($tokenList["error"])) {
-            return jb(401, urldecode($tokenList["error_description"]));
+            return $this->returnView($request, "", "", urldecode($tokenList["error_description"]));
         }
         $access_token = $tokenList["access_token"];
         $userInfo = Requests::get("https://api.github.com/user", [
             "Authorization" => "Bearer $access_token"
         ])->body;
-        return json(json_decode($userInfo, true));
+        $userInfo = json_decode($userInfo);
+        $username = $userInfo->login;
+        $nickname = $userInfo->name;
+        $avatar = Requests::get($userInfo->avatar_url)->body;
+        $avatar = base64_encode($avatar);
+        return $this->returnView($request, $username, $nickname, "", $avatar);
     }
-    function gitlabCallback(Request$request) {
+    function gitlabCallback(Request$request): Response {
         $setting = getSetting();
         $client_id = $setting["gitlabClientId"];
         $client_secret = $setting["gitlabClientSecret"];
@@ -105,14 +127,19 @@ class Callback extends BaseController {
         ])->body;
         $token = json_decode($token, true);
         if (isset($token["error"])) {
-            return jb(401, $token["error_description"]);
+            return $this->returnView($request, "", "", $token["error_description"]);
         } else {
             $access_token = $token["access_token"];
             $userinfo = Requests::get("https://gitlab.com/api/v4/user?access_token=$access_token")->body;
-            return json(json_decode($userinfo));
+            $userinfo = json_decode($userinfo);
+            $username = $userinfo->username;
+            $nickname = $userinfo->name;
+            $avatar = Requests::get(gravatar($userinfo->commit_email))->body;
+            $avatar = base64_encode($avatar);
+            return $this->returnView($request, $username, $nickname, "", $avatar);
         }
     }
-    function microsoftCallback(Request$request) {
+    function microsoftCallback(Request$request): Response {
         $setting = getSetting();
         $client_id = $setting["microsoftClientId"];
         $client_secret = $setting["microsoftClientSecret"];
@@ -128,12 +155,19 @@ class Callback extends BaseController {
         ])->body;
         $token = json_decode($token, true);
         if (isset($token["error"])) {
-            return $token["error_description"];
+            return $this->returnView($request, "", "", $token["error_description"]);
         }
         $access_token = $token["access_token"];
         $userinfo = Requests::get("https://graph.microsoft.com/v1.0/me", [
             "Authorization" => "Bearer $access_token"
         ])->body;
-        return json(json_decode($userinfo, true));
+        $avatar = Requests::get("https://graph.microsoft.com/v1.0/me/photo/\$value", [
+            "Authorization" => "Bearer $access_token"
+        ])->body;
+        $avatar = base64_encode($avatar);
+        $userinfo = json_decode($userinfo);
+        $username = $userinfo->mail;
+        $nickname = $userinfo->displayName;
+        return $this->returnView($request, $username, $nickname, "", $avatar);
     }
 }

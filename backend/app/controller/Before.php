@@ -36,7 +36,7 @@ class Before extends BaseController {
         $setting = getSetting();
         $client_id = $setting["microsoftClientId"];
         $redirect_uri = $request->domain() . "/api/login/callback/microsoft";
-        $url = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=$client_id&response_type=code&redirect_uri=$redirect_uri&response_mode=query&scope=https%3A%2F%2Fgraph.microsoft.com%2FUser.Read&state=12345";
+        $url = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?client_id=$client_id&response_type=code&redirect_uri=$redirect_uri&response_mode=query&scope=https://graph.microsoft.com/User.Read&state=12345";
         return redirect($url);
     }
 }
