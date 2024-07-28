@@ -32,9 +32,9 @@ onMounted(()=>{
         setTimeout(()=>{
           if (action === "login") {
             setToken(res.data.token)
-            router.push("/")
+            location.href = "/"
           } else if (action === "bind") {
-            router.push("/user/bind")
+            location.href = "/user/bind"
           }
         }, 2000)
       },
