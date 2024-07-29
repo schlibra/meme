@@ -103,10 +103,11 @@ class Pics extends BaseController {
         $picsIndex = rand(0, $picsCount - 1);
         $picsItem = PicsModel::where("delete")
             ->limit($picsIndex, 1)
-            ->findOrEmpty();
-        if ($picsItem->isEmpty()) {
+            ->select();
+        if (!$picsItem->count()) {
             return jb(401, "没有图片");
         }else {
+            $picsItem = $picsItem[0];
             $scoreSum = 0;
             $scoreCount = 0;
             $picsItem->scored = "N";
