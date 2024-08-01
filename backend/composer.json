@@ -33,7 +33,8 @@
         "topthink/think-captcha": "^3.0",
       "ext-zlib": "*",
       "ext-bz2": "*",
-        "rmccue/requests": "^2.0"
+        "rmccue/requests": "^2.0",
+      "ext-curl": "*"
     },
     "require-dev": {
         "symfony/var-dumper": ">=4.2",

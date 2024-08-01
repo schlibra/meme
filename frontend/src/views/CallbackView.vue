@@ -20,6 +20,15 @@ onMounted(()=>{
   vars.value = VARS
   if (vars.value.thirdPartyLoginError) {
     message.value = vars.value.thirdPartyLoginError
+    setTimeout(()=>{
+      localStorage.removeItem("thirdPartyLoginAction")
+      localStorage.removeItem("thirdPartyLoginName")
+      if (action === "login") {
+        location.href = "/"
+      } else if (action === "bind") {
+        location.href = "/user/bind"
+      }
+    }, 2000)
   } else {
     Post(ThirdPartyUrl.afterUrl + platform, {
       action,
@@ -31,7 +40,6 @@ onMounted(()=>{
         message.value = res.data.msg
         setTimeout(()=>{
           if (action === "login") {
-            setToken(res.data.token)
             location.href = "/"
           } else if (action === "bind") {
             location.href = "/user/bind"
@@ -39,7 +47,16 @@ onMounted(()=>{
         }, 2000)
       },
       bad(res) {
+        vars.value.thirdPartyLoginError = "Y"
         message.value = res.data.msg
+        setTimeout(()=>{
+          if (action === "login") {
+            setToken(res.data.token)
+            location.href = "/"
+          } else if (action === "bind") {
+            location.href = "/user/bind"
+          }
+        }, 2000)
       },
       error(err) {
         message.value = axiosError(err, "", null, true)

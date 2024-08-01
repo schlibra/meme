@@ -11,7 +11,13 @@ use WpOrg\Requests\Requests;
 
 class Callback extends BaseController {
     private function returnView(Request$request, $username, $nickname, $error, $avatar = ""): Response {
-        $view = file_get_contents(root_path() . "view/dist/index.html");
+        if ($request->cookie("dev") === "Y") {
+            $view = file_get_contents("http://localhost:5173/");
+            $view = str_replace("<meta name=\"baseurl\" />", "<base href=\"http://{$request->host(true)}:5173/\" />", $view);
+            $view = str_replace("<script type=\"module\" src=\"/@id/virtual:vue-devtools-path:overlay.js\"></script>", "", $view);
+        } else {
+            $view = file_get_contents(root_path() . "view/dist/index.html");
+        }
         $platform = str_replace("api/login/callback/", "", $request->pathinfo());
         $token = "";
         if (!empty($username)) {
