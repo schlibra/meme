@@ -42,11 +42,11 @@ class Index extends BaseController
             "Y" => "!0",
             "N" => "!1",
         ];
-        $enableHomeType = true;
         $REPLACE = [
             "[\"IURT meme 2.0\"]" => "[\"{$setting["siteName"]}\"]",
             "!0,\"enableHomeType\"" => $bool[$setting["enableHomeTyping"]],
             "!1,\"enableHomeType\"" => $bool[$setting["enableHomeTyping"]],
+            "[\"IURT memes 2.0\",\"Home Title\"][0]" => "[\"{$setting["siteName"]}\",\"Home Title\"][0]",
         ];
         $filename = $request->url();
         $filepath = root_path() . "view/dist/$filename";

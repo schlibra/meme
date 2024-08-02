@@ -27,7 +27,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
-      meta: { title: "IURT memes 2.0" }
+      meta: { title: ["IURT memes 2.0", "Home Title"][0] }
     },
     {
       path: "/login",
