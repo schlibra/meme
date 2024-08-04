@@ -17,7 +17,7 @@ const userStore = useUserStore()
 const loadingStore = useLoadingStore()
 const pictureStore = usePictureStore()
 
-const { token, user } = storeToRefs(userStore)
+const token = ref(getToken())
 const strings = ref(["IURT meme 2.0"])  // 这里不要直接修改，部署后通过这里修改打字内容
 const enableTyping = ref([true, "enableHomeType"])
 const currentPage = ref(1)
