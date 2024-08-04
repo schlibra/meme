@@ -16,6 +16,7 @@
     "axios": "^1.7.2",
     "element-plus": "^2.7.6",
     "lodash-es": "^4.17.21",
+    "pinia": "^2.2.0",
     "popmotion": "^11.0.5",
     "sass": "^1.77.6",
     "scss": "^0.2.4",

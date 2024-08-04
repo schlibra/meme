@@ -10,7 +10,9 @@ import router from './router'
 import { useDark } from "@vueuse/core"
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import vue3Cookies from 'vue3-cookies'
+import { createPinia } from 'pinia'
 const app = createApp(App)
+const pinia = createPinia()
 const isDark = useDark()
 if (isDark.value) {
     document.body.classList.add("dark")
@@ -23,6 +25,7 @@ app.use(router)
 app.use(ElementPlus, {
     locale: zhCn
 })
+app.use(pinia)
 app.use(vue3Cookies)
 app.use(vuetyped)
 

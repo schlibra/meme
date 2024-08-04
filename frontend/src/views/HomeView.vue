@@ -8,9 +8,16 @@ import {getToken, removeToken} from "@/lib/tokenLib.js";
 import confirm from "@/lib/confirmLib.js";
 import displayUtil from "@/lib/displayUtil.js";
 import {Get, Post} from "@/lib/axiosLib.js";
+import {useUserStore} from "@/stores/UserStore.js";
+import {useLoadingStore} from "@/stores/LoadingStore.js";
+import {usePictureStore} from "@/stores/PictureStore.js";
+import {storeToRefs} from "pinia";
 
-const token = ref(getToken())
-const userInfo = ref({})
+const userStore = useUserStore()
+const loadingStore = useLoadingStore()
+const pictureStore = usePictureStore()
+
+const { token, user } = storeToRefs(userStore)
 const strings = ref(["IURT meme 2.0"])  // 这里不要直接修改，部署后通过这里修改打字内容
 const enableTyping = ref([true, "enableHomeType"])
 const currentPage = ref(1)
@@ -39,20 +46,10 @@ const comment = ref('')
 
 const setting = ref({})
 
-onMounted(() => {
+onMounted(async () => {
   setting.value = VARS
-  Get(UserUrl.infoUrl, {}, {
-    ok(_, data) {
-      userInfo.value = data
-    },
-    bad(_) {
-      token.value = ""
-      removeToken()
-    },
-    error(err) {
-      axiosError(err, "信息获取失败")
-    }
-  })
+  await userStore.getInfo()
+  await pictureStore.getPic()
   Get(PicsUrl.picUrl, {}, {
     ok(res, data) {
       imgList.value = []
@@ -69,7 +66,7 @@ onMounted(() => {
       axiosError(err, "数据获取失败", () => location.reload())
     },
     final() {
-      mainLoading.value = false
+      loadingStore.mainLoading = false
     }
   })
 })
@@ -165,25 +162,7 @@ function uploadSubmit() {
 }
 
 function logout() {
-  confirm("是否退出当前账号", "退出账号", {
-    confirm() {
-      mainLoading.value = true
-      Post(UserUrl.logoutUrl, {}, {
-        final() {
-          mainLoading.value = false
-          token.value = ""
-          userInfo.value = {}
-          confirm("已退出登录，是否前往登录页面", "前往登录", {
-            confirm() {
-              gotoLogin()
-            },
-            cancel: reload,
-            close: reload
-          })
-        }
-      })
-    }
-  })
+  userStore.logout()
 }
 
 function submitScore() {
@@ -272,28 +251,28 @@ function submitComment() {
     <vuetyped :strings="strings" :fade-out="true" :loop="enableTyping[0]" :cursor-char="enableTyping[0] ? '_' : ''">
       <h1 class="typing"></h1>
     </vuetyped>
-    <h3 class="center" v-if="token">欢迎用户：{{ userInfo["nickname"] }}（{{ userInfo["username"] }} - {{ userInfo["groupName"] }}<el-tag type="danger" v-if="!userInfo['groupName']">用户组错误</el-tag>）</h3>
+    <h3 class="center" v-if="token">欢迎用户：{{ userStore.user["nickname"] }}（{{ userStore.user["username"] }} - {{ userStore.user["groupName"] }}<el-tag type="danger" v-if="!userStore.user['groupName']">用户组错误</el-tag>）</h3>
   </div>
   <div class="buttons hidden-xs-only">
     <el-button type="primary" @click="randomImg">随机梗图</el-button>
     <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button type="primary" v-if="token && userInfo['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
-    <el-button type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">进入后台</el-button>
+    <el-button type="primary" v-if="token && userStore.user['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
+    <el-button type="warning" v-if="userStore.user['admin'] === 'Y'" @click="gotoAdmin">进入后台</el-button>
     <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <div class="buttons hidden-sm-and-up">
     <el-button size="small" type="primary" @click="randomImg">随机梗图</el-button>
     <el-button size="small" type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button size="small" type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button size="small" type="primary" v-if="token && userInfo['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
-    <el-button size="small" type="warning" v-if="userInfo['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
+    <el-button size="small" type="primary" v-if="token && userStore.user['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
+    <el-button size="small" type="warning" v-if="userStore.user['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
     <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-input class="search" v-model="search" placeholder="搜索图片" @change="reload" />
   <el-divider />
   <el-scrollbar :height="displayUtil.isXs ? token ? 'calc(100vh - 470px)' : 'calc(100vh - 410px)' : token ? 'calc(100vh - 390px)' : 'calc(100vh - 330px)'">
-    <el-row :gutter="8" class="main" v-loading="mainLoading">
+    <el-row :gutter="8" class="main" v-loading="loadingStore.mainLoading">
       <el-col  :xs="24" :sm="12" :md="8" :lg="6" :xl="6" v-for="(img, index) in picList" :key="img.id">
         <el-card class="img-card">
           <template #header>
