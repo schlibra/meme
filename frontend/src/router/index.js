@@ -19,6 +19,7 @@ import AdminBackup from "@/views/Admin/AdminBackup.vue";
 import NotFoundPage from "@/views/NotFoundPage.vue";
 import CallbackView from "@/views/Account/CallbackView.vue";
 import UserBind from "@/views/User/UserBind.vue";
+import AdminPicture from "@/views/Admin/AdminPicture.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -120,6 +121,12 @@ const router = createRouter({
       meta: { title: "后台管理中心 - 用户管理" }
     },
     {
+      path: "/admin/picture",
+      name: "adminPicture",
+      component: AdminPicture,
+      meta: { title: "后台管理中心 - 图片管理" }
+    },
+    {
       path: "/admin/thirdParty",
       name: "adminThirdParty",
       component: AdminThirdParty,
@@ -167,10 +174,10 @@ const router = createRouter({
       component: NotFoundPage,
       meta: { title: "找不到页面" }
     },
-    // {
-    //   path: "/:pathMatch(.*)*",
-    //   redirect: "/404"
-    // }
+    {
+      path: "/:pathMatch(.*)*",
+      redirect: "/404"
+    }
   ]
 })
 router.beforeEach((to, from, next) => {

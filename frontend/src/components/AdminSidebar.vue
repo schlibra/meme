@@ -74,7 +74,7 @@ function gotoBackup() {
         <el-icon><User /></el-icon>
         <span>用户管理</span>
       </el-menu-item>
-      <el-menu-item index="6" @click="gotoBasic">
+      <el-menu-item index="6" @click="gotoPicture">
         <el-icon><Picture /></el-icon>
         <span>图片管理</span>
       </el-menu-item>

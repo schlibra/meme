@@ -38,9 +38,10 @@ const AdminUrl = {
     userUrl: adminUrl + "/user",
     switchUser: adminUrl + "/switchUser",
     backupUrl: adminUrl + "/backup",
+    pictureUrl: adminUrl + "/picture",
     basicUrl: adminUrl + "/basic",
     securityUrl: adminUrl + "/security",
-    thirdPartyUrl: adminUrl + "/thirdParty"
+    thirdPartyUrl: adminUrl + "/thirdParty",
 }
 
 const ThirdPartyUrl = {

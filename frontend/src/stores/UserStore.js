@@ -120,13 +120,13 @@ export const useUserStore = defineStore('user', () => {
     return {
         user,
 
-        async getInfo() {
+        async getInfo(showBad = true) {
             await Get(UserUrl.infoUrl, {}, {
                 ok(_, data) {
                     user.value = data
                 },
                 bad(res) {
-                    alertError(res, "用户信息获取失败", gotoLogin)
+                    if (showBad) alertError(res, "用户信息获取失败", gotoLogin)
                 },
                 error(err) {
                     axiosError(err, "用户信息获取失败", reload)

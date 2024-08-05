@@ -399,6 +399,20 @@ class Admin extends BaseController
             return jb(401, $auth["msg"]);
         }
     }
+    function getPicture(Request$request): Json {
+        $auth = loginAuth($request, true);
+        if ($auth["status"]) {
+            $pics = PicsModel::select();
+            foreach ($pics as &$pic) {
+                unset($pic->data);
+                $pic->url = $request->domain() . "/api/pics/image/" . $pic->picId;
+                $pic->nickname = $pic->user->nickname;
+            }
+            return jb(200, "数据获取成功", $pics->toArray());
+        } else {
+            return jb(401, $auth["msg"]);
+        }
+    }
     function getBackup(Request$request):Json {
         $auth = loginAuth($request, true);
         if ($auth["status"]) {

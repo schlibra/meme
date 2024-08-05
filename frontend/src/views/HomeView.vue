@@ -48,7 +48,7 @@ const setting = ref({})
 
 onMounted(async () => {
   setting.value = VARS
-  await userStore.getInfo()
+  await userStore.getInfo(false)
   await pictureStore.getPic()
   Get(PicsUrl.picUrl, {}, {
     ok(res, data) {
