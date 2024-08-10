@@ -46,7 +46,7 @@ onMounted(()=>{
     }).then(res=>{
       if (res.data.code === 200) {
         picList.value = res.data.data
-        picTotal.value = res.data.total
+        picTotal.value = res.data.count
       } else {
         alertError(res, "数据获取失败", ()=>router.push("/login"))
       }
@@ -66,7 +66,7 @@ function reload() {
   }).then(res=>{
     if (res.data.code === 200) {
       picList.value = res.data.data
-      picTotal.value = res.data.total
+      picTotal.value = res.data.count
     } else {
       alertError(res, "数据获取失败", ()=>router.push("/login"))
     }

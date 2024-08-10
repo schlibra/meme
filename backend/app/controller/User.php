@@ -408,7 +408,7 @@ class User extends BaseController {
             $pic = PicsModel::where("userId", $user->userId)
                 ->limit(($pageNum - 1) * $pageSize, $pageSize)
                 ->select();
-            $picCount = PicsModel::where("userId", $user->id)->count();
+            $picCount = PicsModel::where("userId", $user->userId)->count();
             $score = ScoreModel::where("delete")->select();
             foreach ($pic as &$picsItem) {
                 $picsItem->score = 0;
