@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS `basic`  (
     `settingId` int NOT NULL COMMENT '设置ID',
     `siteName` varchar(255) NULL COMMENT '站点名称',
     `siteLogo` varchar(255) NULL COMMENT '站点logo',
+    `language` varchar(50) NULL COMMENT '站点语言',
     `enableHomeTyping` varchar(1) NULL COMMENT '开启首页打字效果',
     `enableGravatarCDN` varchar(1) NULL COMMENT '开启gravatar头像CDN',
     `gravatarCDNAddress` varchar(500) NULL COMMENT 'gravatar头像CDN地址',

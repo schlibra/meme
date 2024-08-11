@@ -22,6 +22,7 @@ class Admin extends BaseController
     function setBasic(Request$request): Json {
         $siteName = $request->post("siteName");
         $siteLogo = $request->post("siteLogo");
+        $language = $request->post("language");
         $enableHomeTyping = $request->post("enableHomeTyping");
         $enableGravatarCDN = $request->post("enableGravatarCDN");
         $gravatarCDNAddress = $request->post("gravatarCDNAddress");
@@ -40,6 +41,7 @@ class Admin extends BaseController
             } else {
                 if ($siteName) $basic->siteName = $siteName;
                 if ($siteLogo) $basic->siteLogo = $siteLogo;
+                if ($language) $basic->language = $language;
                 if ($enableHomeTyping) $basic->enableHomeTyping = $enableHomeTyping;
                 if ($enableGravatarCDN) $basic->enableGravatarCDN = $enableGravatarCDN;
                 if ($gravatarCDNAddress) $basic->gravatarCDNAddress = $gravatarCDNAddress;
@@ -401,14 +403,28 @@ class Admin extends BaseController
     }
     function getPicture(Request$request): Json {
         $auth = loginAuth($request, true);
+        $pageSize = (int)$request->get("pageSize", 20);
+        $pageNum = (int)$request->get("pageNum", 1);
         if ($auth["status"]) {
-            $pics = PicsModel::select();
+            $pics = PicsModel::limit(($pageNum - 1) * $pageSize, $pageSize)->select();
+            $pics_count = PicsModel::count();
             foreach ($pics as &$pic) {
                 unset($pic->data);
                 $pic->url = $request->domain() . "/api/pics/image/" . $pic->picId;
                 $pic->nickname = $pic->user->nickname;
+                $commentCount = CommentModel::where("picId", $pic->picId)->count();
+                $pic->commentCount = $commentCount;
+                $score = ScoreModel::where("picId", $pic->picId)->select();
+                $score_count = 0;
+                $score_sum = 0;
+                $pic->score = 0;
+                foreach ($score as $scoreItem) {
+                    $score_count++;
+                    $score_sum+=$scoreItem->score;
+                }
+                if ($score_count) $pic->score = $score_sum / $score_count;
             }
-            return jb(200, "数据获取成功", $pics->toArray());
+            return jb(200, "数据获取成功", $pics->toArray(), $pics_count);
         } else {
             return jb(401, $auth["msg"]);
         }

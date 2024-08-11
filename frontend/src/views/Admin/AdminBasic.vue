@@ -14,6 +14,7 @@ const token = getToken()
 const setting = ref({
   siteName: "",
   siteLogo: "",
+  language: "",
   enableHomeTyping: "",
   enableGravatarCDN: "",
   gravatarCDNAddress: "",
@@ -60,6 +61,12 @@ function saveSetting() {
           <el-form label-position="top">
             <el-form-item label="站点名称">
               <el-input v-model="setting.siteName" />
+            </el-form-item>
+            <el-form-item label="站点语言">
+              <el-select v-model="setting.language">
+                <el-option label="选择站点语言" disabled/>
+                <el-option label="简体中文" value="zh-CN" />
+              </el-select>
             </el-form-item>
             <el-form-item label="站点logo">
               <el-input v-model="setting.siteLogo" />

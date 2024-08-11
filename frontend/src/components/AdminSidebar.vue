@@ -9,7 +9,7 @@ import {
   Key,
   Lock, Memo,
   Star,
-  Setting, User
+  Setting, User, Upload, UploadFilled
 } from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import displayUtil from "@/lib/displayUtil.js";
@@ -105,6 +105,10 @@ function gotoBackup() {
       <el-menu-item index="13" @click="gotoBackup">
         <el-icon><Coin /></el-icon>
         <span>备份与恢复</span>
+      </el-menu-item>
+      <el-menu-item index="14">
+        <el-icon><UploadFilled /></el-icon>
+        <span>站点升级</span>
       </el-menu-item>
       <el-menu-item @click="expand = !expand">
         <el-icon v-if="expand"><Expand /></el-icon>

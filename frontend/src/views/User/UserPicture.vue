@@ -12,6 +12,7 @@ import confirm from "@/lib/confirmLib.js";
 const token = getToken()
 const user = ref({})
 const picList = ref([])
+const urlList = ref([])
 const picTotal = ref(0)
 const mainLoading = ref(true)
 const picLoading = ref(true)
@@ -47,6 +48,10 @@ onMounted(()=>{
       if (res.data.code === 200) {
         picList.value = res.data.data
         picTotal.value = res.data.count
+        urlList.value = []
+        picList.value.forEach(item=>{
+          urlList.value.push(item.url)
+        })
       } else {
         alertError(res, "数据获取失败", ()=>router.push("/login"))
       }
@@ -67,6 +72,10 @@ function reload() {
     if (res.data.code === 200) {
       picList.value = res.data.data
       picTotal.value = res.data.count
+      urlList.value = []
+      picList.value.forEach(item=>{
+        urlList.value.push(item.url)
+      })
     } else {
       alertError(res, "数据获取失败", ()=>router.push("/login"))
     }
@@ -174,7 +183,9 @@ function deletePic(index) {
               <el-table-column label="id" prop="picId" width="50" />
               <el-table-column label="图片预览">
                 <template #default="scope">
-                  <el-image :src="picList[scope.$index].url" />
+                  <div style="display: flex; align-items: center">
+                    <el-image :src="picList[scope.$index].url" :preview-src-list="urlList" preview-teleported :initial-index="scope.$index" />
+                  </div>
                 </template>
               </el-table-column>
               <el-table-column label="图片名称" prop="name" />

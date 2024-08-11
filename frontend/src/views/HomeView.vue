@@ -13,7 +13,7 @@ import {useLoadingStore} from "@/stores/LoadingStore.js";
 import {usePictureStore} from "@/stores/PictureStore.js";
 import {storeToRefs} from "pinia";
 
-const userStore = useUserStore()
+const user = ref({})
 const loadingStore = useLoadingStore()
 const pictureStore = usePictureStore()
 
@@ -48,7 +48,17 @@ const setting = ref({})
 
 onMounted(async () => {
   setting.value = VARS
-  await userStore.getInfo(false)
+  Get(UserUrl.infoUrl, {}, {
+    ok(_, data) {
+      user.value = data
+    },
+    bad(res) {
+      token.value = ""
+    },
+    error(err) {
+      axiosError(err, "用户信息获取失败", reload)
+    }
+  })
   await pictureStore.getPic()
   Get(PicsUrl.picUrl, {}, {
     ok(res, data) {
@@ -251,22 +261,22 @@ function submitComment() {
     <vuetyped :strings="strings" :fade-out="true" :loop="enableTyping[0]" :cursor-char="enableTyping[0] ? '_' : ''">
       <h1 class="typing"></h1>
     </vuetyped>
-    <h3 class="center" v-if="token">欢迎用户：{{ userStore.user["nickname"] }}（{{ userStore.user["username"] }} - {{ userStore.user["groupName"] }}<el-tag type="danger" v-if="!userStore.user['groupName']">用户组错误</el-tag>）</h3>
+    <h3 class="center" v-if="token">欢迎用户：{{ user["nickname"] }}（{{ user["username"] }} - {{ user["groupName"] }}<el-tag type="danger" v-if="!user['groupName']">用户组错误</el-tag>）</h3>
   </div>
   <div class="buttons hidden-xs-only">
     <el-button type="primary" @click="randomImg">随机梗图</el-button>
     <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button type="primary" v-if="token && userStore.user['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
-    <el-button type="warning" v-if="userStore.user['admin'] === 'Y'" @click="gotoAdmin">进入后台</el-button>
+    <el-button type="primary" v-if="token && user['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
+    <el-button type="warning" v-if="user['admin'] === 'Y'" @click="gotoAdmin">进入后台</el-button>
     <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <div class="buttons hidden-sm-and-up">
     <el-button size="small" type="primary" @click="randomImg">随机梗图</el-button>
     <el-button size="small" type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
     <el-button size="small" type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button size="small" type="primary" v-if="token && userStore.user['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
-    <el-button size="small" type="warning" v-if="userStore.user['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
+    <el-button size="small" type="primary" v-if="token && user['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
+    <el-button size="small" type="warning" v-if="user['admin'] === 'Y'" @click="gotoAdmin">系统设置</el-button>
     <el-button size="small" type="danger" v-if="token" @click="logout">退出登录</el-button>
   </div>
   <el-input class="search" v-model="search" placeholder="搜索图片" @change="reload" />

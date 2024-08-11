@@ -11,6 +11,7 @@ class BasicModel extends Model
     protected $schema = [
         "siteName" => "string",
         "siteLogo" => "string",
+        "language" => "string",
         "enableHomeTyping" => "string",
         "enableGravatarCDN" => "string",
         "gravatarCDNAddress" => "string",
