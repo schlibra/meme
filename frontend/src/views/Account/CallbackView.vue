@@ -40,6 +40,7 @@ onMounted(()=>{
         message.value = res.data.msg
         setTimeout(()=>{
           if (action === "login") {
+            setToken(res)
             location.href = "/"
           } else if (action === "bind") {
             location.href = "/user/bind"
@@ -51,7 +52,6 @@ onMounted(()=>{
         message.value = res.data.msg
         setTimeout(()=>{
           if (action === "login") {
-            setToken(res.data.token)
             location.href = "/"
           } else if (action === "bind") {
             location.href = "/user/bind"

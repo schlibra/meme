@@ -1,17 +1,14 @@
 <script setup>
 import {onMounted, ref} from "vue";
 import router from "@/router/index.js";
-import axios from "axios";
 import {PicsUrl, UserUrl} from "@/api/url.js";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken, removeToken} from "@/lib/tokenLib.js";
 import confirm from "@/lib/confirmLib.js";
 import displayUtil from "@/lib/displayUtil.js";
 import {Get, Post} from "@/lib/axiosLib.js";
-import {useUserStore} from "@/stores/UserStore.js";
 import {useLoadingStore} from "@/stores/LoadingStore.js";
 import {usePictureStore} from "@/stores/PictureStore.js";
-import {storeToRefs} from "pinia";
 
 const user = ref({})
 const loadingStore = useLoadingStore()
@@ -172,7 +169,25 @@ function uploadSubmit() {
 }
 
 function logout() {
-  userStore.logout()
+  confirm("是否退出当前账号", "退出账号", {
+    confirm() {
+      loadingStore.mainLoading = true
+      Post(UserUrl.logoutUrl, {}, {
+        final() {
+          loadingStore.mainLoading = false
+          token.value = ""
+          removeToken()
+          confirm("已退出登录，是否前往登录页面", "前往登录", {
+            confirm() {
+              router.push("/login")
+            },
+            cancel: reload,
+            close: reload
+          })
+        }
+      })
+    }
+  })
 }
 
 function submitScore() {
