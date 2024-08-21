@@ -38,6 +38,25 @@ class User extends BaseController {
     function login(Request $request): Json {
         $username = $request->post("username", "");
         $password = $request->post("password", "");
+        $secret = $request->post("secret", "");
+        if (strlen($secret) === 64) {
+            $time = "";
+            $md5 = "";
+            for ($i = 0; $i < 10; $i++) {
+                $time.=substr($secret, $i * 2, 1);
+            }
+            if (time() - (int)$time > 5) {
+                return jb(401, "不安全的请求");
+            }
+            for ($i = 0; $i < 32; $i++) {
+                $md5.=substr($secret, $i * 2 + 1, 1);
+            }
+            if ($md5 != md5(md5($time) . md5($username) . md5($password))) {
+                return jb(401, "不安全的请求");
+            }
+        } else {
+            return jb(401, "安全码无效");
+        }
         $captcha = $request->post("captcha");
         $captchaStatus = captchaCheck($captcha);
         if (!$captchaStatus["status"]) {

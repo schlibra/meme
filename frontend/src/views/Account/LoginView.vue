@@ -12,6 +12,7 @@ import githubLight from '@/assets/github-light.png'
 import gitee from '@/assets/gitee.png'
 import gitlab from '@/assets/gitlab.svg'
 import microsoft from '@/assets/microsoft.ico'
+import md5 from 'md5'
 
 const username = ref("");
 const password = ref("");
@@ -31,10 +32,17 @@ onMounted(()=>{
 function loginHandler() {
   if (username.value.length && password.value.length) {
     formLoading.value = true
+    let now = Math.round(new Date().getTime() / 1000) + ""
+    let _secret = md5(md5(now) + md5(username.value) + md5(password.value))
+    let secret = ""
+    for (let i = 0;i < 32; i++) {
+      secret += now.substring(i % 10, i % 10 + 1) + _secret.substring(i, i + 1)
+    }
     axios.post(UserUrl.loginUrl, {
       username: username.value,
       password: password.value,
-      captcha: captcha.value
+      captcha: captcha.value,
+      secret
     }).then(res=>{
       if (res.data.code===200) {
         setToken(res)
