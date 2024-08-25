@@ -8,8 +8,10 @@ use think\response\Redirect;
 
 class Before extends BaseController {
     function sckurBefore(Request$request): Redirect {
+        $setting = getSetting();
+        $client_id = $setting["sckurClientId"];
         $redirect_uri = $request->domain() . "/api/login/callback/sckur";
-        $url = "https://passport.sckur.com/?callback={$redirect_uri}";
+        $url = "https://passport.sckur.com/?redirect_uri=$redirect_uri&client_id=$client_id&response_type=code&state=200";
         return redirect($url);
     }
     function giteeBefore(Request$request): Redirect {

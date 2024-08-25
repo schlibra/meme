@@ -9,6 +9,7 @@ import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 
 const setting = ref({
   enableSckur: "N",
+  sckurClientId: "",
   sckurApiKey: "",
   enableGitee: "N",
   giteeClientId: "",
@@ -56,6 +57,9 @@ function saveSetting() {
           <el-form label-position="top">
             <el-form-item label="开启思刻通行证">
               <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enableSckur" active-value="Y" inactive-value="N" />
+            </el-form-item>
+            <el-form-item label="思刻通行证ClientId" v-if="setting.enableSckur === 'Y'">
+              <el-input v-model="setting.sckurClientId" />
             </el-form-item>
             <el-form-item label="思刻通行证ApiKey" v-if="setting.enableSckur === 'Y'">
               <el-input v-model="setting.sckurApiKey" />

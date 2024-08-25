@@ -11,6 +11,7 @@ class ThirdPartyModel extends Model
     protected $schema = [
         "enableSckur" => "string",
         "sckurApiKey" => "string",
+        "sckurClientId" => "string",
         "enableGitee" => "string",
         "giteeClientId" => "string",
         "giteeClientSecret" => "string",

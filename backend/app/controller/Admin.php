@@ -88,6 +88,7 @@ class Admin extends BaseController
     function setThirdParty(Request$request): Json {
         $enableSckur = $request->post("enableSckur");
         $sckurApiKey = $request->post("sckurApiKey");
+        $sckurClientId = $request->post("sckurClientId");
         $enableGitee = $request->post("enableGitee");
         $giteeClientId = $request->post("giteeClientId");
         $giteeClientSecret = $request->post("giteeClientSecret");
@@ -107,6 +108,7 @@ class Admin extends BaseController
                 return jb(400, "数据不存在");
             } else {
                 if ($enableSckur) $thirdParty->enableSckur = $enableSckur;
+                if ($sckurClientId) $thirdParty->sckurClientId = $sckurClientId;
                 if ($sckurApiKey) $thirdParty->sckurApiKey = $sckurApiKey;
                 if ($enableGitee) $thirdParty->enableGitee = $enableGitee;
                 if ($giteeClientId) $thirdParty->giteeClientId = $giteeClientId;

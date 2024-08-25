@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS `thirdParty` (
     `settingId` int NOT NULL COMMENT '设置ID',
     `enableSckur` varchar(1) NULL COMMENT '开启思刻通行证',
     `sckurApiKey` varchar(300) NULL COMMENT '思刻通行证api key',
+    `sckurClientId` varchar(300) NULL COMMENT '思刻通行证client id',
     `enableGitee` varchar(1) NULL COMMENT '开启gitee',
     `giteeClientId` varchar(300) NULL COMMENT 'gitee client id',
     `giteeClientSecret` varchar(300) NULL COMMENT 'gitee client secret',

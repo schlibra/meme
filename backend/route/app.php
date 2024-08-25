@@ -67,7 +67,7 @@ Route::get("api/login/before/github", "Before/githubBefore");
 Route::get("api/login/before/gitlab", "Before/gitlabBefore");
 Route::get("api/login/before/microsoft", "Before/microsoftBefore");
 // 登录回调
-Route::post("api/login/callback/sckur", "Callback/sckurCallback");
+Route::get("api/login/callback/sckur", "Callback/sckurCallback");
 Route::get("api/login/callback/gitee", "Callback/giteeCallback");
 Route::get("api/login/callback/github", "Callback/githubCallback");
 Route::get("api/login/callback/gitlab", "Callback/gitlabCallback");

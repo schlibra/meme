@@ -49,17 +49,26 @@ class Callback extends BaseController {
     }
     function sckurCallback(Request$request): Response {
         $setting = getSetting();
+        $clientId = $setting["sckurClientId"];
         $apiKey = $setting["sckurApiKey"];
-        $accessToken = $request->post("access_token");
-        $userinfo = Requests::get("https://api.sckur.com/passport/get?api_key=$apiKey&action=get_userinfo&params=[\"all\"]", [
-            "Authorization" => "Bearer $accessToken"
-        ])->body;
-        $userinfo = json_decode($userinfo, true);
-        $username = $userinfo["data"]["all"]["username"];
-        $nickname = $userinfo["data"]["all"]["nickname"];
-        $avatar = Requests::get($userinfo["data"]["all"]["avatar"])->body;
-        $avatar = base64_encode($avatar);
-        return $this->returnView($request, $username, $nickname, "", $avatar);
+        $redirect_uri = $request->domain() . "/api/login/callback/sckur";
+        $code = $request->get("code");
+        $token = Requests::get("https://api.sckur.com/auth?grant_type=authorization_code&code=$code&redirect_uri=$redirect_uri&client_id=$clientId")->body;
+        $token = json_decode($token);
+        if (isset($token->access_token)) {
+            $access_token = $token->access_token;
+            $userinfo = Requests::get("https://api.sckur.com/passport/get?api_key=$apiKey&action=get_userinfo&params=[\"all\"]", [
+                "Authorization" => "Bearer $access_token"
+            ])->body;
+            $userinfo = json_decode($userinfo);
+            $username = $userinfo->all->username;
+            $nickname = $userinfo->all->nickname;
+            $avatar = Requests::get($userinfo->all->avatar)->body;
+            $avatar = base64_encode($avatar);
+            return $this->returnView($request, $username, $nickname, "", $avatar);
+        } else {
+            return $this->returnView($request, "", "", $token->msg);
+        }
     }
     function giteeCallback(Request$request): Response {
         $redirect_uri = explode("?", $request->url(true))[0];

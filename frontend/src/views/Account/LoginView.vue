@@ -13,6 +13,8 @@ import gitee from '@/assets/gitee.png'
 import gitlab from '@/assets/gitlab.svg'
 import microsoft from '@/assets/microsoft.ico'
 import md5 from 'md5'
+import CryptoJS from 'crypto-js'
+globalThis.CryptoJS = CryptoJS
 
 const username = ref("");
 const password = ref("");
