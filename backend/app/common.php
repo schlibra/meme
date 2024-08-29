@@ -160,3 +160,17 @@ function emailAuth(Request$request): array
 function now():string {
     return date("Y-m-d H:i:s");
 }
+
+function l($code, $request=null) {
+    $path = explode(".", $code);
+    $language_code = "zh-cn";
+    $language_data = json_decode(file_get_contents(app_path() . "/languages/$language_code.json"), true);
+    foreach ($path as $p) {
+        if (isset($language_data[$p])) {
+            $language_data = $language_data[$p];
+        } else {
+            return $code;
+        }
+    }
+    return $language_data;
+}
