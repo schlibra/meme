@@ -10,6 +10,10 @@ const picsUrl = apiUrl + "/pics"
 const adminUrl = apiUrl + "/admin"
 const CaptchaUrl = apiUrl + "/captcha"
 
+const CommonUrl = {
+    languagesUrl: apiUrl + "/languages"
+}
+
 const UserUrl = {
     loginUrl: userUrl + "/login",
     registerUrl: userUrl + "/register",
@@ -49,4 +53,4 @@ const ThirdPartyUrl = {
     afterUrl: apiUrl + "/login/after/",
 }
 
-export { UserUrl, PicsUrl, AdminUrl, CaptchaUrl, ThirdPartyUrl }
+export { CommonUrl, UserUrl, PicsUrl, AdminUrl, CaptchaUrl, ThirdPartyUrl }

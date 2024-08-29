@@ -9,6 +9,7 @@ use app\model\ThirdPartyModel;
 use app\Request;
 use think\Response;
 use think\response\Json;
+use think\validate\ValidateRule;
 
 class Index extends BaseController
 {
@@ -31,7 +32,10 @@ class Index extends BaseController
             foreach ($data as $key => $value) {
                 $view = str_replace("{\$$key}", $value ?? "", $view);
             }
-            return $view;
+            $language_name = "en-us";
+            $language_data = file_get_contents(app_path()."/languages/$language_name.json");
+            return str_replace("\"{\$languageData}\"", $language_data, $view);
+//            return $view;
         } else {
             return json(["code" => 403, "msg" => "Method not allowed"]);
         }
@@ -72,5 +76,20 @@ class Index extends BaseController
                 "realPath" => $filepath
             ]);
         }
+    }
+    function languageList(Request$request): Json {
+        $list = scandir(app_path() . "/languages/");
+        $data = [];
+        foreach ($list as $item) {
+            if ($item === "." || $item === "..") continue;
+            $language_data = json_decode(file_get_contents(app_path() . "/languages/$item"));
+            if (isset($language_data->language_name)) {
+                $data[] = [
+                    "code" => str_replace(".json", "", $item),
+                    "name" => $language_data->language_name
+                ];
+            }
+        }
+        return jb(data: $data);
     }
 }

@@ -49,6 +49,10 @@ const router = createRouter({
       meta: { title: "忘记密码" }
     },
     {
+      path: "/user",
+      redirect: "/user/basic"
+    },
+    {
       path: "/user/basic",
       name: "userBasic",
       component: UserBasic,
@@ -95,6 +99,10 @@ const router = createRouter({
       name: "about",
       component: AboutView,
       meta: { title: "关于页面" }
+    },
+    {
+      path: "/admin",
+      redirect: "/admin/basic"
     },
     {
       path: "/admin/basic",

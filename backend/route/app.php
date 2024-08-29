@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 use think\facade\Route;
 
+// 获取语言列表
+Route::get("api/languages", "Index/languageList");
 // 用户
 Route::post("api/user/login", "User/login");
 Route::post("api/user/register", "User/register");
@@ -79,10 +81,10 @@ Route::post("api/login/after/github", "After/githubAfter");
 Route::post("api/login/after/gitlab", "After/gitlabAfter");
 Route::post("api/login/after/microsoft", "After/microsoftAfter");
 // 访问前端
-Route::miss("Index");
 Route::get("/", "Index");
 Route::get("login", "Index");
 Route::get("register", "Index");
+Route::get("user", "Index");
 Route::get("user/basic", "Index");
 Route::get("user/permission", "Index");
 Route::get("user/security", "Index");
@@ -90,12 +92,14 @@ Route::get("user/picture", "Index");
 Route::get("user/comment", "Index");
 Route::get("user/score", "Index");
 Route::get("about", "Index");
+Route::get("admin", "Index");
 Route::get("admin/basic", "Index");
 Route::get("admin/security", "Index");
 Route::get("admin/group", "Index");
 Route::get("admin/user", "Index");
 Route::get("admin/thirdParty", "Index");
 Route::get("admin/backup", "Index");
+Route::miss("Index");
 // assets资源加载
 Route::get("assets/:file", "Index/assets");
 // 验证码
