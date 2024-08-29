@@ -9,7 +9,7 @@ import {
   Key,
   Lock, Memo,
   Star,
-  Setting, User, Upload, UploadFilled
+  Setting, User, UploadFilled
 } from "@element-plus/icons-vue";
 import {onMounted, ref} from "vue";
 import displayUtil from "@/lib/displayUtil.js";
@@ -19,7 +19,11 @@ const prop = defineProps(["defaultActive"])
 const defaultActive = prop.defaultActive
 const expand = ref(false)
 
-onMounted(()=> expand.value = displayUtil.isXs)
+onMounted(()=> {
+  expand.value = displayUtil.isXs
+  window.addEventListener("resize", ()=>expand.value = displayUtil.isXs)
+})
+// onresize(window, ()=>)
 
 function gotoBasic() {
   router.push("/admin/basic")

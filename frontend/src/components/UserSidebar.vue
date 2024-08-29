@@ -8,7 +8,10 @@ const prop = defineProps(["defaultActive"])
 const defaultActive = prop.defaultActive
 const expand = ref(false)
 
-onMounted(()=> expand.value = displayUtil.isXs)
+onMounted(()=> {
+  expand.value = displayUtil.isXs
+  window.addEventListener("resize", ()=>expand.value = displayUtil.isXs)
+})
 
 function gotoBasic() {
   router.push("/user/basic")
