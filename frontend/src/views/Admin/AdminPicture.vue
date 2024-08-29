@@ -1,7 +1,7 @@
 <script setup>
 import AdminSidebar from "@/components/AdminSidebar.vue";
 import AdminTop from "@/components/AdminTop.vue";
-import { onMounted, ref } from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {Get} from "@/lib/axiosLib.js";
 import {AdminUrl} from "@/api/url.js";
 import {alertError, axiosError} from "@/lib/requestAlert.js";
@@ -15,6 +15,14 @@ const pageNum = ref(1)
 const pageTotal = ref(0)
 const selectedUser = ref("")
 
+const picNameSearch = ref("")
+const picDescSearch = ref("")
+
+const searchList = computed(()=>
+  pic.value.filter(data=>
+      (!picNameSearch.value||data.name.toLowerCase().includes(picNameSearch.value.toLowerCase())) &&
+      (!picDescSearch.value||data.description.toLowerCase().includes(picDescSearch.value.toLowerCase())))
+)
 const reload = () => location.reload()
 
 onMounted(()=>{
@@ -81,25 +89,41 @@ function userFilter(value, row) {
         <h2>图片管理</h2>
         <el-form label-position="top">
           <el-form-item label="图片列表">
-            <el-table :data="pic" max-height="calc(100vh - 210px)">
-              <el-table-column fixed label="图片id" prop="picId" width="100" />
-              <el-table-column fixed label="图片名称" prop="name" width="200" />
-              <el-table-column label="图片描述" prop="description" width="300" />
+            <el-table :data="searchList" max-height="calc(100vh - 180px)">
+              <el-table-column label="图片id" prop="picId" width="100" sortable />
+              <el-table-column prop="name" width="220">
+                <template #header>
+                  <el-input size="small" placeholder="搜索图片名称" v-model="picNameSearch">
+                    <template #prepend>
+                      <el-text>图片名称</el-text>
+                    </template>
+                  </el-input>
+                </template>
+              </el-table-column>
+              <el-table-column prop="description" width="300">
+                <template #header>
+                  <el-input size="small" placeholder="搜索图片描述" v-model="picDescSearch">
+                    <template #prepend>
+                      <el-text>图片描述</el-text>
+                    </template>
+                  </el-input>
+                </template>
+              </el-table-column>
               <el-table-column label="图片" width="150">
                 <template #default="scope">
                   <div style="display: flex; align-items: center">
-                    <el-image :src="pic[scope.$index].url" :preview-src-list="picList" preview-teleported :initial-index="scope.$index" />
+                    <el-image :src="scope.row.url" :preview-src-list="[scope.row.url]" preview-teleported :initial-index="1" />
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="图片压缩方式" width="150">
+              <el-table-column label="图片压缩方式" width="150" :filters="[{text: '未压缩', value: 'no'}]" :filter-method="(value, row) => true">
                 <template #default="scope">
                   <el-tag type="warning">未压缩</el-tag>
                 </template>
               </el-table-column>
               <el-table-column label="上传用户" :filters="userList" :filter-method="userFilter" width="200">
                 <template #default="scope">
-                  <el-text>{{ pic[scope.$index].nickname }}（{{ pic[scope.$index].userId }}）</el-text>
+                  <el-text>{{ scope.row.nickname }}（{{ scope.row.userId }}）</el-text>
                 </template>
               </el-table-column>
               <el-table-column label="图片状态">
@@ -108,10 +132,10 @@ function userFilter(value, row) {
               <el-table-column label="评论数量" prop="commentCount" />
               <el-table-column label="图片评分" width="200">
                 <template #default="scope">
-                  <el-rate v-model="pic[scope.$index].score" show-score :score-template="pic[scope.$index].score ? pic[scope.$index].score + '分' : '无评分'" disabled />
+                  <el-rate v-model="scope.row.score" show-score :score-template="scope.row.score ? scope.row.score + '分' : '无评分'" disabled />
                 </template>
               </el-table-column>
-              <el-table-column label="操作" width="200" fixed="right">
+              <el-table-column label="操作" width="200">
                 <template #default="scope">
                   <el-button type="warning">编辑</el-button>
                   <el-button type="danger">删除</el-button>
@@ -120,10 +144,6 @@ function userFilter(value, row) {
             </el-table>
           </el-form-item>
         </el-form>
-        <el-pagination :total="pageTotal"
-                       v-model:page-size="pageSize" v-model:current-page="pageNum"
-                       :page-sizes="[20, 40, 60]" layout="sizes, prev, pager, next, jumper, total"
-                       @current-change="reload" @size-change="getList" />
       </el-main>
     </el-container>
   </el-container>
@@ -135,6 +155,12 @@ function userFilter(value, row) {
       <el-form>
         <el-form-item label="图片id">
           <el-input model-value="1" disabled />
+        </el-form-item>
+        <el-form-item label="图片名称">
+          <el-input />
+        </el-form-item>
+        <el-form-item label="图片描述">
+          <el-input type="textarea" />
         </el-form-item>
       </el-form>
     </template>
