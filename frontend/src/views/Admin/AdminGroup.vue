@@ -129,9 +129,9 @@ function createSubmit() {
 function deleteGroup(index) {
   let groupName = groupList.value[index].groupName
   let groupId = groupList.value[index].groupId
-  dataLoading.value = true
   confirm(`是否删除用户组“${groupName}”`, "删除用户组", {
     confirm() {
+      dataLoading.value = true
       Delete(AdminUrl.groupUrl, {
         groupId
       }, {
@@ -203,6 +203,12 @@ function updateSubmit() {
     }
   })
 }
+function isAdminFilter(value, row) {
+  return row.admin === value
+}
+function isDefaultFilter(value, row) {
+  return row.default === value
+}
 </script>
 
 <template>
@@ -230,25 +236,28 @@ function updateSubmit() {
           </el-form-item>
           <el-form-item label="用户组列表">
             <el-table :data="groupList">
-              <el-table-column label="id" prop="groupId" />
-              <el-table-column label="用户组名称" prop="groupName" />
-              <el-table-column label="是否默认用户组">
+              <el-table-column label="id" prop="groupId" sortable />
+              <el-table-column label="用户组名称" prop="groupName" sortable width="120" />
+              <el-table-column label="是否默认用户组" width="140" :filters="[{text: '是', value: 'Y'}, {text: '否', value: 'N'}]" :filter-method="isDefaultFilter">
                 <template #default="scope">
                   <el-icon color="green" v-if="groupList[scope.$index]['default'] === 'Y'"><CircleCheckFilled /></el-icon>
                   <el-icon color="red" v-else><CircleCloseFilled /></el-icon>
                 </template>
               </el-table-column>
-              <el-table-column label="用户数量" prop="userCount" />
-              <el-table-column label="是否管理员" align="center">
+              <el-table-column label="用户数量" prop="userCount" sortable width="110" />
+              <el-table-column label="是否管理员" width="110" align="center" :filters="[{text: '是', value: 'Y'}, {text: '否', value: 'N'}]" :filter-method="isAdminFilter">
                 <template #default="scope">
                   <el-icon color="green" v-if="groupList[scope.$index]['admin'] === 'Y'"><CircleCheckFilled /></el-icon>
                   <el-icon color="red" v-else><CircleCloseFilled /></el-icon>
                 </template>
               </el-table-column>
-              <el-table-column label="操作">
+              <el-table-column label="操作" width="160">
                 <template #default="scope">
                   <el-button type="primary" @click="editGroup(scope.$index)">编辑</el-button>
-                  <el-button type="danger" @click="deleteGroup(scope.$index)">删除</el-button>
+                  <el-button type="danger" @click="deleteGroup(scope.$index)" :disabled="scope.row.userCount">
+                    <el-tooltip v-if="scope.row.userCount" content="用户组不为空" placement="top-start">删除</el-tooltip>
+                    <span v-else>删除</span>
+                  </el-button>
                 </template>
               </el-table-column>
             </el-table>
