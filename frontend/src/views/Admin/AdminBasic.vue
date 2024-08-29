@@ -3,7 +3,7 @@ import UserSidebar from "@/components/AdminSidebar.vue";
 import {computed, onMounted, ref} from "vue";
 import router from "@/router/index.js";
 import axios from "axios";
-import {AdminUrl, UserUrl} from "@/api/url.js";
+import {AdminUrl, CommonUrl, UserUrl} from "@/api/url.js";
 import UserTop from "@/components/AdminTop.vue";
 import {alertError, alertSuccess, axiosError} from "@/lib/requestAlert.js";
 import {getToken} from "@/lib/tokenLib.js";
@@ -26,10 +26,16 @@ const setting = ref({
   enableUserLog: "",
   enableAdminLog: "",
 })
+const languageList = ref([])
 const mainLoading = ref(true)
 
 onMounted(()=>{
   setting.value = VARS
+  Get(CommonUrl.languagesUrl, {}, {
+    ok(_, data) {
+      languageList.value = data
+    }
+  })
 })
 function saveSetting() {
   Post(AdminUrl.basicUrl, setting.value, {
@@ -65,7 +71,7 @@ function saveSetting() {
             <el-form-item label="站点语言">
               <el-select v-model="setting.language">
                 <el-option label="选择站点语言" disabled/>
-                <el-option label="简体中文" value="zh-CN" />
+                <el-option v-for="lang in languageList" :label="lang.name" :value="lang.code" />
               </el-select>
             </el-form-item>
             <el-form-item label="站点logo">

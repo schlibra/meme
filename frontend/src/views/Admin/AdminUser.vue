@@ -42,6 +42,8 @@ const createBirth = ref(new Date())
 const createSex = ref("")
 const createDescription = ref("")
 
+const groupFilterList = ref([])
+
 onMounted(()=>{
   loadList()
 })
@@ -49,6 +51,14 @@ function loadList() {
   Get(AdminUrl.groupUrl, {}, {
     ok(_, data) {
       group.value = data
+      groupFilterList.value = []
+      group.value.forEach(item=>{
+        groupFilterList.value.push({
+          text: item.groupName,
+          value: item.groupId
+        })
+      })
+      console.log(groupFilterList)
     },
     bad(res) {
       alertError(res, "数据获取失败", ()=>router.push("/"))
@@ -75,27 +85,27 @@ function loadList() {
     }
   })
 }
-function editUser(index) {
+function editUser(user) {
   updateDialog.value = true
-  updateUserId.value = user.value[index]["userId"]
-  updateUsername.value = user.value[index]["username"]
+  updateUserId.value = user["userId"]
+  updateUsername.value = user["username"]
   updatePassword.value = ""
-  updateNickname.value = user.value[index]["nickname"]
-  updateEmail.value = user.value[index]["email"]
-  updateVerified.value = user.value[index]["verified"] === "Y"
-  updateGroupId.value = user.value[index]["groupId"]
-  updateBan.value = user.value[index]["ban"] === "Y"
-  updateReason.value = user.value[index]["reason"]
+  updateNickname.value = user["nickname"]
+  updateEmail.value = user["email"]
+  updateVerified.value = user["verified"] === "Y"
+  updateGroupId.value = user["groupId"]
+  updateBan.value = user["ban"] === "Y"
+  updateReason.value = user["reason"]
   let birthDate = new Date()
-  birthDate.setFullYear(user.value[index]["birth"])
+  birthDate.setFullYear(user["birth"])
   updateBirth.value = birthDate
-  updateSex.value = user.value[index]["sex"]
-  updateDescription.value = user.value[index]["description"]
+  updateSex.value = user["sex"]
+  updateDescription.value = user["description"]
 }
-function deleteUser(index) {
-  let username = user.value[index].username
-  let nickname = user.value[index].nickname
-  let userId = user.value[index].userId
+function deleteUser(user) {
+  let username = user.username
+  let nickname = user.nickname
+  let userId = user.userId
   dataLoading.value = true
   confirm(`是否删除用户“${nickname}(${username})”？`, "删除用户", {
     confirm() {
@@ -179,10 +189,10 @@ function createSubmit() {
     }
   })
 }
-function switchUser(index) {
-  let userId = user.value[index].userId
-  let username = user.value[index].username
-  let nickname = user.value[index].nickname
+function switchUser(user) {
+  let userId = user.userId
+  let username = user.username
+  let nickname = user.nickname
   confirm(`将要切换到用户${nickname}（${username}），切换成功后该用户原登录设备将会退出登录状态，是否继续？`, "是否切换用户", {
     confirm() {
       Post(AdminUrl.switchUser, {
@@ -205,6 +215,13 @@ function switchUser(index) {
     }
   })
 }
+function userStatusFilter(value, row) {
+  if (value === "ban" && row.ban === "Y")
+    return true
+  else if (value === "email" && row.verified !== "Y")
+    return true
+  else return value === "normal" && row.verified === "Y" && row.ban !== "Y";
+}
 </script>
 
 <template>
@@ -225,33 +242,33 @@ function switchUser(index) {
             </el-form-item>
             <el-form-item label="用户列表">
               <el-table :data="user">
-                <el-table-column label="id" prop="userId" />
-                <el-table-column label="用户名" prop="username" />
-                <el-table-column label="昵称" prop="nickname" />
-                <el-table-column label="是否管理员" align="center">
+                <el-table-column label="id" prop="userId" sortable />
+                <el-table-column label="用户名" prop="username" sortable width="100" />
+                <el-table-column label="昵称" prop="nickname" sortable />
+                <el-table-column label="是否管理员" width="110" align="center" :filters="[{text: '是', value: 'Y'}, {text: '否', value: 'N'}]" :filter-method="(value, row) => row.admin === value">
                   <template #default="scope">
-                    <el-icon color="green" v-if="user[scope.$index]['admin'] === 'Y'"><CircleCheckFilled /></el-icon>
+                    <el-icon color="green" v-if="scope.row.admin === 'Y'"><CircleCheckFilled /></el-icon>
                     <el-icon color="red" v-else><CircleCloseFilled /></el-icon>
                   </template>
                 </el-table-column>
-                <el-table-column label="用户组">
+                <el-table-column label="用户组" :filters="groupFilterList" :filter-method="(value, row) => row.groupId === value">
                   <template #default="scope">
-                    <el-tag :type="user[scope.$index].admin === 'Y' ? 'success' : 'primary'">{{ user[scope.$index].groupName }}</el-tag>
+                    <el-tag :type="scope.row.admin === 'Y' ? 'success' : 'primary'">{{ scope.row.groupName }}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="用户状态">
+                <el-table-column label="用户状态" width="100" :filters="[{text: '正常', value: 'normal'}, {text: '未验证', value: 'email'}, {text: '已封禁', value: 'ban'}]" :filter-method="userStatusFilter">
                   <template #default="scope">
-                    <el-tag v-if="user[scope.$index]['ban'] === 'Y'" type="danger">已封禁：{{ user[scope.$index]["reason"] }}</el-tag>
-                    <el-tag v-else-if="user[scope.$index]['verified'] !== 'Y'" type="warning">邮箱未验证</el-tag>
+                    <el-tag v-if="scope.row.ban === 'Y'" type="danger">已封禁：{{ scope.row.reason }}</el-tag>
+                    <el-tag v-else-if="scope.row.verified !== 'Y'" type="warning">邮箱未验证</el-tag>
                     <el-tag v-else type="success">正常</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="注册时间" prop="create" />
+                <el-table-column label="注册时间" width="110" prop="create" sortable />
                 <el-table-column label="操作" width="300">
                   <template #default="scope">
-                    <el-button type="primary" @click="editUser(scope.$index)">编辑</el-button>
-                    <el-button type="warning" @click="switchUser(scope.$index)">登录该账号</el-button>
-                    <el-button type="danger" @click="deleteUser(scope.$index)">删除</el-button>
+                    <el-button type="primary" @click="editUser(scope.row)">编辑</el-button>
+                    <el-button type="warning" @click="switchUser(scope.row)">登录该账号</el-button>
+                    <el-button type="danger" @click="deleteUser(scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>

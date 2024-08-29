@@ -253,7 +253,7 @@ class Pics extends BaseController {
         foreach ($comments as &$comment) {
             $user = $comment->user;
             $comment->nickname = $user->nickname;
-            $user->avatar = gravatar($user->email);
+            $comment->avatar = gravatar($user->email);
             if ($comment->reply > 0) {
                 $reply = CommentModel::where("commentId", $comment->reply)->findOrEmpty();
                 if (!$reply->isEmpty()) {

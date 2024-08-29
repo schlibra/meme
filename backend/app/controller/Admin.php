@@ -37,7 +37,7 @@ class Admin extends BaseController
         if ($auth["status"]) {
             $basic = BasicModel::findOrEmpty(1);
             if ($basic->isEmpty()) {
-                return jb(400, "数据不存在");
+                return jb(400, l("admin.settings.data_not_exist"));
             } else {
                 if ($siteName) $basic->siteName = $siteName;
                 if ($siteLogo) $basic->siteLogo = $siteLogo;
@@ -70,7 +70,7 @@ class Admin extends BaseController
         if ($auth["status"]) {
             $security = SecurityModel::findOrEmpty(1);
             if ($security->isEmpty()) {
-                return jb(400, "数据不存在");
+                return jb(400, l("admin.settings.data_not_exist"));
             } else {
                 if ($enableEmail) $security->enableEmail = $enableEmail;
                 if ($smtpHost) $security->smtpHost = $smtpHost;
@@ -105,7 +105,7 @@ class Admin extends BaseController
         if ($auth["status"]) {
             $thirdParty = ThirdPartyModel::findOrEmpty(1);
             if ($thirdParty->isEmpty()) {
-                return jb(400, "数据不存在");
+                return jb(400, l("admin.settings.data_not_exist"));
             } else {
                 if ($enableSckur) $thirdParty->enableSckur = $enableSckur;
                 if ($sckurClientId) $thirdParty->sckurClientId = $sckurClientId;
@@ -139,9 +139,9 @@ class Admin extends BaseController
                 $item->create = explode(" ", $item->create)[0];
             }
             if ($group->isEmpty()) {
-                return jb(400, "数据异常");
+                return jb(400, l("common.data_error"));
             } else {
-                return jb(200, "数据获取成功", $group->toArray());
+                return jb(200, l("common.get_data_success"), $group->toArray());
             }
         } else {
             return jb(401, $auth["msg"]);
@@ -194,13 +194,18 @@ class Admin extends BaseController
         if ($auth["status"]) {
             $group = GroupModel::where("groupId", $groupId)->findOrEmpty();
             if ($group->isEmpty()) {
-                return jb(404, "指定的用户组不存在");
+                return jb(404, l("admin.group.delete.group_not_exist"));
             } else {
                 if ($group->default === "Y") {
-                    return jb(403, "默认用户组不能删除");
+                    return jb(403, l("admin.group.delete.cant_delete_default"));
                 } else {
-                    $group->delete();
-                    return jb(200, "用户组删除成功");
+                    $userCount = UserModel::where("groupId", $groupId)->count();
+                    if ($userCount) {
+                        return jb(400, l("admin.group.delete.group_not_empty"));
+                    } else {
+                        $group->delete();
+                        return jb(200, l("admin.group.delete.success"));
+                    }
                 }
             }
         } else {
@@ -405,11 +410,8 @@ class Admin extends BaseController
     }
     function getPicture(Request$request): Json {
         $auth = loginAuth($request, true);
-        $pageSize = (int)$request->get("pageSize", 20);
-        $pageNum = (int)$request->get("pageNum", 1);
         if ($auth["status"]) {
-            $pics = PicsModel::limit(($pageNum - 1) * $pageSize, $pageSize)->select();
-            $pics_count = PicsModel::count();
+            $pics = PicsModel::select();
             foreach ($pics as &$pic) {
                 unset($pic->data);
                 $pic->url = $request->domain() . "/api/pics/image/" . $pic->picId;
@@ -426,7 +428,7 @@ class Admin extends BaseController
                 }
                 if ($score_count) $pic->score = $score_sum / $score_count;
             }
-            return jb(200, "数据获取成功", $pics->toArray(), $pics_count);
+            return jb(200, "数据获取成功", $pics->toArray());
         } else {
             return jb(401, $auth["msg"]);
         }
