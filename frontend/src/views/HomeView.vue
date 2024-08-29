@@ -7,9 +7,9 @@ import {getToken, removeToken} from "@/lib/tokenLib.js";
 import confirm from "@/lib/confirmLib.js";
 import displayUtil from "@/lib/displayUtil.js";
 import {Get, Post} from "@/lib/axiosLib.js";
+import l from "@/lib/languageLib.js"
 import {useLoadingStore} from "@/stores/LoadingStore.js";
 import {usePictureStore} from "@/stores/PictureStore.js";
-
 const user = ref({})
 const loadingStore = useLoadingStore()
 const pictureStore = usePictureStore()
@@ -53,7 +53,7 @@ onMounted(async () => {
       token.value = ""
     },
     error(err) {
-      axiosError(err, "用户信息获取失败", reload)
+      axiosError(err, l("user.info.get_error"), reload)
     }
   })
   await pictureStore.getPic()
@@ -67,10 +67,10 @@ onMounted(async () => {
       })
     },
     bad(res) {
-      alertError(res, "数据获取失败", () => location.reload())
+      alertError(res, l("common.get_data_error"), () => location.reload())
     },
     error(err) {
-      axiosError(err, "数据获取失败", () => location.reload())
+      axiosError(err, l("common.get_data_error"), () => location.reload())
     },
     final() {
       loadingStore.mainLoading = false
@@ -94,10 +94,10 @@ function reload() {
       })
     },
     bad(res) {
-      alertError(res, "数据获取失败")
+      alertError(res, l("common.get_data_error"))
     },
     error(err) {
-      axiosError(err, "数据获取失败", () => location.reload())
+      axiosError(err, l("common.get_data_error"), () => location.reload())
     },
     final() {
       mainLoading.value = false
@@ -148,7 +148,7 @@ function uploadSubmit() {
     description: uploadDescription.value
   }, {
     ok(res) {
-      alertSuccess(res, "上传成功", () => {
+      alertSuccess(res, l("home.upload.success"), () => {
         reload()
         uploadDialog.value = false
         uploadFile.value["files"] = [];
@@ -157,10 +157,10 @@ function uploadSubmit() {
       })
     },
     bad(res) {
-      alertError(res, "上传失败")
+      alertError(res, l("home.upload.error"))
     },
     error(err) {
-      axiosError(err, "上传失败")
+      axiosError(err, l("home.upload.error"))
     },
     final() {
       uploadLoading.value = false
@@ -169,7 +169,7 @@ function uploadSubmit() {
 }
 
 function logout() {
-  confirm("是否退出当前账号", "退出账号", {
+  confirm(l("home.logout.confirm"), l("home.logout.title"), {
     confirm() {
       loadingStore.mainLoading = true
       Post(UserUrl.logoutUrl, {}, {
@@ -276,15 +276,15 @@ function submitComment() {
     <vuetyped :strings="strings" :fade-out="true" :loop="enableTyping[0]" :cursor-char="enableTyping[0] ? '_' : ''">
       <h1 class="typing"></h1>
     </vuetyped>
-    <h3 class="center" v-if="token">欢迎用户：{{ user["nickname"] }}（{{ user["username"] }} - {{ user["groupName"] }}<el-tag type="danger" v-if="!user['groupName']">用户组错误</el-tag>）</h3>
+    <h3 class="center" v-if="token">{{ l("home.welcome_user", user.nickname, user.username, user.groupName) }}<el-tag type="danger" v-if="!user['groupName']">{{ l("home.group_error") }}</el-tag>）</h3>
   </div>
   <div class="buttons hidden-xs-only">
-    <el-button type="primary" @click="randomImg">随机梗图</el-button>
-    <el-button type="info" v-if="!token" @click="gotoLogin">登录账号</el-button>
-    <el-button type="primary" v-if="token" @click="gotoUser">个人中心</el-button>
-    <el-button type="primary" v-if="token && user['uploadPic'] === 'Y'" @click="uploadDialog = true">上传图片</el-button>
-    <el-button type="warning" v-if="user['admin'] === 'Y'" @click="gotoAdmin">进入后台</el-button>
-    <el-button type="danger" v-if="token" @click="logout">退出登录</el-button>
+    <el-button type="primary" @click="randomImg">{{ l("home.random") }}</el-button>
+    <el-button type="info" v-if="!token" @click="gotoLogin">{{ l("home.login_user") }}</el-button>
+    <el-button type="primary" v-if="token" @click="gotoUser">{{ l("home.user_center") }}</el-button>
+    <el-button type="primary" v-if="token && user['uploadPic'] === 'Y'" @click="uploadDialog = true">{{ l("home.upload.title") }}</el-button>
+    <el-button type="warning" v-if="user['admin'] === 'Y'" @click="gotoAdmin">{{ l("home.admin") }}</el-button>
+    <el-button type="danger" v-if="token" @click="logout">{{ l("home.logout.title") }}</el-button>
   </div>
   <div class="buttons hidden-sm-and-up">
     <el-button size="small" type="primary" @click="randomImg">随机梗图</el-button>
