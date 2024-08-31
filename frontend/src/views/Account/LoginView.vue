@@ -64,8 +64,12 @@ function enterHandler() {
     usernameRef.value.focus()
   } else if (password.value.length === 0) {
     passwordRef.value.focus()
-  } else if (captcha.value.length === 0) {
-    captchaRef.value.focus()
+  } else if (VARS.enableCaptcha === "Y") {
+     if (captcha.value.length === 0) {
+       captchaRef.value.focus()
+     } else {
+       loginHandler()
+     }
   }else {
     loginHandler()
   }
