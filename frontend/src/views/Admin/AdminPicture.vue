@@ -125,8 +125,8 @@ function updatePicture() {
                   </div>
                 </template>
               </el-table-column>
-              <el-table-column label="图片压缩方式" width="150" :filters="[{text: '未压缩', value: 'no'}]" :filter-method="(value, row) => true">
-                <template #default="scope">
+              <el-table-column label="图片压缩方式" width="150" :filters="[{text: '未压缩', value: 'no'}]" :filter-method="() => true">
+                <template #default>
                   <el-tag type="warning">未压缩</el-tag>
                 </template>
               </el-table-column>
