@@ -1,25 +1,26 @@
-<script setup>
+<script setup lang="ts">
 import AdminSidebar from "@/components/AdminSidebar.vue";
 import AdminTop from "@/components/AdminTop.vue";
-import {computed, onMounted, ref} from 'vue'
+import {computed, onMounted, Ref, ref} from 'vue'
 import {Get} from "@/lib/axiosLib.js";
 import {AdminUrl} from "@/api/url.js";
 import {alertError, axiosError} from "@/lib/requestAlert.js";
+import Picture from "@/model/picture";
+import User from "@/model/user";
 
 const pic = ref([])
 const picList = ref([])
 const userList = ref([])
 const mainLoading = ref(true)
-const pageSize = ref(20)
-const pageNum = ref(1)
 const pageTotal = ref(0)
-const selectedUser = ref("")
+const editPictureData: Ref<Picture> = ref({})
+const editPicDialog = ref(false)
 
 const picNameSearch = ref("")
 const picDescSearch = ref("")
 
 const searchList = computed(()=>
-  pic.value.filter(data=>
+  pic.value.filter((data: Picture)=>
       (!picNameSearch.value||data.name.toLowerCase().includes(picNameSearch.value.toLowerCase())) &&
       (!picDescSearch.value||data.description.toLowerCase().includes(picDescSearch.value.toLowerCase())))
 )
@@ -32,7 +33,7 @@ onMounted(()=>{
 function getUserList() {
   Get(AdminUrl.userUrl, {}, {
     ok(_, data) {
-      data.forEach(item=>{
+      data.forEach((item: any)=>{
         userList.value.push({
           text: item.nickname,
           value: item.userId
@@ -44,7 +45,8 @@ function getUserList() {
     },
     error(err) {
       axiosError(err, "用户列表获取失败", ()=>location.reload())
-    }
+    },
+    final(){}
   })
 }
 function getList() {
@@ -56,7 +58,7 @@ function getList() {
       picList.value = []
       pic.value = data
       pageTotal.value = res.data.count
-      pic.value.forEach(item=>{
+      pic.value.forEach((item: Picture)=>{
         picList.value.push(item.url)
       })
     },
@@ -71,8 +73,15 @@ function getList() {
     }
   })
 }
-function userFilter(value, row) {
+function userFilter(value: number, row: User) {
   return row.userId === value
+}
+function editPicture(row: Picture) {
+  editPictureData.value = row
+  editPicDialog.value = true
+}
+function updatePicture() {
+
 }
 </script>
 
@@ -135,9 +144,17 @@ function userFilter(value, row) {
                   <el-rate v-model="scope.row.score" show-score :score-template="scope.row.score ? scope.row.score + '分' : '无评分'" disabled />
                 </template>
               </el-table-column>
+              <el-table-column label="上传时间" prop="create" sortable width="200" />
+              <el-table-column label="修改时间" prop="update" sortable width="200" />
+              <el-table-column label="删除时间" prop="delete" sortable width="200">
+                <template #default="scope">
+                  <span v-if="scope.row.delete">{{ scope.row.delete }}</span>
+                  <span v-else>-</span>
+                </template>
+              </el-table-column>
               <el-table-column label="操作" width="200">
                 <template #default="scope">
-                  <el-button type="warning">编辑</el-button>
+                  <el-button type="warning" @click="editPicture(scope.row)">编辑</el-button>
                   <el-button type="danger">删除</el-button>
                 </template>
               </el-table-column>
@@ -147,26 +164,44 @@ function userFilter(value, row) {
       </el-main>
     </el-container>
   </el-container>
-  <el-dialog :model-value="false">
+  <el-dialog v-model="editPicDialog">
     <template #header>
       <span>编辑图片</span>
     </template>
     <template #default>
-      <el-form>
+      <el-form label-position="top">
         <el-form-item label="图片id">
-          <el-input model-value="1" disabled />
+          <el-input v-model="editPictureData.picId" disabled />
         </el-form-item>
         <el-form-item label="图片名称">
-          <el-input />
+          <el-input v-model="editPictureData.name" />
         </el-form-item>
         <el-form-item label="图片描述">
-          <el-input type="textarea" />
+          <el-input v-model="editPictureData.description" type="textarea" />
+        </el-form-item>
+        <el-form-item label="图片内容">
+          <el-image :src="editPictureData.url" size="200" />
+          <input type="file" />
+        </el-form-item>
+        <el-form-item label="图片压缩方式">
+          <el-select>
+            <el-option disabled label="请选择图片压缩方式" />
+            <el-option value="no" label="不压缩" />
+            <el-option value="gzip" label="gzip压缩" />
+            <el-option value="bzip" label="bzip压缩" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="是否审核">
+          <el-switch v-model="editPictureData.verified" active-value="Y" inactive-value="N" />
+        </el-form-item>
+        <el-form-item label="是否删除">
+          <el-switch />
         </el-form-item>
       </el-form>
     </template>
     <template #footer>
       <el-button>取消</el-button>
-      <el-button>保存</el-button>
+      <el-button @click="updatePicture">保存</el-button>
     </template>
   </el-dialog>
 </template>
