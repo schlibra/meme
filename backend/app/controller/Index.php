@@ -32,7 +32,7 @@ class Index extends BaseController
             foreach ($data as $key => $value) {
                 $view = str_replace("{\$$key}", $value ?? "", $view);
             }
-            $language_name = "en-us";
+            $language_name = "zh-cn";
             $language_data = file_get_contents(app_path()."/languages/$language_name.json");
             return str_replace("\"{\$languageData}\"", $language_data, $view);
 //            return $view;
