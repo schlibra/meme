@@ -1,6 +1,6 @@
 import axios from "axios";
 import {axiosOk} from "@/lib/requestAlert.js";
-function Get(url, params={}, action={ok: _=>_, bad: _=>_, error: _=>_, final:_=>_}) {
+function Get(url, params={}, action={ok: (_, __)=>_, bad: _=>_, error: _=>_, final:_=>_}) {
     let paramList = [];
     let config = {};
     let token = getToken()
