@@ -58,13 +58,13 @@ function saveSetting() {
               <el-input v-model="setting.smtpHost" :disabled="!setting.enableEmail" />
             </el-form-item>
             <el-form-item label="SMTP用户名" v-if="setting.enableEmail === 'Y'">
-              <el-input v-model="setting.smtpHost" :disabled="!setting.enableEmail" />
+              <el-input v-model="setting.smtpUsername" :disabled="!setting.enableEmail" />
             </el-form-item>
             <el-form-item label="SMTP密码" v-if="setting.enableEmail === 'Y'">
-              <el-input v-model="setting.smtpHost" :disabled="!setting.enableEmail" />
+              <el-input v-model="setting.smtpPassword" :disabled="!setting.enableEmail" />
             </el-form-item>
             <el-form-item label="SMTP端口" v-if="setting.enableEmail === 'Y'">
-              <el-input v-model="setting.smtpHost" :disabled="!setting.enableEmail" />
+              <el-input v-model="setting.smtpPort" :disabled="!setting.enableEmail" />
             </el-form-item>
             <el-form-item label="SMTP加密方式" v-if="setting.enableEmail === 'Y'">
               <el-select v-model="setting.smtpEncrypt" :disabled="!setting.enableEmail">

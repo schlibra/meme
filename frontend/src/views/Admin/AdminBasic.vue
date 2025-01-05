@@ -89,7 +89,7 @@ function saveSetting() {
             <el-form-item label="开启图片压缩">
               <el-switch active-text="开启" inactive-text="关闭" v-model="setting.enablePicCompress" active-value="Y" inactive-value="N" />
             </el-form-item>
-            <el-form-item label="图片压缩方式">
+            <el-form-item label="图片压缩方式" v-show="setting.enablePicCompress === 'Y'">
               <el-select v-model="setting.picCompressType">
                 <el-option label="选择压缩方式" value="no" disabled />
                 <el-option label="Gzip压缩" value="gzip" />
